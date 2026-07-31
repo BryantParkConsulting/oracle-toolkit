@@ -1,0 +1,99 @@
+{
+  "application": "SampleApp",
+  "cube": "Plan",
+  "planType": 1,
+  "exportedVersion": "26.07.00",
+  "exportedBy": "consultant@example.com",
+  "idmDomain": "sample-domain",
+  "serviceInstance": "sample-instance",
+  "memberCatalog": {
+    "Years": ["FY27"],
+    "Period": ["Jan", "Feb", "Mar"],
+    "Account": ["Revenue", "Expense"],
+    "Entity": ["Entity_100"],
+    "Scenario": ["Forecast"],
+    "Version": ["Working"],
+    "Department": ["No Department"]
+  },
+  "forms": [
+    {
+      "name": "Example Input",
+      "description": "Synthetic input form used to demonstrate the generator.",
+      "readOnly": false,
+      "expectedDimensions": [
+        "Years",
+        "Period",
+        "Account",
+        "Entity",
+        "Scenario",
+        "Version",
+        "Department"
+      ],
+      "axes": {
+        "columns": [
+          {
+            "dimensions": [
+              {
+                "name": "Years",
+                "members": ["FY27"]
+              },
+              {
+                "name": "Period",
+                "members": ["Jan", "Feb", "Mar"],
+                "options": {
+                  "expand": true
+                }
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "dimensions": [
+              {
+                "name": "Account",
+                "members": [
+                  {
+                    "function": "ILvl0Descendants",
+                    "member": "Revenue"
+                  },
+                  "Expense"
+                ]
+              }
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "dimensions": [
+              {
+                "name": "Entity",
+                "members": ["Entity_100"]
+              }
+            ]
+          }
+        ],
+        "pov": [
+          {
+            "name": "Scenario",
+            "members": ["Forecast"]
+          },
+          {
+            "name": "Version",
+            "members": ["Working"],
+            "options": {
+              "hide": true
+            }
+          },
+          {
+            "name": "Department",
+            "members": ["No Department"],
+            "options": {
+              "hide": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

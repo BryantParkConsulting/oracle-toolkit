@@ -1,0 +1,10 @@
+{
+  "name": "epm-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Toolkit BPC para entregas EPM: NSPB/Planning + NetSuite ERP — extracción, análisis, reconciliación y generación de entregables.",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "check": "node scripts/check-all.js"
+  }
+}

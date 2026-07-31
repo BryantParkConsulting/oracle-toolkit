@@ -1,0 +1,16 @@
+{
+  "name": "epm-planning-forge",
+  "version": "0.2.0",
+  "description": "Toolkit to accelerate Oracle EPM Planning deliveries by generating dimensions and forms, with data-load, calculation, and validation orchestration on the roadmap.",
+  "type": "module",
+  "bin": {
+    "forge-dimension": "bin/make-dimension.mjs",
+    "forge-forms": "bin/make-forms.mjs",
+    "forge-import": "bin/import.mjs"
+  },
+  "scripts": {
+    "check": "node --check bin/make-dimension.mjs && node --check bin/make-forms.mjs && node --check bin/import.mjs && node --check lib/dimension.mjs && node --check lib/form.mjs && node --check lib/lcm-forms.mjs && node --check lib/zip.mjs",
+    "test": "node --test"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,10 @@
+# secrets & client artifacts — never commit
+*.epw
+*.pass
+.epm/
+clients.json
+# generated / client metadata
+*-import.csv
+*.zip
+dist/
+node_modules/

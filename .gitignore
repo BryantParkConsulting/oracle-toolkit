@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+*.env
+
+# ── Datos de cliente: NUNCA salen del disco local ────────────────────────────
+# Regla negativa por defecto. Los LCM, exports y snapshots son sistemas
+# financieros de clientes reales: no van a ningún remoto, ni siquiera privado.
+clients/**
+!clients/.gitkeep

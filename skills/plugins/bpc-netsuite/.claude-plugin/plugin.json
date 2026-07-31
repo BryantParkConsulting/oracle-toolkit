@@ -1,0 +1,8 @@
+{
+  "name": "bpc-netsuite",
+  "description": "NetSuite from Claude for BPC: view customers, jobs/SOWs, hours, time logs, SuiteQL — plus /ns-hours-report (BPC-styled PDF + Slack draft), /ns-hub-hours (the whole client book: fleet hours summary → full hours+invoice reports) and /ns-hours-note (paste-ready hours for a Customer Hub note).",
+  "version": "0.5.0",
+  "author": {
+    "name": "Bryant Park Consulting"
+  }
+}

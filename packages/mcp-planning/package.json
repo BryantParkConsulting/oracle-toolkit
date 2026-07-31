@@ -1,0 +1,37 @@
+{
+  "name": "epm-planning-mcp",
+  "version": "0.1.0",
+  "description": "EPM Planning MCP \u2014 explore an Oracle EPM Planning environment from an LCM snapshot and read/write live data over REST, from Claude.",
+  "type": "module",
+  "bin": {
+    "oracle-epm-mcp": "./src/index.js",
+    "oracle-epm-lcm": "./src/lcm-cli.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "check": "node --check src/index.js && node --check src/planning-client.js && node --check src/kb-store.js && node --check src/lcm-parser.js && node --check forge/bin/make-dimension.mjs && node --check forge/bin/make-forms.mjs && node --check forge/bin/import.mjs && node --check forge/lib/dimension.mjs && node --check forge/lib/form.mjs && node --check forge/lib/lcm-forms.mjs && node --check forge/lib/zip.mjs",
+    "test": "node --test",
+    "smoke:local": "node scripts/smoke-local-kb.mjs",
+    "setup": "node scripts/setup.mjs"
+  },
+  "keywords": [
+    "mcp",
+    "oracle",
+    "epm",
+    "planning",
+    "nspb",
+    "lcm",
+    "essbase"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "overrides": {
+    "@hono/node-server": "^2.0.5"
+  }
+}

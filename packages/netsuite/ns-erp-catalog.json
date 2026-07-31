@@ -1,0 +1,293 @@
+{
+  "version": "2026-06-22",
+  "title": "NetSuite ERP — Master Module Catalog",
+  "description": "Reference taxonomy of NetSuite ERP modules/features used to drive a Current State Assessment. Client-agnostic. Each module carries: where it is detected (Enable Features tab / installed bundle / setup page), how to tell ACTIVE from DORMANT (a usage probe, usually a saved-search transaction count), and its relevance to NSPB (NetSuite Planning & Budgeting). The assessment merges this catalog with per-client extracted data and classifies each module as active / partial / dormant / absent.",
+
+  "stateModel": {
+    "active": "Feature is enabled AND has real usage in the telemetry window (transactions, records, script executions).",
+    "partial": "Enabled and configured but usage is low / only a subset of the capability is used (e.g. ARM enabled but only on one item class).",
+    "dormant": "Enabled (or licensed) but ~zero usage in the window. Candidate to turn off / clean up / re-train. Cost without value.",
+    "absent": "Not enabled / not installed. If it would help this client it is an UPSELL candidate; flagged in the 'what you could use' section."
+  },
+
+  "detectionSources": {
+    "enable_features": "Setup > Company > Enable Features. The master inventory of toggled-on modules. Each subtab = an 'area'. A checked box => enabled.",
+    "installed_bundles": "Customization > SuiteBundler > Search & Install Bundles > List. SuiteApps installed (FAM, ARM connector, NSPB connector, etc.).",
+    "saved_search": "A transaction/record saved search grouped by type over the telemetry window — the ground truth for active vs dormant.",
+    "setup_page": "A specific setup list page (Subsidiaries, Accounting Books, Accounting Periods, Custom Segments, Scripts, Workflows, Integrations).",
+    "suiteql": "Optional, if an integration token exists: query against transaction / customrecord / system tables for volumes."
+  },
+
+  "nspbRelevanceLegend": {
+    "feeds-actuals": "This module produces GL/transactional data that NSPB pulls in as Actuals (via the NetSuite↔Planning data integration / saved searches).",
+    "feeds-dimension": "This module's structure maps to an NSPB dimension (subsidiary→Entity, account→Account, class/dept/location/custom-segment→custom dims).",
+    "driver": "Operational/statistical data that can drive NSPB calculations (headcount, units, statistical accounts).",
+    "replaced-by-nspb": "NetSuite-native capability that NSPB typically supersedes (native Budgets, basic forecasting). Relevant because keeping both = duplicate source of truth.",
+    "governance": "Affects how/whether the integration can run (multi-book, accounting contexts, currencies, periods alignment).",
+    "none": "No direct NSPB relevance; part of ERP-health picture only."
+  },
+
+  "areas": ["Company", "Accounting", "Tax", "Transactions", "Items & Inventory", "Manufacturing", "CRM", "Projects", "SuitePeople", "Analytics", "SuiteCloud", "Commerce", "SuiteApps"],
+
+  "modules": [
+    {
+      "id": "oneworld-subsidiaries", "name": "OneWorld / Subsidiaries", "area": "Company",
+      "detect": { "via": "enable_features", "where": "Company tab > Subsidiaries", "signal": "checkbox; then Setup > Company > Subsidiaries list" },
+      "usageProbe": "Count of active subsidiaries; transactions posted per subsidiary in window.",
+      "nspb": { "relevance": "feeds-dimension", "note": "Subsidiary hierarchy maps directly to the NSPB Entity dimension. Number/structure of subs drives Planning entity rollups and intercompany." },
+      "upsell": "If single-entity but client is acquiring/expanding, OneWorld is the prerequisite for multi-entity planning."
+    },
+    {
+      "id": "multi-currency", "name": "Multiple Currencies", "area": "Company",
+      "detect": { "via": "enable_features", "where": "Company tab > Multiple Currencies", "signal": "checkbox; Lists > Accounting > Currencies" },
+      "usageProbe": "Distinct transaction currencies in window; currency revaluation runs.",
+      "nspb": { "relevance": "governance", "note": "Determines whether NSPB needs multi-currency cubes / currency conversion. Currencies + rates feed Planning FX." },
+      "upsell": null
+    },
+    {
+      "id": "multi-book", "name": "Multi-Book Accounting (Accounting Books)", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Accounting Books", "signal": "checkbox; Setup > Accounting > Manage Accounting Books" },
+      "usageProbe": "Number of accounting books; postings per secondary book.",
+      "nspb": { "relevance": "governance", "note": "Critical: NSPB integration pulls from a specific book. Multi-book means deciding WHICH book is the Planning actuals source (primary vs adjustment/IFRS book)." },
+      "upsell": null
+    },
+    {
+      "id": "accounting-periods", "name": "Accounting Periods & Fiscal Calendar", "area": "Accounting",
+      "detect": { "via": "setup_page", "where": "Setup > Accounting > Manage Accounting Periods; Setup > Company > Fiscal Calendars", "signal": "period list, fiscal year start month" },
+      "usageProbe": "Period close status (are periods being locked/closed on schedule?).",
+      "nspb": { "relevance": "feeds-dimension", "note": "Fiscal calendar / period structure must align with NSPB Period & Year dims. Mismatched calendars break the actuals load." },
+      "upsell": null
+    },
+    {
+      "id": "chart-of-accounts", "name": "Chart of Accounts / Account Numbers", "area": "Accounting",
+      "detect": { "via": "setup_page", "where": "Lists > Accounting > Accounts; Enable Features > Accounting > Account Numbers", "signal": "account count, numbering scheme, account types in use" },
+      "usageProbe": "Active accounts with postings in window vs total accounts.",
+      "nspb": { "relevance": "feeds-dimension", "note": "GL accounts are the backbone of the NSPB Account dimension. COA size/shape determines Planning Account hierarchy and how the actuals map." },
+      "upsell": null
+    },
+    {
+      "id": "segments-class-dept-loc", "name": "Classifications: Class / Department / Location", "area": "Accounting",
+      "detect": { "via": "setup_page", "where": "Setup > Company > Classifications", "signal": "lists of classes, departments, locations" },
+      "usageProbe": "Share of transactions tagged with each classification (untagged % = data quality risk for Planning).",
+      "nspb": { "relevance": "feeds-dimension", "note": "Class/Dept/Location are the natural source for NSPB custom dimensions. Tagging discipline directly determines whether Planning can slice by them." },
+      "upsell": "Low tagging rates are a finding: Planning can only be as granular as the actuals are tagged."
+    },
+    {
+      "id": "custom-segments", "name": "Custom Segments (SuiteGL)", "area": "SuiteCloud",
+      "detect": { "via": "setup_page", "where": "Customization > Lists, Records & Fields > Custom Segments", "signal": "custom segment records, which record types they apply to" },
+      "usageProbe": "Transactions using each custom segment in window.",
+      "nspb": { "relevance": "feeds-dimension", "note": "Custom segments are the ERP-side analog of extra Planning dimensions (e.g. Product, Project, Channel). Direct candidates to mirror as NSPB custom dims." },
+      "upsell": "If the business plans by a dimension that isn't a NetSuite segment, recommend a custom segment so actuals can be tagged at source."
+    },
+    {
+      "id": "statistical-accounts", "name": "Statistical Accounts", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Statistical Accounts", "signal": "checkbox; statistical account type in COA" },
+      "usageProbe": "Statistical journal volume in window.",
+      "nspb": { "relevance": "driver", "note": "Headcount, sq ft, units — the operational drivers Planning needs for driver-based models. If absent, Planning drivers must come from elsewhere." },
+      "upsell": "If client wants driver-based planning (rev per head, cost per unit), statistical accounts are the clean way to feed actual drivers."
+    },
+    {
+      "id": "native-budgets", "name": "NetSuite Native Budgets", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Budgets / Multiple Budgets", "signal": "checkbox; Transactions > Financial > Set Up Budgets" },
+      "usageProbe": "Budget records created/updated in window.",
+      "nspb": { "relevance": "replaced-by-nspb", "note": "Native budgets are exactly what NSPB supersedes. If still in use alongside NSPB = duplicate source of truth; finding + migration story." },
+      "upsell": null
+    },
+    {
+      "id": "amortization", "name": "Amortization (Expense)", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Amortization", "signal": "checkbox; amortization templates/schedules" },
+      "usageProbe": "Active amortization schedules; amortization JE volume.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Amortized expense (prepaids) flows into actuals; Planning may need to model future amortization. Schedules are predictable → good for Planning." },
+      "upsell": null
+    },
+    {
+      "id": "arm-rev-rec", "name": "Advanced Revenue Management (ARM)", "area": "Accounting",
+      "detect": { "via": "installed_bundles", "where": "Enable Features > Accounting > Revenue Recognition / ARM; bundle list", "signal": "ARM feature + rev rec rules/plans" },
+      "usageProbe": "Revenue arrangements / rev rec plans active; deferred revenue balances.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Recognized + deferred revenue are core actuals for revenue planning. ARM presence shapes how revenue is forecast (point-in-time vs over time)." },
+      "upsell": "If revenue is recognized manually via JEs, ARM is an upsell that also makes revenue actuals cleaner for Planning."
+    },
+    {
+      "id": "fixed-assets", "name": "Fixed Assets Management (FAM)", "area": "SuiteApps",
+      "detect": { "via": "installed_bundles", "where": "Bundle list: 'Fixed Assets Management'", "signal": "FAM bundle installed; asset records" },
+      "usageProbe": "Active asset records; depreciation runs in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Depreciation actuals + asset roll-forward feed capex/depreciation planning. FAM schedules are predictable inputs for Planning." },
+      "upsell": "If depreciation is tracked in spreadsheets, FAM is an upsell and feeds Planning capex models directly."
+    },
+    {
+      "id": "allocations", "name": "Expense / Dynamic Allocations", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Expense Allocation / Dynamic Allocation", "signal": "checkbox; allocation schedules" },
+      "usageProbe": "Allocation schedule runs in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Allocated actuals (shared cost spread to depts) must match how Planning allocates — otherwise plan vs actual won't reconcile at the dept level." },
+      "upsell": null
+    },
+    {
+      "id": "intercompany", "name": "Intercompany Framework / Automated Intercompany", "area": "Company",
+      "detect": { "via": "enable_features", "where": "Company tab > Intercompany Framework / Automated Intercompany Management", "signal": "checkbox; intercompany journal/transaction volume" },
+      "usageProbe": "Intercompany transactions/eliminations in window.",
+      "nspb": { "relevance": "governance", "note": "Intercompany eliminations affect consolidated actuals. Planning consolidation must mirror the ERP elimination logic." },
+      "upsell": null
+    },
+    {
+      "id": "ar-invoicing", "name": "Accounts Receivable / Invoicing", "area": "Transactions",
+      "detect": { "via": "saved_search", "where": "Transaction search by type: Invoice, Credit Memo, Cash Sale, Customer Payment", "signal": "transaction counts by type" },
+      "usageProbe": "Invoice/payment volume in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Revenue + AR actuals. Billing cadence informs revenue/cash planning." },
+      "upsell": null
+    },
+    {
+      "id": "ap-vendor-bills", "name": "Accounts Payable / Vendor Bills", "area": "Transactions",
+      "detect": { "via": "saved_search", "where": "Transaction search by type: Vendor Bill, Bill Payment, Vendor Credit, Purchase Order", "signal": "transaction counts by type" },
+      "usageProbe": "Bill/PO/payment volume in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Expense + AP actuals; PO/commitment data can feed expense planning and cash forecasting." },
+      "upsell": null
+    },
+    {
+      "id": "suitebilling", "name": "SuiteBilling (Subscription Billing)", "area": "Transactions",
+      "detect": { "via": "enable_features", "where": "Transactions tab > Subscription Billing / SuiteBilling", "signal": "checkbox; subscription/charge records" },
+      "usageProbe": "Active subscriptions; charges generated in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Recurring revenue + MRR/ARR actuals — ideal feed for subscription revenue planning and renewals modeling." },
+      "upsell": "If recurring revenue is invoiced manually, SuiteBilling cleans up the actuals and unlocks renewals/churn planning."
+    },
+    {
+      "id": "inventory", "name": "Inventory & Multi-Location Inventory", "area": "Items & Inventory",
+      "detect": { "via": "enable_features", "where": "Items & Inventory tab > Inventory, Multi-Location Inventory, Lot/Serial, Bin", "signal": "checkboxes; item records, item fulfillment volume" },
+      "usageProbe": "Inventory item count; item receipts/fulfillments in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "COGS + inventory balances are actuals for margin and balance-sheet planning. Inventory valuation feeds working-capital forecasts." },
+      "upsell": null
+    },
+    {
+      "id": "demand-planning", "name": "Demand Planning", "area": "Items & Inventory",
+      "detect": { "via": "enable_features", "where": "Items & Inventory tab > Demand Planning", "signal": "checkbox; demand plans" },
+      "usageProbe": "Demand plans generated in window.",
+      "nspb": { "relevance": "driver", "note": "Unit forecasts can drive revenue/COGS in Planning. Overlaps with NSPB — decide where the unit forecast lives." },
+      "upsell": null
+    },
+    {
+      "id": "manufacturing", "name": "Manufacturing (Work Orders, WIP, Routings)", "area": "Manufacturing",
+      "detect": { "via": "enable_features", "where": "Items & Inventory tab > Assemblies / Work Orders / Manufacturing", "signal": "checkboxes; work order volume" },
+      "usageProbe": "Work orders / assembly builds in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Production cost actuals (labor, overhead, materials) feed cost planning. Routings/BOM drive standard-cost models." },
+      "upsell": null
+    },
+    {
+      "id": "projects", "name": "Project Management / SuiteProjects", "area": "Projects",
+      "detect": { "via": "enable_features", "where": "Company tab > Projects; CRM/Projects features (Charge-Based Billing, Project Profitability)", "signal": "checkbox; project records" },
+      "usageProbe": "Active projects; project transactions/time in window.",
+      "nspb": { "relevance": "feeds-dimension", "note": "Projects can map to an NSPB dimension; project P&L actuals feed project/portfolio planning. (Relevant to Enfinity-style project planning.)" },
+      "upsell": "If they plan by project but don't track project actuals in NetSuite, that's the gap that makes project planning unreconcilable."
+    },
+    {
+      "id": "suitepeople-hr", "name": "SuitePeople HR", "area": "SuitePeople",
+      "detect": { "via": "enable_features", "where": "Employees tab > SuitePeople HR", "signal": "checkbox; employee records with HR data" },
+      "usageProbe": "Employee records maintained; HR transactions.",
+      "nspb": { "relevance": "driver", "note": "Headcount + compensation actuals are the gold source for NSPB Workforce planning. Employee master feeds position/headcount models." },
+      "upsell": "If headcount lives in spreadsheets, SuitePeople (or at least employee records) makes Workforce planning actuals-driven."
+    },
+    {
+      "id": "payroll", "name": "Payroll", "area": "SuitePeople",
+      "detect": { "via": "enable_features", "where": "Employees tab > Payroll", "signal": "checkbox; payroll runs" },
+      "usageProbe": "Payroll runs in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "Actual payroll cost is the comparison baseline for Workforce/compensation planning." },
+      "upsell": null
+    },
+    {
+      "id": "expense-reports", "name": "Expense Reports / Time Tracking", "area": "SuitePeople",
+      "detect": { "via": "enable_features", "where": "Employees tab > Expense Reports, Time Tracking", "signal": "checkbox; expense/time entries" },
+      "usageProbe": "Expense reports / time entries in window.",
+      "nspb": { "relevance": "driver", "note": "T&E actuals + billable time feed expense planning and (for services) utilization/revenue models." },
+      "upsell": null
+    },
+    {
+      "id": "account-reconciliation", "name": "NetSuite Account Reconciliation (EPM)", "area": "SuiteApps",
+      "detect": { "via": "installed_bundles", "where": "Bundle / EPM connector for Account Reconciliation", "signal": "ARCS connector / reconciliation records" },
+      "usageProbe": "Reconciliations managed in window.",
+      "nspb": { "relevance": "governance", "note": "Same EPM family as NSPB. Reconciled balances increase trust in the actuals NSPB consumes. Natural cross-sell with Planning." },
+      "upsell": "If month-end recs are in spreadsheets, ARCS is a direct EPM cross-sell alongside NSPB."
+    },
+    {
+      "id": "nspb-connector", "name": "NetSuite Planning & Budgeting Data Integration", "area": "SuiteApps",
+      "detect": { "via": "installed_bundles", "where": "Bundle / saved searches feeding Planning; Setup > Integration", "signal": "NSPB connector bundle, saved searches named for Planning loads, integration records" },
+      "usageProbe": "Integration job runs / saved-search exports to Planning in window.",
+      "nspb": { "relevance": "feeds-actuals", "note": "THE bridge. This is how actuals get from NetSuite into NSPB. Its presence/health is the single most important integration finding." },
+      "upsell": "If NSPB exists but pulls actuals via manual export, the native connector / scheduled saved searches are the fix."
+    },
+    {
+      "id": "suiteanalytics-connect", "name": "SuiteAnalytics Connect (ODBC/JDBC)", "area": "Analytics",
+      "detect": { "via": "enable_features", "where": "Analytics/SuiteCloud > SuiteAnalytics Connect", "signal": "checkbox; Connect driver / external BI connections" },
+      "usageProbe": "Connect query usage (web services log).",
+      "nspb": { "relevance": "feeds-actuals", "note": "Alternate pipe to extract actuals for Planning/BI at scale. Relevant if the standard connector can't carry the needed granularity." },
+      "upsell": null
+    },
+    {
+      "id": "suiteanalytics-workbook", "name": "SuiteAnalytics Workbook", "area": "Analytics",
+      "detect": { "via": "enable_features", "where": "Analytics tab > SuiteAnalytics Workbook", "signal": "checkbox; workbook records" },
+      "usageProbe": "Workbooks created/used.",
+      "nspb": { "relevance": "none", "note": "ERP reporting maturity signal. Heavy workbook use can indicate reporting needs that Planning/EPM could centralize." },
+      "upsell": null
+    },
+    {
+      "id": "suitescript", "name": "SuiteScript (Client + Server)", "area": "SuiteCloud",
+      "detect": { "via": "setup_page", "where": "Customization > Scripting > Scripts", "signal": "deployed scripts by type, status active/inactive" },
+      "usageProbe": "Active script deployments; execution log volume in window.",
+      "nspb": { "relevance": "governance", "note": "Customization footprint. Scripts that touch GL/transactions can affect the integrity/timing of actuals NSPB pulls." },
+      "upsell": null
+    },
+    {
+      "id": "suiteflow", "name": "SuiteFlow (Workflows)", "area": "SuiteCloud",
+      "detect": { "via": "setup_page", "where": "Customization > Workflows", "signal": "active workflows, what records they run on" },
+      "usageProbe": "Active workflows; workflow instances in window.",
+      "nspb": { "relevance": "governance", "note": "Approval/automation maturity. Workflow-driven close steps affect when actuals are final and loadable to Planning." },
+      "upsell": null
+    },
+    {
+      "id": "custom-records", "name": "Custom Records (SuiteBuilder)", "area": "SuiteCloud",
+      "detect": { "via": "setup_page", "where": "Customization > Lists, Records & Fields > Record Types", "signal": "custom record types, record counts" },
+      "usageProbe": "Custom record instances in window.",
+      "nspb": { "relevance": "none", "note": "ERP extension footprint; occasionally a custom record holds data Planning would want (rare)." },
+      "upsell": null
+    },
+    {
+      "id": "web-services-rest-tba", "name": "Integrations: SOAP/REST Web Services, TBA, OAuth2", "area": "SuiteCloud",
+      "detect": { "via": "setup_page", "where": "Setup > Integration > Manage Integrations; Web Services Usage Log", "signal": "integration records, TBA tokens, web services call volume" },
+      "usageProbe": "Active integrations; web services call volume in window.",
+      "nspb": { "relevance": "governance", "note": "Inventory of external systems touching NetSuite. Determines whether a Planning integration must coexist with others and how data flows." },
+      "upsell": null
+    },
+    {
+      "id": "suitetax", "name": "SuiteTax / Advanced Taxes", "area": "Tax",
+      "detect": { "via": "enable_features", "where": "Tax tab > SuiteTax / Advanced Taxes", "signal": "checkbox; tax nexuses, tax records" },
+      "usageProbe": "Tax transactions / nexuses in window.",
+      "nspb": { "relevance": "none", "note": "Compliance maturity; generally not a Planning input but matters for full ERP-health picture and multi-jurisdiction scaling." },
+      "upsell": null
+    },
+    {
+      "id": "suitecommerce", "name": "SuiteCommerce / Web Store", "area": "Commerce",
+      "detect": { "via": "enable_features", "where": "Web Presence / SuiteCommerce features", "signal": "checkbox; web store, web orders" },
+      "usageProbe": "Web order volume in window.",
+      "nspb": { "relevance": "driver", "note": "E-commerce order/traffic data can drive revenue planning if the client sells online." },
+      "upsell": null
+    },
+    {
+      "id": "crm-opportunities", "name": "CRM / Sales Force Automation / Opportunities", "area": "CRM",
+      "detect": { "via": "enable_features", "where": "CRM tab > Opportunities, SFA, Forecasting", "signal": "checkbox; opportunity/forecast records" },
+      "usageProbe": "Opportunities / forecasts maintained in window.",
+      "nspb": { "relevance": "driver", "note": "Pipeline/bookings data can drive top-line revenue planning. Native sales forecasting overlaps with NSPB — decide source of truth." },
+      "upsell": null
+    },
+    {
+      "id": "approval-routing", "name": "Approval Routing (SuiteApprovals)", "area": "Transactions",
+      "detect": { "via": "enable_features", "where": "Transactions tab > Approval Routing", "signal": "checkbox; approval workflows" },
+      "usageProbe": "Transactions routed for approval in window.",
+      "nspb": { "relevance": "governance", "note": "Affects close timing and the point at which actuals are final/postable — relevant to Planning load cadence." },
+      "upsell": null
+    },
+    {
+      "id": "period-end-journals", "name": "Period End Journal Entries / Period Close", "area": "Accounting",
+      "detect": { "via": "enable_features", "where": "Accounting tab > Period End Journal Entries; Period Close Checklist", "signal": "checkbox; close checklist usage" },
+      "usageProbe": "Are periods closed on a consistent cadence?",
+      "nspb": { "relevance": "governance", "note": "A disciplined close = clean, final actuals for Planning. Inconsistent close = unreliable actuals loads." },
+      "upsell": null
+    }
+  ]
+}

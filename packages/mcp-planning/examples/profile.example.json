@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://example.epm.us-ashburn-1.ocs.oraclecloud.com",
+  "application": "NetSuite",
+  "cube": "Plan",
+  "username": "user@example.com",
+  "kbPath": "C:\\path\\to\\tenant-kb.json",
+  "mutationsEnabled": false
+}

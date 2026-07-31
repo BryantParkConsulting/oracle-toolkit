@@ -1,0 +1,15 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<HBRRepo><variables/><rulesets/><rules><rule id="1" name="AggAll" product="Planning"><property name="description">Aggregate Subsidiary, Department, and Employee Dimensions</property><property name="application">NetSuite</property><property name="plantype">Workforc</property><script type="calcscript">%Script(name:="Housekeeping",application:="NetSuite",plantype:="Plan")
+
+/* Aggregating (Employee, Department, Subsidiary) Dimensions */
+FIX(&amp;FcstYr1:&amp;FcstYr2, @RELATIVE("YearTotal",0), @RELATIVE("TotalComp",0), @RELATIVE("TotalHC",0) &amp;CurrentScenario, Actual, &amp;CurrentVersion, No_Location )
+        
+   AGG(Employee);
+   Agg(Department);
+   AGG(Subsidiary);
+    
+ENDFIX</script></rule></rules><components><component type="script" id="1" name="Housekeeping" product="Planning"><property name="application">NetSuite</property><property name="plantype">Plan</property><script type="calcscript">/* Housekeeping */
+SET AGGMISSG ON;
+SET UPDATECALC OFF;
+SET EMPTYMEMBERSETS ON;
+</script></component></components><deployobjects><deployobject product="2" application="netsuite" plantype="workforc" obj_id="1" obj_type="1" name="AGGALL"/></deployobjects></HBRRepo>

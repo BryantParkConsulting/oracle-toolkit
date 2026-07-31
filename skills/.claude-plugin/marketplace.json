@@ -1,0 +1,13 @@
+{
+  "name": "bpc-plugins",
+  "owner": {
+    "name": "Bryant Park Consulting"
+  },
+  "plugins": [
+    {
+      "name": "bpc-netsuite",
+      "source": "./plugins/bpc-netsuite",
+      "description": "View BPC data in NetSuite from Claude — customers, jobs/SOWs, engagement hours, time logs, saved searches, and ad-hoc SuiteQL. Read-only."
+    }
+  ]
+}
