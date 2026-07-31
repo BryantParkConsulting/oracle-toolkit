@@ -40,7 +40,9 @@ const STATE_ES = { active: 'In use', partial: 'Partial use', dormant: 'Not used'
 const T = {}; for (const t of Object.values(probe.modules)) Object.assign(T, t);
 const n = k => (T[k]?.exists ? Number(T[k].rows ?? 0) : 0);
 const fmt = x => Number(x || 0).toLocaleString('en-US');
-const money = x => '$' + (Math.abs(Number(x)) / 1e6).toFixed(1) + 'M';
+// El signo se conserva: una pérdida mostrada como "$17.8M" es engañosa, y el
+// color por sí solo no alcanza (se imprime en blanco y negro).
+const money = x => { const v = Number(x) || 0; return (v < 0 ? '-$' : '$') + (Math.abs(v) / 1e6).toFixed(1) + 'M'; };
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // ── P&L por año ──────────────────────────────────────────────────────────────
@@ -101,6 +103,73 @@ const deadFields = fields ? (() => {
 
 const byId = Object.fromEntries(mods.modules.map(m => [m.id, m]));
 const sorted = [...mods.modules].sort((a, b) => ['active', 'partial', 'dormant', 'absent', 'unknown'].indexOf(a.state) - ['active', 'partial', 'dormant', 'absent', 'unknown'].indexOf(b.state));
+
+// ── capas adicionales (opcionales: si falta el JSON, la sección no se emite) ──
+const season = rd(path.join(DIR, 'netsuite', 'seasonality.json')) || [];
+const customers = (rd(path.join(DIR, 'netsuite', 'top-customers.json')) || []).filter(c => Number(c.facturado) > 0);
+const opexDetail = rd(path.join(DIR, 'netsuite', 'opex-detail.json')) || [];
+
+/**
+ * Amortización de goodwill e intereses: cargos que no son operativos y que en un
+ * rollup apalancado distorsionan por completo la lectura del resultado neto.
+ * Se aíslan para que la performance operativa quede visible.
+ */
+function belowLine() {
+  if (!opexDetail.length) return '';
+  const last = [...new Set(opexDetail.map(r => r.y))].sort().slice(-2)[0];
+  const rows = opexDetail.filter(r => r.y === last);
+  const hit = re => rows.filter(r => new RegExp(re, 'i').test(String(r.name || ''))).reduce((s, r) => s + Number(r.amt || 0), 0);
+  const good = hit('goodwill|amortization of'), int = hit('interest expense');
+  if (!good && !int) return '';
+  const d = years[last] || { rev: 0, cogs: 0, opex: 0 };
+  const net = d.rev - d.cogs - d.opex;
+  return `<div class="flag"><b>Operating performance is masked by below-the-line charges.</b>
+  In ${last} the net result was ${money(net)}, but that figure absorbs ${money(good)} of goodwill amortization and ${money(int)} of interest expense
+  — roughly ${money(good + int)} of non-operating charges. Adding those back puts operating performance near <b>${money(net + good + int)}</b>.
+  Worth agreeing on which of the two views the plan should steer by.</div>`;
+}
+
+function seasonalitySection() {
+  if (season.length < 12) return '';
+  const last12 = season.slice(-13, -1);
+  const vals = last12.map(r => Number(r.revenue) || 0);
+  const mx = Math.max(...vals), mn = Math.min(...vals.filter(v => v > 0));
+  const W = 700, H = 150, bw = W / last12.length;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  last12.forEach((r, i) => {
+    const v = Number(r.revenue) || 0, h = Math.max(1, (v / mx) * (H - 42));
+    svg += `<rect x="${i * bw + bw * 0.18}" y="${H - 22 - h}" width="${bw * 0.64}" height="${h}" fill="${v === mx ? SAGE : v === mn ? ORANGE : NAVY}" rx="2"/>`;
+    svg += `<text x="${i * bw + bw / 2}" y="${H - 8}" font-size="7.5" text-anchor="middle" fill="#6b7280">${String(r.mes).slice(5)}</text>`;
+    svg += `<text x="${i * bw + bw / 2}" y="${H - 26 - h}" font-size="7" text-anchor="middle" fill="#6b7280">${(v / 1e6).toFixed(0)}</text>`;
+  });
+  return `<h2>2b. Seasonality</h2>${svg}</svg>
+  <p class="small">Monthly revenue, $M, last 12 full months. Peak-to-trough ratio: <b>${(mx / mn).toFixed(1)}x</b>.</p>
+  <div class="note">A ${(mx / mn).toFixed(1)}x swing between the strongest and weakest month is a defining feature of this business, and it has two practical consequences: an annual plan spread evenly across months will be wrong every month, and working capital needs follow the same curve. Both are worth modelling explicitly rather than smoothing.</div>`;
+}
+
+function concentrationSection() {
+  if (customers.length < 10) return '';
+  const tot = customers.reduce((s, c) => s + Number(c.facturado), 0);
+  const cum = k => 100 * customers.slice(0, k).reduce((s, c) => s + Number(c.facturado), 0) / tot;
+  const clean = s => String(s || '').split(' - ')[0].slice(0, 44);
+  return `<h2>2c. Customer concentration</h2>
+  <table><tr><th>#</th><th>Customer</th><th class="num">Billed</th><th class="num">Cumulative</th></tr>
+  ${customers.slice(0, 10).map((c, i) => `<tr><td>${i + 1}</td><td>${esc(clean(c.cliente))}</td><td class="num">${money(c.facturado)}</td><td class="num">${cum(i + 1).toFixed(1)}%</td></tr>`).join('')}
+  </table>
+  <p class="small">${fmt(customers.length)} billed customers. Top 10 = <b>${cum(10).toFixed(1)}%</b> · Top 25 = <b>${cum(25).toFixed(1)}%</b> of billings in the period.</p>`;
+}
+
+function costSection() {
+  if (!opexDetail.length) return '';
+  const last = [...new Set(opexDetail.map(r => r.y))].sort().slice(-2)[0];
+  const rows = opexDetail.filter(r => r.y === last && Number(r.amt) > 0).sort((a, b) => b.amt - a.amt).slice(0, 12);
+  const capex = opexDetail.filter(r => r.y === last && r.tipo === 'FixedAsset').reduce((s, r) => s + Number(r.amt || 0), 0);
+  return `<h2>2d. Cost composition (${last})</h2>
+  <table><tr><th>Account</th><th>Type</th><th class="num">Amount</th></tr>
+  ${rows.map(r => `<tr><td>${esc(String(r.name || '').replace(/^\d+\s+/, ''))}</td><td>${esc(r.tipo)}</td><td class="num">${money(r.amt)}</td></tr>`).join('')}
+  </table>
+  <p class="small">Capital expenditure in ${last} (movement on fixed-asset accounts): <b>${money(capex)}</b> — an asset-light operating model.</p>`;
+}
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -180,6 +249,12 @@ ${yr.map(y => { const d = years[y]; const gm = d.rev ? (100 * (d.rev - d.cogs) /
 </table>
 <p class="small">* ${yr[yr.length - 1]} is a partial year. Figures come from the GL with <code>posting='T'</code>; these are not audited financial statements.</p>
 ${B?.keyMetric ? `<div class="note"><b>The metric that matters most in this niche:</b> ${esc(B.keyMetric)}</div>` : ''}
+${belowLine()}
+
+<div class="page-break"></div>
+${seasonalitySection()}
+${concentrationSection()}
+${costSection()}
 
 <div class="page-break"></div>
 <h2>3. What is enabled and what is actually used</h2>
