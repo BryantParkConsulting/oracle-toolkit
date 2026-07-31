@@ -29,12 +29,12 @@ const fmt = x => Number(x || 0).toLocaleString("es-AR");
 // Software que compite con — o cubre ya — lo que BPC suele proponer. Detectarlo
 // tarde es la diferencia entre una propuesta informada y un papelón.
 const COMPETING = {
-  floqast: { area: "Close management / account reconciliation", impacto: "Covers much of the Account Reconciliation use case. Worth confirming its scope before considering NSAR." },
-  blackline: { area: "Close management / reconciliation", impacto: "Directly overlaps with Account Reconciliation." },
-  adaptive: { area: "Planning (Workday Adaptive)", impacto: "Directly overlaps with Planning & Budgeting." },
-  anaplan: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
-  vena: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
-  pigment: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
+  floqast: { area: "Close management / account reconciliation", impacto: "Already covers account reconciliation and close management. Worth understanding its current scope before anything adjacent is considered." },
+  blackline: { area: "Close management / reconciliation", impacto: "Covers account reconciliation and close management." },
+  adaptive: { area: "Planning (Workday Adaptive)", impacto: "Covers planning and budgeting." },
+  anaplan: { area: "Planning", impacto: "Covers planning and budgeting." },
+  vena: { area: "Planning", impacto: "Covers planning and budgeting." },
+  pigment: { area: "Planning", impacto: "Covers planning and budgeting." },
   ramp: { area: "Expense / corporate cards", impacto: "A spend source outside the GL, which limits the detail available for planning." },
   concur: { area: "Travel and expense", impacto: "Expense reports may not live in NetSuite, with the same effect." },
   expensify: { area: "Expense management", impacto: "Same effect." },
