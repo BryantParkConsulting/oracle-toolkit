@@ -26,7 +26,7 @@ const fs = require('fs');
 const path = require('path');
 const makeAnon = require('./anonymize');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'talogy';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const CAP = CLIENT[0].toUpperCase() + CLIENT.slice(1);

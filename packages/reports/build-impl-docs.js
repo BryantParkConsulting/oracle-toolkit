@@ -21,7 +21,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'symetri';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const KB = JSON.parse(fs.readFileSync(path.join(dir, 'tenant-kb.json'), 'utf8'));

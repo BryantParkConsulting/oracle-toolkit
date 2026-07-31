@@ -9,7 +9,7 @@
 //   node tools/parse-revenue-recon.js [CLIENT]
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'talogy';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const dec = s => decodeURIComponent(String(s).replace(/%(?![0-9A-F]{2})/gi, '%25'));

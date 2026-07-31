@@ -16,7 +16,7 @@
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const NODE = process.execPath;
 
 const CLIENT = process.argv[2];

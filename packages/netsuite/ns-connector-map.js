@@ -20,7 +20,7 @@ const path = require("path");
 const { suiteql } = require("./ns-sql");
 
 const CLIENT = process.env.CLIENT || "bpc";
-const ROOT = path.join(__dirname, "..");
+const ROOT = path.join(__dirname, "..", "..");
 const OUT_DIR = path.join(ROOT, "clients", CLIENT, "erp");
 const SHAPE = path.join(ROOT, "clients", CLIENT, "netsuite", "shape.json");
 

@@ -19,7 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'enfinity';
 const OUT = path.join(ROOT, 'clients', CLIENT, 'erp', 'raw');
 fs.mkdirSync(OUT, { recursive: true });

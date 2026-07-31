@@ -10,7 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'talogy';
 const CUBE = process.argv[3];
 const dir = path.join(ROOT, 'clients', CLIENT);

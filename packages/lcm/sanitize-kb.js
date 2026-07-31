@@ -20,8 +20,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const SRC = path.join(__dirname, '..', 'worker', 'kb.md');
-const OUT = path.join(__dirname, '..', 'worker', 'kb.public.md');
+const SRC = path.join(__dirname, '..', '..', 'worker', 'kb.md');
+const OUT = path.join(__dirname, '..', '..', 'worker', 'kb.public.md');
 
 // Consistent pseudonyms: the FAQ contrasts regions with each other, so they have to
 // stay distinguishable or the explanations stop making sense.

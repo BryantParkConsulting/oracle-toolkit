@@ -5,7 +5,9 @@ const fs = require('fs');
 const path = require('path');
 
 const NAVY = '#1F3C51', SAGE = '#619C8A', GOLD = '#F2CC5F', ORANGE = '#EC8842', GRAY = '#D9D9D9';
-const ROOT = path.join(__dirname, '..');
+// Raíz del toolkit: assets/ y clients/ son compartidos por todos los paquetes,
+// no propios de engagement (antes esto era la raíz de engagement-report-kit).
+const ROOT = path.join(__dirname, '..', '..', '..');
 
 const fmt$ = n => '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtH = n => (n % 1 === 0 ? n : n.toFixed(2)) + ' hrs';

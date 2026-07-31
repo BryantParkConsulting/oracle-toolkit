@@ -9,7 +9,7 @@
 //   node tools/optimization-report.js [CLIENT]
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'squarespace';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const kb = JSON.parse(fs.readFileSync(path.join(dir, 'tenant-kb.json'), 'utf8'));

@@ -13,7 +13,7 @@ const fs = require("fs");
 const path = require("path");
 
 (function loadDotEnv() {
-  const p = path.join(__dirname, "..", ".env");
+  const p = path.join(__dirname, "..", "..", ".env");
   if (!fs.existsSync(p)) return;
   for (const line of fs.readFileSync(p, "utf8").split(/\r?\n/)) {
     const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)$/.exec(line);

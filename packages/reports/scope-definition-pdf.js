@@ -7,7 +7,7 @@
 const fs   = require('fs');
 const path = require('path');
 const PORT = process.env.CDP_PORT || 9222;
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = 'spindrift';
 const dir  = path.join(ROOT, 'clients', CLIENT);
 

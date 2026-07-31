@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const PORT = process.env.CDP_PORT || 9222;
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'symetri';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const CAP = CLIENT[0].toUpperCase() + CLIENT.slice(1);

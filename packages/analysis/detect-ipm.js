@@ -185,7 +185,7 @@ module.exports = { detectIPM, renderIpmSection };
 
 // ── CLI ──────────────────────────────────────────────────────────────────
 if (require.main === module) {
-  const ROOT = path.join(__dirname, '..');
+  const ROOT = path.join(__dirname, '..', '..');
   const CLIENT = process.argv[2];
   if (!CLIENT) { console.error('usage: node tools/detect-ipm.js <CLIENT>  (matches lcm-export/<CLIENT>)'); process.exit(1); }
   // case-insensitive match of the lcm-export subfolder

@@ -15,7 +15,7 @@ const fs = require("fs");
 const path = require("path");
 
 const CLIENT = process.env.CLIENT || "bpc";
-const DIR = path.join(__dirname, "..", "clients", CLIENT, "netsuite");
+const DIR = path.join(__dirname, "..", "..", "clients", CLIENT, "netsuite");
 const readJSON = n => { try { return JSON.parse(fs.readFileSync(path.join(DIR, `${n}.json`), "utf8")); } catch { return null; } };
 
 const probe = readJSON("probe");

@@ -23,11 +23,11 @@ const path = require("path");
 
 const CLIENT = process.env.CLIENT || "bpc";
 const PHASE = (process.argv.find(a => a.startsWith("--phase=")) || "--phase=all").split("=")[1];
-const OUT = path.join(__dirname, "..", "clients", CLIENT, "netsuite");
+const OUT = path.join(__dirname, "..", "..", "clients", CLIENT, "netsuite");
 
 // ── env ───────────────────────────────────────────────────────────────────────
 (function loadDotEnv() {
-  const p = path.join(__dirname, "..", ".env");
+  const p = path.join(__dirname, "..", "..", ".env");
   if (!fs.existsSync(p)) return;
   for (const line of fs.readFileSync(p, "utf8").split(/\r?\n/)) {
     const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)$/.exec(line);
@@ -39,7 +39,7 @@ const ENV = ["NS_ACCOUNT", "NS_CONSUMER_KEY", "NS_CONSUMER_SECRET", "NS_TOKEN_ID
 const missing = ENV.filter(k => !process.env[k]);
 if (missing.length) {
   console.error(`Faltan credenciales TBA: ${missing.join(", ")}`);
-  console.error(`Ponelas en ${path.join(__dirname, "..", ".env")} (gitignored).`);
+  console.error(`Ponelas en ${path.join(__dirname, "..", "..", ".env")} (gitignored).`);
   process.exit(1);
 }
 

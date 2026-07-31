@@ -9,7 +9,7 @@
 //   node tools/analyze-dynamic-candidates.js [CLIENT] [LCM_DIM_DIR]
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'squarespace';
 const DIMDIR = process.argv[3] || path.join(ROOT, 'lcm-export', 'Squarespace',
   'HP-NetSuite', 'resource', 'Global Artifacts', 'Common Dimensions', 'Standard Dimensions');

@@ -27,7 +27,7 @@ const path = require('path');
 // Override via env vars:
 //   CLIENT=acme node tools/parse-lcm.js
 //   LCM_ROOT=path/to/dump CLIENT=acme node tools/parse-lcm.js
-const PROJECT_ROOT = path.join(__dirname, '..');
+const PROJECT_ROOT = path.join(__dirname, '..', '..');
 const LCM_ROOT     = process.env.LCM_ROOT
                        ? path.resolve(process.env.LCM_ROOT)
                        : path.join(PROJECT_ROOT, 'lcm-export');

@@ -6,7 +6,7 @@
 //   node tools/parse-navflow.js <CLIENT>
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'talogy';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const hpDir = fs.readdirSync(dir).map(f => path.join(dir, f)).find(f => /HP-/.test(f) && fs.statSync(f).isDirectory());

@@ -5,7 +5,7 @@
 //   node tools/analyze-level0.js
 const fs = require('fs');
 const path = require('path');
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.env.CLIENT || 'squarespace';
 const CDIR = path.join(ROOT, 'clients', CLIENT);
 const sum = JSON.parse(fs.readFileSync(path.join(CDIR, 'level0-summary.json'), 'utf8'));

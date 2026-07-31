@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const CLIENT = process.argv[2] || 'talogy';
-const OUT = path.join(__dirname, '..', 'clients', CLIENT, 'audit-summary.json');
+const OUT = path.join(__dirname, '..', '..', 'clients', CLIENT, 'audit-summary.json');
 
 let buf = '';
 const dec = s => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#xa;/g, '\n').replace(/&amp;/g, '&');

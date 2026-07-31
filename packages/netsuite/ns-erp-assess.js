@@ -20,7 +20,7 @@ const fs = require("fs");
 const path = require("path");
 
 const CLIENT = process.env.CLIENT || process.argv.find(a => !a.startsWith("-") && !/node|ns-erp-assess/.test(a)) || "bpc";
-const ROOT = path.join(__dirname, "..");
+const ROOT = path.join(__dirname, "..", "..");
 const SRC = path.join(ROOT, "clients", CLIENT, "netsuite");
 const OUT_DIR = path.join(ROOT, "clients", CLIENT, "erp");
 

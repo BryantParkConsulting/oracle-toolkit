@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const PORT = process.env.CDP_PORT || 9222;
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'squarespace';
 const dir = path.join(ROOT, 'clients', CLIENT);
 let md = fs.readFileSync(path.join(dir, 'optimization-report.md'), 'utf8');

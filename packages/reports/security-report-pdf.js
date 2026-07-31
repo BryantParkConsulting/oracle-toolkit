@@ -9,7 +9,7 @@ const path = require('path');
 const os = require('os');
 const { execFileSync } = require('child_process');
 
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.join(__dirname, '..', '..');
 const CLIENT = process.argv[2] || 'enfinity';
 const dir = path.join(ROOT, 'clients', CLIENT);
 const CAP = CLIENT[0].toUpperCase() + CLIENT.slice(1);
