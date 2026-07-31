@@ -175,6 +175,8 @@ Todos aprendidos rompiéndose contra una cuenta real de producción.
 5. **`isstored='F'` no es columna.** Los campos de fórmula no se pueden consultar; sin filtrarlos, 284 de 445 mediciones de fill-rate rebotan.
 6. **Un `custentity_` vive en customer, vendor, employee y job a la vez.** Que esté vacío en uno no lo hace muerto — puede no aplicar ahí. El único número defendible es el campo vacío en **todas** las tablas donde se midió.
 7. **`nspb-connector` se detecta por `CUSTRECORD_NSPBCS_*`**, no por la palabra "Planning" (que matchea cualquier "Planning Category"). Si aparece, el encuadre del deliverable cambia por completo: no es un upsell de NSPB, es adopción del NSPB que ya compraron.
+7b. **CORREGIDO (2026-07-31): los workflows SÍ se exponen en SuiteQL.** La tabla `workflow` existe y responde. Este documento decía lo contrario. Lo mismo con `expensereport` y `opportunity`: si la tabla responde, la feature está prendida, y cero filas es uso nulo MEDIDO (`dormant`), no ausencia de dato (`unknown`). Ver [NETSUITE-DISCOVERY-LEARNINGS.md](NETSUITE-DISCOVERY-LEARNINGS.md) §2.
+
 8. **Sin ventana móvil.** El playbook asume "últimos 6 meses"; el pipeline actual cuenta histórico completo. Declararlo en portada.
 9. **SuiteApps se delatan por prefijo**, no por el listado de features: `NSPBCS_` (connector NSPB), `ncfar_` (FAM), `CELIGO_`, `AVATAX_`, `SFDC_`, y los tipos `NetLease *` en transacciones.
 

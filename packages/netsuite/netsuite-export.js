@@ -119,20 +119,21 @@ async function restGet(pathname) {
 // Una que da "Record 'x' was not found" ⇒ feature apagada O sin permiso: ambiguo,
 // se desambigua contra el export de SDF.
 const CANDIDATES = {
-  "Core / GL": ["account", "accountingperiod", "accountingbook", "currency", "currencyrate", "consolidatedexchangerate", "budget", "budgetimport"],
+  "Core / GL": ["account", "accountingperiod", "accountingbook", "currency", "currencyrate", "consolidatedexchangerate", "budget", "budgetimport", "allocationschedule", "amortizationschedule", "statisticalschedule"],
   "Segmentación": ["subsidiary", "department", "classification", "location", "customsegment"],
   "Entidades": ["entity", "customer", "vendor", "employee", "contact", "partner", "entitygroup"],
   "Ítems / Inventario": ["item", "inventoryitem", "inventorynumber", "inventorybalance", "itemlocationconfiguration", "bin", "unitstype", "pricelevel", "itemvendor"],
   "Transacciones": ["transaction", "transactionline", "transactionaccountingline", "transactionhistory"],
-  "Proyectos / PSA": ["job", "jobtype", "jobstatus", "projecttask", "timebill", "timeentry", "timesheet", "charge", "projectexpensetype", "resourceallocation"],
+  "Proyectos / PSA": ["job", "jobtype", "jobstatus", "projecttask", "timebill", "timeentry", "timesheet", "charge", "projectexpensetype", "resourceallocation", "expensereport"],
   "Revenue (ARM)": ["revenuearrangement", "revenueelement", "revenueplan", "revrecschedule", "billingaccount", "billingschedule", "billingrevenueevent"],
   "SuiteBilling": ["subscription", "subscriptionline", "subscriptionplan", "usage"],
   "Manufactura": ["bom", "bomrevision", "manufacturingrouting", "manufacturingoperationtask", "manufacturingcosttemplate"],
   "Impuestos": ["taxtype", "taxitem", "salestaxitem", "nexus", "taxgroup", "subsidiarytaxregstatus"],
-  "CRM": ["campaign", "supportcase", "issue", "solution", "task", "phonecall", "calendarevent", "note", "promotioncode"],
+  "CRM": ["campaign", "supportcase", "issue", "solution", "opportunity", "task", "phonecall", "calendarevent", "note", "promotioncode"],
   "Nómina / RRHH": ["payrollitem", "employeestatus", "employeetype", "hcmjob", "jobrequisition"],
-  "Customización": ["customrecordtype", "customlist", "customfield", "script", "scriptdeployment", "scheduledscriptinstance", "customersubsidiaryrelationship"],
+  "Customización": ["customrecordtype", "customlist", "customfield", "script", "scriptdeployment", "scheduledscriptinstance", "customersubsidiaryrelationship", "workflow"],
   "Seguridad / Auditoría": ["role", "loginaudit", "systemnote", "systemnote2", "deletedrecord"],
+  "Comercio / Web": ["website"],
   "Fixed Assets (FAM)": ["customrecord_ncfar_asset", "customrecord_ncfar_assettype", "customrecord_ncfar_depreciationhistory"],
 };
 

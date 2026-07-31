@@ -70,12 +70,12 @@ const RULES = {
   "chart-of-accounts": () => { const u = list("accounts_unused").length; return { enabled: seen("account"), count: n("account"), metric: "accounts", partial: u > 0 && u / Math.max(1, n("account")) > 0.15, evidence: `${fmt(n("account"))} accounts · ${fmt(u)} with no journal activity (${Math.round(100 * u / Math.max(1, n("account")))}%)` }; },
   "segments-class-dept-loc": () => { const tot = n("department") + n("classification") + n("location"); return { enabled: seen("department") || seen("classification") || seen("location"), count: tot, metric: "segment members", evidence: `${fmt(n("department"))} departments · ${fmt(n("classification"))} classes · ${fmt(n("location"))} locations` }; },
   "custom-segments": () => ({ enabled: seen("customsegment"), count: n("customsegment"), metric: "custom segments", evidence: `${fmt(n("customsegment"))} custom segment(s)` }),
-  "statistical-accounts": () => ({ enabled: acct("Stat") > 0 ? true : null, count: acct("Stat"), metric: "accounts estadísticas", evidence: acct("Stat") ? `${fmt(acct("Stat"))} Statistical-type accounts` : "no Statistical accounts in the COA" }),
+  "statistical-accounts": () => ({ enabled: acct("Stat") > 0 || seen("statisticalschedule"), count: acct("Stat"), metric: "statistical accounts", evidence: `${fmt(acct("Stat"))} Statistical-type accounts · ${fmt(n("statisticalschedule"))} statistical schedules` }),
   "native-budgets": () => ({ enabled: seen("budgetimport") || seen("budget"), count: n("budgetimport") + n("budget"), metric: "filas de budget", evidence: `${fmt(n("budgetimport"))} budget import rows — budgets are built outside and loaded in` }),
-  "amortization": () => ({ enabled: txn("amortization") > 0 ? true : null, count: txn("amortization"), metric: "transacciones", evidence: txnNames("amortization").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") || "no amortization transactions" }),
+  "amortization": () => ({ enabled: seen("amortizationschedule") || txn("amortization") > 0, count: n("amortizationschedule") + txn("amortization"), metric: "schedules + transactions", evidence: `${fmt(n("amortizationschedule"))} amortization schedules · ${txnNames("amortization").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") || "no amortization transactions"}` }),
   "arm-rev-rec": () => ({ enabled: seen("revenuearrangement"), count: n("revenuearrangement"), metric: "revenue arrangements", evidence: `${fmt(n("revenuearrangement"))} arrangements · ${fmt(n("revenueelement"))} elements · ${fmt(n("revenueplan"))} plans` }),
   "fixed-assets": () => ({ enabled: seen("customrecord_ncfar_asset"), count: n("customrecord_ncfar_asset"), metric: "assets", evidence: `${fmt(n("customrecord_ncfar_asset"))} assets · ${fmt(n("customrecord_ncfar_assettype"))} types (FAM bundle)` }),
-  "allocations": () => ({ enabled: txn("allocation") > 0 ? true : null, count: txn("allocation"), metric: "transacciones", evidence: txnNames("allocation").join(", ") || "no allocation schedules visible through SuiteQL" }),
+  "allocations": () => ({ enabled: seen("allocationschedule"), count: n("allocationschedule"), metric: "allocation schedules", evidence: `${fmt(n("allocationschedule"))} allocation schedules defined` }),
   "intercompany": () => ({ enabled: n("subsidiary") > 1, count: txn("intercompany"), metric: "IC transactions", evidence: txn("intercompany") ? txnNames("intercompany").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") : `${fmt(n("subsidiary"))} subsidiaries, sin tipos de transacción intercompany explícitos` }),
   "ar-invoicing": () => ({ enabled: true, count: txn("^invoice|credit memo|customer payment|^payment"), metric: "AR transactions", evidence: `Invoice ${fmt(txnByType.Invoice)} · Credit Memo ${fmt(txnByType["Credit Memo"])} · Payment ${fmt(txnByType.Payment)}` }),
   "ap-vendor-bills": () => ({ enabled: true, count: txn("^bill"), metric: "AP transactions", evidence: `Bill ${fmt(txnByType.Bill)} · Bill Payment ${fmt(txnByType["Bill Payment"])} · Bill Credit ${fmt(txnByType["Bill Credit"])}` }),
@@ -86,7 +86,9 @@ const RULES = {
   "projects": () => ({ enabled: seen("job"), count: n("job"), metric: "projects", partial: n("job") > 0 && n("projecttask") === 0 && n("timebill") === 0, evidence: `${fmt(n("job"))} projects · projecttask ${fmt(n("projecttask"))} · timebill ${fmt(n("timebill"))} · timesheet ${fmt(n("timesheet"))}` }),
   "suitepeople-hr": () => ({ enabled: seen("employee"), count: n("employee"), metric: "employees", partial: !seen("hcmjob"), evidence: `${fmt(n("employee"))} employees · ${fmt(n("employeetype"))} types${seen("hcmjob") ? "" : " · no SuitePeople HCM tables"}` }),
   "payroll": () => ({ enabled: seen("payrollitem") ? n("payrollitem") > 0 : null, count: n("payrollitem") + txn("paycheck"), metric: "payroll items", evidence: `payrollitem ${fmt(n("payrollitem"))} · paychecks ${fmt(txn("paycheck"))}` }),
-  "expense-reports": () => ({ enabled: txn("expense report") > 0 ? true : null, count: txn("expense report"), metric: "expense reports", evidence: txn("expense report") ? `${fmt(txn("expense report"))} expense reports` : "no Expense Report transactions" }),
+  // `expensereport` responde ⇒ la feature está prendida. Cero filas es uso nulo
+  // MEDIDO, no ausencia de dato: es `dormant`, no `unknown`.
+  "expense-reports": () => ({ enabled: seen("expensereport"), count: n("expensereport"), metric: "expense reports", evidence: seen("expensereport") ? `feature enabled, ${fmt(n("expensereport"))} expense reports recorded` : "not observable through SuiteQL" }),
   "account-reconciliation": () => ({ enabled: null, count: 0, metric: "—", evidence: "ARCS is a separate application and leaves no trace in SuiteQL" }),
   // `PLANNING` a secas da falsos positivos (cualquier campo "Planning Category").
   // El marcador duro es NSPBCS_ — el prefijo del NSPB Connector Suite bundle.
@@ -101,12 +103,13 @@ const RULES = {
   "suiteanalytics-connect": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL (es licencia/ODBC)" }),
   "suiteanalytics-workbook": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
   "suitescript": () => ({ enabled: seen("script"), count: n("script"), metric: "scripts", evidence: `${fmt(n("script"))} scripts · ${fmt(n("scriptdeployment"))} deployments · ${fmt(n("scheduledscriptinstance"))} scheduled executions` }),
-  "suiteflow": () => ({ enabled: null, count: 0, metric: "—", evidence: "workflows are not exposed in SuiteQL; they come from the SDF export" }),
+  // SuiteQL SÍ expone `workflow`. El playbook decía lo contrario — corregido 2026-07-31.
+  "suiteflow": () => ({ enabled: seen("workflow"), count: n("workflow"), metric: "workflows", evidence: `${fmt(n("workflow"))} workflows defined` }),
   "custom-records": () => ({ enabled: seen("customrecordtype"), count: n("customrecordtype"), metric: "custom record types", evidence: `${fmt(n("customrecordtype"))} custom records · ${fmt(n("customlist"))} lists` }),
   "web-services-rest-tba": () => ({ enabled: true, count: 1, metric: "—", evidence: "confirmed: this extraction ran over REST + TBA" }),
   "suitetax": () => ({ enabled: seen("taxtype"), count: n("taxtype") + n("nexus"), metric: "tax types + nexus", evidence: `${fmt(n("taxtype"))} tax types · ${fmt(n("nexus"))} nexus · ${fmt(n("salestaxitem"))} sales tax items` }),
-  "suitecommerce": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
-  "crm-opportunities": () => ({ enabled: txn("opportunity") > 0 || seen("campaign") ? true : null, count: txn("opportunity"), metric: "opportunities", evidence: txn("opportunity") ? `${fmt(txn("opportunity"))} opportunities` : "no Opportunity transactions; CRM effectively unused" }),
+  "suitecommerce": () => ({ enabled: seen("website"), count: n("website"), metric: "websites", evidence: seen("website") ? `${fmt(n("website"))} web site record(s)` : "no website records" }),
+  "crm-opportunities": () => ({ enabled: seen("opportunity") || seen("campaign"), count: n("opportunity") + txn("opportunity"), metric: "opportunities", evidence: seen("opportunity") ? `feature enabled, ${fmt(n("opportunity"))} opportunities recorded` : "not observable through SuiteQL" }),
   "approval-routing": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
   "period-end-journals": () => ({ enabled: true, count: txn("^journal"), metric: "journal entries", evidence: `${fmt(txn("^journal"))} journals` }),
 };
