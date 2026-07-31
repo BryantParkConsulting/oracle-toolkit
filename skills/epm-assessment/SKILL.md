@@ -71,8 +71,24 @@ Guialo por la receta de `docs/NS-ERP-README.md` §3, en este orden y de a un pas
 CLIENT=<cliente> node packages/netsuite/netsuite-export.js              # 4 fases
 CLIENT=<cliente> node packages/netsuite/ns-erp-assess.js                # → erp/modules.json
 CLIENT=<cliente> node packages/netsuite/ns-connector-map.js             # → erp/CONNECTORS.md
+CLIENT=<cliente> node packages/netsuite/ns-vertical.js                  # → erp/vertical.json
+CLIENT=<cliente> node packages/netsuite/ns-financials.js                # → erp/FINANCIALS.md
 CLIENT=<cliente> node packages/netsuite/netsuite-assessment-report.js   # → ASSESSMENT.md
 ```
+
+`ns-financials.js` necesita dos consultas que todavía no están dentro de `netsuite-export.js`
+— el COA y los saldos por cuenta. Se sacan con `ns-sql.js`; las consultas están en
+`docs/NETSUITE-DISCOVERY-LEARNINGS.md` §6.
+
+**El entregable**, con Chrome abierto en `--remote-debugging-port=9222`:
+
+```bash
+CLIENT=<cliente> CLIENT_NAME=<Nombre> node packages/reports/netsuite-abr-full.js
+```
+
+Produce el ABR completo con las recomendaciones de BPC. Hay dos versiones cortas por si se
+necesitan sueltas: `netsuite-abr-pdf.js` (solo negocio) y `nspb-integration-pdf.js` (técnico,
+para el equipo de Planning).
 
 **Corré `ns-connector-map.js` temprano.** Es lo que evita proponer algo que el cliente ya
 tiene: si aparece FloQast o BlackLine, el caso de NSAR cambia; si aparece Adaptive o Anaplan,
