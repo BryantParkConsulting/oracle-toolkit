@@ -54,61 +54,61 @@ const objIds = customFields.map(r => r.scriptid || "").concat(list("custom_recor
 const hasObj = re => new RegExp(re, "i").test(objIds);
 const countObj = re => (objIds.match(new RegExp(re, "gi")) || []).length;
 
-const fmt = x => Number(x || 0).toLocaleString("es-AR");
+const fmt = x => Number(x || 0).toLocaleString("en-US");
 
 /**
  * Reglas de detección, una por módulo del catálogo.
- *   enabled : true | false | null   (null ⇒ no observable por SuiteQL)
+ *   enabled : true | false | null   (null ⇒ not observable through SuiteQL)
  *   count   : magnitud de uso
  *   partial : true fuerza el estado `partial` aunque haya uso
  */
 const RULES = {
-  "oneworld-subsidiaries": () => ({ enabled: seen("subsidiary"), count: n("subsidiary"), metric: "subsidiarias", evidence: `${fmt(n("subsidiary"))} subsidiarias` }),
-  "multi-currency": () => ({ enabled: seen("currency"), count: n("currency") > 1 ? n("currency") : 0, metric: "monedas", evidence: `${fmt(n("currency"))} monedas · ${fmt(n("currencyrate"))} cotizaciones` }),
-  "multi-book": () => ({ enabled: seen("accountingbook"), count: n("accountingbook") > 1 ? n("accountingbook") : 0, metric: "books secundarios", evidence: `${fmt(n("accountingbook"))} accounting book(s) — ${n("accountingbook") > 1 ? "multi-book activo" : "solo el primario"}` }),
-  "accounting-periods": () => ({ enabled: seen("accountingperiod"), count: n("accountingperiod"), metric: "períodos", evidence: `${fmt(n("accountingperiod"))} períodos contables` }),
-  "chart-of-accounts": () => { const u = list("accounts_unused").length; return { enabled: seen("account"), count: n("account"), metric: "cuentas", partial: u > 0 && u / Math.max(1, n("account")) > 0.15, evidence: `${fmt(n("account"))} cuentas · ${fmt(u)} sin ningún asiento (${Math.round(100 * u / Math.max(1, n("account")))}%)` }; },
-  "segments-class-dept-loc": () => { const tot = n("department") + n("classification") + n("location"); return { enabled: seen("department") || seen("classification") || seen("location"), count: tot, metric: "miembros de segmento", evidence: `${fmt(n("department"))} depts · ${fmt(n("classification"))} classes · ${fmt(n("location"))} locations` }; },
+  "oneworld-subsidiaries": () => ({ enabled: seen("subsidiary"), count: n("subsidiary"), metric: "subsidiaries", evidence: `${fmt(n("subsidiary"))} subsidiaries` }),
+  "multi-currency": () => ({ enabled: seen("currency"), count: n("currency") > 1 ? n("currency") : 0, metric: "currencies", evidence: `${fmt(n("currency"))} currencies · ${fmt(n("currencyrate"))} exchange rates` }),
+  "multi-book": () => ({ enabled: seen("accountingbook"), count: n("accountingbook") > 1 ? n("accountingbook") : 0, metric: "secondary books", evidence: `${fmt(n("accountingbook"))} accounting book(s) — ${n("accountingbook") > 1 ? "multi-book active" : "primary only"}` }),
+  "accounting-periods": () => ({ enabled: seen("accountingperiod"), count: n("accountingperiod"), metric: "periods", evidence: `${fmt(n("accountingperiod"))} accounting periods` }),
+  "chart-of-accounts": () => { const u = list("accounts_unused").length; return { enabled: seen("account"), count: n("account"), metric: "accounts", partial: u > 0 && u / Math.max(1, n("account")) > 0.15, evidence: `${fmt(n("account"))} accounts · ${fmt(u)} with no journal activity (${Math.round(100 * u / Math.max(1, n("account")))}%)` }; },
+  "segments-class-dept-loc": () => { const tot = n("department") + n("classification") + n("location"); return { enabled: seen("department") || seen("classification") || seen("location"), count: tot, metric: "segment members", evidence: `${fmt(n("department"))} departments · ${fmt(n("classification"))} classes · ${fmt(n("location"))} locations` }; },
   "custom-segments": () => ({ enabled: seen("customsegment"), count: n("customsegment"), metric: "custom segments", evidence: `${fmt(n("customsegment"))} custom segment(s)` }),
-  "statistical-accounts": () => ({ enabled: acct("Stat") > 0 ? true : null, count: acct("Stat"), metric: "cuentas estadísticas", evidence: acct("Stat") ? `${fmt(acct("Stat"))} cuentas de tipo Statistical` : "ninguna cuenta Statistical en el COA" }),
-  "native-budgets": () => ({ enabled: seen("budgetimport") || seen("budget"), count: n("budgetimport") + n("budget"), metric: "filas de budget", evidence: `${fmt(n("budgetimport"))} filas de budget import — el presupuesto se arma afuera y se carga` }),
-  "amortization": () => ({ enabled: txn("amortization") > 0 ? true : null, count: txn("amortization"), metric: "transacciones", evidence: txnNames("amortization").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") || "sin transacciones de amortización" }),
+  "statistical-accounts": () => ({ enabled: acct("Stat") > 0 ? true : null, count: acct("Stat"), metric: "accounts estadísticas", evidence: acct("Stat") ? `${fmt(acct("Stat"))} Statistical-type accounts` : "no Statistical accounts in the COA" }),
+  "native-budgets": () => ({ enabled: seen("budgetimport") || seen("budget"), count: n("budgetimport") + n("budget"), metric: "filas de budget", evidence: `${fmt(n("budgetimport"))} budget import rows — budgets are built outside and loaded in` }),
+  "amortization": () => ({ enabled: txn("amortization") > 0 ? true : null, count: txn("amortization"), metric: "transacciones", evidence: txnNames("amortization").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") || "no amortization transactions" }),
   "arm-rev-rec": () => ({ enabled: seen("revenuearrangement"), count: n("revenuearrangement"), metric: "revenue arrangements", evidence: `${fmt(n("revenuearrangement"))} arrangements · ${fmt(n("revenueelement"))} elements · ${fmt(n("revenueplan"))} plans` }),
-  "fixed-assets": () => ({ enabled: seen("customrecord_ncfar_asset"), count: n("customrecord_ncfar_asset"), metric: "activos", evidence: `${fmt(n("customrecord_ncfar_asset"))} activos · ${fmt(n("customrecord_ncfar_assettype"))} tipos (bundle FAM)` }),
-  "allocations": () => ({ enabled: txn("allocation") > 0 ? true : null, count: txn("allocation"), metric: "transacciones", evidence: txnNames("allocation").join(", ") || "sin schedules de allocation visibles por SuiteQL" }),
-  "intercompany": () => ({ enabled: n("subsidiary") > 1, count: txn("intercompany"), metric: "transacciones IC", evidence: txn("intercompany") ? txnNames("intercompany").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") : `${fmt(n("subsidiary"))} subsidiarias, sin tipos de transacción intercompany explícitos` }),
-  "ar-invoicing": () => ({ enabled: true, count: txn("^invoice|credit memo|customer payment|^payment"), metric: "transacciones AR", evidence: `Invoice ${fmt(txnByType.Invoice)} · Credit Memo ${fmt(txnByType["Credit Memo"])} · Payment ${fmt(txnByType.Payment)}` }),
-  "ap-vendor-bills": () => ({ enabled: true, count: txn("^bill"), metric: "transacciones AP", evidence: `Bill ${fmt(txnByType.Bill)} · Bill Payment ${fmt(txnByType["Bill Payment"])} · Bill Credit ${fmt(txnByType["Bill Credit"])}` }),
-  "suitebilling": () => ({ enabled: seen("subscription"), count: n("subscription"), metric: "suscripciones", evidence: seen("subscription") ? `${fmt(n("subscription"))} suscripciones` : "tablas de SuiteBilling no visibles" }),
-  "inventory": () => ({ enabled: seen("inventoryitem") || seen("inventorybalance"), count: n("inventoryitem"), metric: "ítems de inventario", evidence: seen("inventoryitem") ? `${fmt(n("inventoryitem"))} ítems` : "sin tablas de inventario; el catálogo son servicios" }),
-  "demand-planning": () => ({ enabled: null, count: 0, metric: "—", evidence: "no observable por SuiteQL" }),
-  "manufacturing": () => ({ enabled: seen("bom"), count: n("bom"), metric: "BOMs", evidence: seen("bom") ? `${fmt(n("bom"))} BOMs` : "sin tablas de manufactura" }),
-  "projects": () => ({ enabled: seen("job"), count: n("job"), metric: "proyectos", partial: n("job") > 0 && n("projecttask") === 0 && n("timebill") === 0, evidence: `${fmt(n("job"))} proyectos · projecttask ${fmt(n("projecttask"))} · timebill ${fmt(n("timebill"))} · timesheet ${fmt(n("timesheet"))}` }),
-  "suitepeople-hr": () => ({ enabled: seen("employee"), count: n("employee"), metric: "empleados", partial: !seen("hcmjob"), evidence: `${fmt(n("employee"))} empleados · ${fmt(n("employeetype"))} tipos${seen("hcmjob") ? "" : " · sin tablas SuitePeople HCM"}` }),
-  "payroll": () => ({ enabled: seen("payrollitem") ? n("payrollitem") > 0 : null, count: n("payrollitem") + txn("paycheck"), metric: "ítems de nómina", evidence: `payrollitem ${fmt(n("payrollitem"))} · paychecks ${fmt(txn("paycheck"))}` }),
-  "expense-reports": () => ({ enabled: txn("expense report") > 0 ? true : null, count: txn("expense report"), metric: "expense reports", evidence: txn("expense report") ? `${fmt(txn("expense report"))} expense reports` : "sin transacciones Expense Report" }),
-  "account-reconciliation": () => ({ enabled: null, count: 0, metric: "—", evidence: "ARCS es una app aparte; no deja rastro en SuiteQL" }),
+  "fixed-assets": () => ({ enabled: seen("customrecord_ncfar_asset"), count: n("customrecord_ncfar_asset"), metric: "assets", evidence: `${fmt(n("customrecord_ncfar_asset"))} assets · ${fmt(n("customrecord_ncfar_assettype"))} types (FAM bundle)` }),
+  "allocations": () => ({ enabled: txn("allocation") > 0 ? true : null, count: txn("allocation"), metric: "transacciones", evidence: txnNames("allocation").join(", ") || "no allocation schedules visible through SuiteQL" }),
+  "intercompany": () => ({ enabled: n("subsidiary") > 1, count: txn("intercompany"), metric: "IC transactions", evidence: txn("intercompany") ? txnNames("intercompany").map(t => `${t} (${fmt(txnByType[t])})`).join(", ") : `${fmt(n("subsidiary"))} subsidiaries, sin tipos de transacción intercompany explícitos` }),
+  "ar-invoicing": () => ({ enabled: true, count: txn("^invoice|credit memo|customer payment|^payment"), metric: "AR transactions", evidence: `Invoice ${fmt(txnByType.Invoice)} · Credit Memo ${fmt(txnByType["Credit Memo"])} · Payment ${fmt(txnByType.Payment)}` }),
+  "ap-vendor-bills": () => ({ enabled: true, count: txn("^bill"), metric: "AP transactions", evidence: `Bill ${fmt(txnByType.Bill)} · Bill Payment ${fmt(txnByType["Bill Payment"])} · Bill Credit ${fmt(txnByType["Bill Credit"])}` }),
+  "suitebilling": () => ({ enabled: seen("subscription"), count: n("subscription"), metric: "subscriptions", evidence: seen("subscription") ? `${fmt(n("subscription"))} subscriptions` : "SuiteBilling tables not visible" }),
+  "inventory": () => ({ enabled: seen("inventoryitem") || seen("inventorybalance"), count: n("inventoryitem"), metric: "inventory items", evidence: seen("inventoryitem") ? `${fmt(n("inventoryitem"))} ítems` : "no inventory tables; the catalog is service items" }),
+  "demand-planning": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
+  "manufacturing": () => ({ enabled: seen("bom"), count: n("bom"), metric: "BOMs", evidence: seen("bom") ? `${fmt(n("bom"))} BOMs` : "no manufacturing tables" }),
+  "projects": () => ({ enabled: seen("job"), count: n("job"), metric: "projects", partial: n("job") > 0 && n("projecttask") === 0 && n("timebill") === 0, evidence: `${fmt(n("job"))} projects · projecttask ${fmt(n("projecttask"))} · timebill ${fmt(n("timebill"))} · timesheet ${fmt(n("timesheet"))}` }),
+  "suitepeople-hr": () => ({ enabled: seen("employee"), count: n("employee"), metric: "employees", partial: !seen("hcmjob"), evidence: `${fmt(n("employee"))} employees · ${fmt(n("employeetype"))} types${seen("hcmjob") ? "" : " · no SuitePeople HCM tables"}` }),
+  "payroll": () => ({ enabled: seen("payrollitem") ? n("payrollitem") > 0 : null, count: n("payrollitem") + txn("paycheck"), metric: "payroll items", evidence: `payrollitem ${fmt(n("payrollitem"))} · paychecks ${fmt(txn("paycheck"))}` }),
+  "expense-reports": () => ({ enabled: txn("expense report") > 0 ? true : null, count: txn("expense report"), metric: "expense reports", evidence: txn("expense report") ? `${fmt(txn("expense report"))} expense reports` : "no Expense Report transactions" }),
+  "account-reconciliation": () => ({ enabled: null, count: 0, metric: "—", evidence: "ARCS is a separate application and leaves no trace in SuiteQL" }),
   // `PLANNING` a secas da falsos positivos (cualquier campo "Planning Category").
   // El marcador duro es NSPBCS_ — el prefijo del NSPB Connector Suite bundle.
   "nspb-connector": () => {
     const cs = countObj("NSPBCS_"), other = countObj("HYPERION|PBCS|EPM_");
     return { enabled: cs > 0 ? true : other > 0 ? true : null, count: cs,
-      metric: "objetos del connector",
+      metric: "connector objects",
       evidence: cs > 0
-        ? `${cs} objetos \`CUSTRECORD_NSPBCS_*\` — el bundle NSPB Connector Suite está instalado${other ? ` (+${other} objetos PBCS/Hyperion)` : ""}`
-        : other > 0 ? `${other} objetos PBCS/Hyperion, sin el bundle NSPBCS` : "sin rastro del connector NSPB" };
+        ? `${cs} objetos \`CUSTRECORD_NSPBCS_*\` — el bundle NSPB Connector Suite está instalado${other ? ` (+${other} PBCS/Hyperion objects)` : ""}`
+        : other > 0 ? `${other} PBCS/Hyperion objects, without the NSPBCS bundle` : "no trace of the NSPB connector" };
   },
-  "suiteanalytics-connect": () => ({ enabled: null, count: 0, metric: "—", evidence: "no observable por SuiteQL (es licencia/ODBC)" }),
-  "suiteanalytics-workbook": () => ({ enabled: null, count: 0, metric: "—", evidence: "no observable por SuiteQL" }),
-  "suitescript": () => ({ enabled: seen("script"), count: n("script"), metric: "scripts", evidence: `${fmt(n("script"))} scripts · ${fmt(n("scriptdeployment"))} deployments · ${fmt(n("scheduledscriptinstance"))} ejecuciones agendadas` }),
-  "suiteflow": () => ({ enabled: null, count: 0, metric: "—", evidence: "los workflows no se exponen en SuiteQL; salen del export de SDF" }),
-  "custom-records": () => ({ enabled: seen("customrecordtype"), count: n("customrecordtype"), metric: "custom record types", evidence: `${fmt(n("customrecordtype"))} custom records · ${fmt(n("customlist"))} listas` }),
-  "web-services-rest-tba": () => ({ enabled: true, count: 1, metric: "—", evidence: "confirmado: esta extracción corrió por REST + TBA" }),
+  "suiteanalytics-connect": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL (es licencia/ODBC)" }),
+  "suiteanalytics-workbook": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
+  "suitescript": () => ({ enabled: seen("script"), count: n("script"), metric: "scripts", evidence: `${fmt(n("script"))} scripts · ${fmt(n("scriptdeployment"))} deployments · ${fmt(n("scheduledscriptinstance"))} scheduled executions` }),
+  "suiteflow": () => ({ enabled: null, count: 0, metric: "—", evidence: "workflows are not exposed in SuiteQL; they come from the SDF export" }),
+  "custom-records": () => ({ enabled: seen("customrecordtype"), count: n("customrecordtype"), metric: "custom record types", evidence: `${fmt(n("customrecordtype"))} custom records · ${fmt(n("customlist"))} lists` }),
+  "web-services-rest-tba": () => ({ enabled: true, count: 1, metric: "—", evidence: "confirmed: this extraction ran over REST + TBA" }),
   "suitetax": () => ({ enabled: seen("taxtype"), count: n("taxtype") + n("nexus"), metric: "tax types + nexus", evidence: `${fmt(n("taxtype"))} tax types · ${fmt(n("nexus"))} nexus · ${fmt(n("salestaxitem"))} sales tax items` }),
-  "suitecommerce": () => ({ enabled: null, count: 0, metric: "—", evidence: "no observable por SuiteQL" }),
-  "crm-opportunities": () => ({ enabled: txn("opportunity") > 0 || seen("campaign") ? true : null, count: txn("opportunity"), metric: "oportunidades", evidence: txn("opportunity") ? `${fmt(txn("opportunity"))} oportunidades` : "sin transacciones Opportunity; CRM prácticamente sin uso" }),
-  "approval-routing": () => ({ enabled: null, count: 0, metric: "—", evidence: "no observable por SuiteQL" }),
-  "period-end-journals": () => ({ enabled: true, count: txn("^journal"), metric: "asientos", evidence: `${fmt(txn("^journal"))} journals` }),
+  "suitecommerce": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
+  "crm-opportunities": () => ({ enabled: txn("opportunity") > 0 || seen("campaign") ? true : null, count: txn("opportunity"), metric: "opportunities", evidence: txn("opportunity") ? `${fmt(txn("opportunity"))} opportunities` : "no Opportunity transactions; CRM effectively unused" }),
+  "approval-routing": () => ({ enabled: null, count: 0, metric: "—", evidence: "not observable through SuiteQL" }),
+  "period-end-journals": () => ({ enabled: true, count: txn("^journal"), metric: "journal entries", evidence: `${fmt(txn("^journal"))} journals` }),
 };
 
 // ── clasificación ────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ function classify(r) {
 
 const modules = CATALOG.modules.map(m => {
   const rule = RULES[m.id];
-  const r = rule ? rule() : { enabled: null, count: 0, metric: "—", evidence: "sin regla de detección" };
+  const r = rule ? rule() : { enabled: null, count: 0, metric: "—", evidence: "no detection rule" };
   return {
     id: m.id, name: m.name, area: m.area,
     enabled: r.enabled,
@@ -139,7 +139,7 @@ const modules = CATALOG.modules.map(m => {
 const byId = Object.fromEntries(modules.map(m => [m.id, m]));
 const dimensionMap = [
   { nspbDim: "Entity", source: "Subsidiary", members: n("subsidiary"), quality: n("subsidiary") > 1 ? "ok" : "entidad única — Entity sería trivial" },
-  { nspbDim: "Account", source: "Chart of Accounts", members: n("account"), quality: (() => { const u = list("accounts_unused").length; return u ? `${u} cuentas sin movimiento a excluir antes de mapear` : "ok"; })() },
+  { nspbDim: "Account", source: "Chart of Accounts", members: n("account"), quality: (() => { const u = list("accounts_unused").length; return u ? `${u} accounts sin movimiento a excluir antes de mapear` : "ok"; })() },
   { nspbDim: "Cost Center", source: "Department", members: n("department"), quality: n("department") ? "verificar % de transacciones taggeadas" : "sin departments" },
   { nspbDim: "Custom dim", source: "Class", members: n("classification"), quality: n("classification") ? "verificar % taggeado" : "sin classes" },
   { nspbDim: "Custom dim", source: "Location", members: n("location"), quality: n("location") ? "verificar % taggeado" : "sin locations" },
@@ -152,7 +152,7 @@ if (byId["native-budgets"]?.state === "active")
 if (byId["multi-book"]?.state === "dormant")
   gaps.push("Un solo accounting book: confirmar que no haya requerimiento de GAAP dual antes de definir el origen de actuals.");
 if (byId["statistical-accounts"]?.state !== "active")
-  gaps.push("Sin cuentas estadísticas detectadas: los drivers de Planning (headcount, unidades) habría que construirlos.");
+  gaps.push("Sin accounts estadísticas detectadas: los drivers de Planning (headcount, unidades) habría que construirlos.");
 if (byId["projects"]?.state === "partial")
   gaps.push("Projects sin PSA (project tasks y time-to-charge en cero): el detalle de proyecto para planeación es más pobre de lo que sugiere el conteo.");
 if (byId["nspb-connector"]?.state === "unknown")

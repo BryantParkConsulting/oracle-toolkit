@@ -43,60 +43,60 @@ const list = k => (Array.isArray(shape[k]) ? shape[k] : []);
  * jugador maduro de ese nicho suele tener andando — la base de la recomendación.
  */
 const VERTICALS = [
-  { id: "events-dmc", name: "Eventos corporativos / DMC / experiencial",
+  { id: "events-dmc", name: "Corporate events / DMC / experiential",
     terms: ["audio visual", "decor", "scenic", "set/strike", "entertainment", "catering", "dine around", "gifting", "amenities", "gratuit", "venue", "production support", "team building", "program manag", "attendee", "registration", "destination", "onsite", "off-site", "banquet", "av "],
     structure: f => f.projects > 500 && f.apRatio > 2 && !f.inventory,
     expect: ["projects", "ar-invoicing", "ap-vendor-bills", "expense-reports", "arm-rev-rec", "approval-routing"],
-    note: "Modelo pass-through: se factura al cliente y se paga a decenas de proveedores por evento. El margen vive en el fee de management, así que la rentabilidad POR EVENTO es la métrica que manda." },
-  { id: "saas", name: "SaaS / software por suscripción",
+    note: "Pass-through model: the client is billed and dozens of vendors are paid per event. Margin lives in the management fee, so profitability PER EVENT is the metric that matters." },
+  { id: "saas", name: "SaaS / subscription software",
     terms: ["subscription", "license", "seat", "arr", "mrr", "saas", "renewal", "usage tier", "platform fee", "onboarding fee", "implementation fee"],
     structure: f => f.subscriptions > 0 || (f.arm > 1000 && f.items < 100 && !f.inventory),
     expect: ["suitebilling", "arm-rev-rec", "ar-invoicing", "crm-opportunities"],
-    note: "El reconocimiento de ingresos y la mecánica de renovación son el centro. Sin SuiteBilling, las suscripciones se manejan a mano." },
-  { id: "prof-services", name: "Servicios profesionales / consultoría",
+    note: "Revenue recognition and renewal mechanics are central. Without SuiteBilling, subscriptions are handled manually." },
+  { id: "prof-services", name: "Professional services / consulting",
     terms: ["consulting", "billable", "timesheet", "utilization", "retainer", "milestone", "statement of work", "resource", "engagement"],
     structure: f => f.projects > 100 && f.timesheets > 0,
     expect: ["projects", "expense-reports", "ar-invoicing", "arm-rev-rec"],
-    note: "Utilización y realización de tarifa son el KPI. Sin PSA (project tasks + time-to-charge) no hay margen por proyecto." },
-  { id: "agency", name: "Agencia de marketing / publicidad",
+    note: "Utilization and rate realization are the KPIs. Without PSA (project tasks + time-to-charge) there is no per-project margin." },
+  { id: "agency", name: "Marketing / advertising agency",
     terms: ["media buy", "campaign", "creative", "retainer", "billable hours", "pass-through", "markup", "client billing"],
     structure: f => f.projects > 100 && f.apRatio > 1.5,
     expect: ["projects", "ap-vendor-bills", "ar-invoicing", "expense-reports"],
-    note: "Pass-through de medios: el revenue bruto engaña, lo que importa es el net revenue." },
-  { id: "wholesale", name: "Distribución mayorista",
+    note: "Media pass-through: gross revenue is misleading; net revenue is what matters." },
+  { id: "wholesale", name: "Wholesale distribution",
     terms: ["sku", "pallet", "case pack", "landed cost", "freight", "warehouse", "backorder", "dropship"],
     structure: f => f.inventory,
     expect: ["inventory", "demand-planning", "ar-invoicing", "ap-vendor-bills"],
-    note: "Rotación de inventario y fill rate. Demand planning es el upgrade natural." },
-  { id: "manufacturing", name: "Manufactura",
+    note: "Inventory turnover and fill rate. Demand planning is the natural upgrade." },
+  { id: "manufacturing", name: "Manufacturing",
     terms: ["bom", "work order", "assembly", "routing", "scrap", "wip", "yield", "shop floor"],
     structure: f => f.manufacturing,
     expect: ["manufacturing", "inventory", "demand-planning"],
-    note: "Costeo estándar vs real y variaciones de producción." },
-  { id: "construction", name: "Construcción / contratistas",
+    note: "Standard vs actual costing and production variances." },
+  { id: "construction", name: "Construction / contracting",
     terms: ["job cost", "change order", "retainage", "subcontractor", "progress billing", "punch list", "wip schedule", "bond"],
     structure: f => f.projects > 100,
     expect: ["projects", "ap-vendor-bills", "ar-invoicing", "approval-routing"],
-    note: "Percentage-of-completion y retainage. El WIP schedule es el entregable financiero clave." },
-  { id: "nonprofit", name: "Sin fines de lucro",
+    note: "Percentage-of-completion and retainage. The WIP schedule is the key financial deliverable." },
+  { id: "nonprofit", name: "Nonprofit",
     terms: ["grant", "donor", "pledge", "restricted", "fund", "program service", "contribution", "endowment"],
     structure: () => false,
     expect: ["segments-class-dept-loc", "ar-invoicing"],
-    note: "Fondos restringidos vs no restringidos: la segmentación es obligatoria, no opcional." },
-  { id: "healthcare", name: "Servicios de salud",
+    note: "Restricted vs unrestricted funds: segmentation is mandatory, not optional." },
+  { id: "healthcare", name: "Healthcare services",
     terms: ["patient", "claim", "payer", "encounter", "clinic", "provider", "reimbursement", "cpt"],
     structure: () => false, expect: ["ar-invoicing", "segments-class-dept-loc"],
-    note: "Contractual allowances y mix de payers." },
-  { id: "media", name: "Medios / editorial",
+    note: "Contractual allowances and payer mix." },
+  { id: "media", name: "Media / publishing",
     terms: ["advertis", "circulation", "subscri", "royalt", "content licen", "impression", "airtime"],
-    structure: () => false, expect: ["arm-rev-rec", "ar-invoicing"], note: "Revenue diferido por suscripción y royalties." },
+    structure: () => false, expect: ["arm-rev-rec", "ar-invoicing"], note: "Deferred subscription revenue and royalties." },
   { id: "realestate", name: "Real estate / property management",
     terms: ["tenant", "lease", "rent roll", "cam ", "occupancy", "property", "escrow"],
     structure: f => f.leases > 0,
-    expect: ["fixed-assets", "ar-invoicing", "segments-class-dept-loc"], note: "ASC 842 y CAM reconciliation." },
-  { id: "logistics", name: "Logística / transporte",
+    expect: ["fixed-assets", "ar-invoicing", "segments-class-dept-loc"], note: "ASC 842 and CAM reconciliation." },
+  { id: "logistics", name: "Logistics / transportation",
     terms: ["freight", "carrier", "shipment", "lane", "tender", "bill of lading", "linehaul", "fuel surcharge"],
-    structure: () => false, expect: ["ap-vendor-bills", "ar-invoicing"], note: "Costo por envío y accessorials." },
+    structure: () => false, expect: ["ap-vendor-bills", "ar-invoicing"], note: "Cost per shipment and accessorials." },
 ];
 
 // ── vocabulario de la cuenta ─────────────────────────────────────────────────
@@ -106,11 +106,12 @@ const records = list("custom_record_usage").map(r => String(r.name || ""));
 const txnTypes = [...new Set(list("txn_by_type_year").map(r => String(r.tipo || "")))];
 
 // Los ítems pesan más: son literalmente a qué le factura la empresa.
+// Las etiquetas van en inglés: se renderizan como evidencia en el entregable.
 const CORPUS = [
-  { src: "ítems", weight: 3, text: items.join(" | ").toLowerCase() },
-  { src: "tipos de transacción", weight: 2, text: txnTypes.join(" | ").toLowerCase() },
+  { src: "item names", weight: 3, text: items.join(" | ").toLowerCase() },
+  { src: "transaction types", weight: 2, text: txnTypes.join(" | ").toLowerCase() },
   { src: "custom records", weight: 1, text: records.join(" | ").toLowerCase() },
-  { src: "cuentas", weight: 1, text: accounts.join(" | ").toLowerCase() },
+  { src: "account names", weight: 1, text: accounts.join(" | ").toLowerCase() },
 ];
 
 const facts = {
@@ -130,7 +131,7 @@ const scored = VERTICALS.map(v => {
   let score = 0;
   for (const term of v.terms) {
     for (const c of CORPUS) {
-      if (c.text.includes(term)) { score += c.weight; hits.push(`\`${term}\` en ${c.src}`); break; }
+      if (c.text.includes(term)) { score += c.weight; hits.push(`\`${term}\` in ${c.src}`); break; }
     }
   }
   let structural = false;
@@ -140,7 +141,7 @@ const scored = VERTICALS.map(v => {
 }).filter(v => v.score > 0).sort((a, b) => b.score - a.score);
 
 const top = scored[0];
-const confidence = !top ? "ninguna" : top.score >= 18 ? "alta" : top.score >= 9 ? "media" : "baja";
+const confidence = !top ? "none" : top.score >= 18 ? "high" : top.score >= 9 ? "medium" : "low";
 
 // ── benchmark externo ────────────────────────────────────────────────────────
 // BPC no tiene base propia de cuentas NetSuite para comparar, así que la
@@ -189,7 +190,7 @@ const out = {
     sources: BENCH.sources,
     caveat: BENCH.caveat,
   } : null,
-  caveat: "Los términos son ambiguos entre industrias — `FAM` es Fixed Assets en general pero *familiarization trip* en eventos y turismo; `Program` es software en un nicho y evento en otro. Por eso se puntúa por acumulación y se muestra la evidencia. **Confirmar el nicho con el cliente antes de usarlo en una recomendación comercial.**",
+  caveat: "Industry terms are ambiguous — `FAM` means Fixed Assets in general but *familiarization trip* in events and travel; `Program` means software in one niche and an event in another. Scoring therefore accumulates signals and always returns the evidence. Confirm the niche with the client before using it in any recommendation.",
 };
 
 fs.mkdirSync(path.join(DIR, "erp"), { recursive: true });

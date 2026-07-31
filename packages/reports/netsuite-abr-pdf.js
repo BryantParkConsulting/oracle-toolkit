@@ -35,7 +35,7 @@ if (!probe || !mods) { console.error(`Faltan datos en ${DIR}. Corré el pipeline
 // ── tokens BPC ───────────────────────────────────────────────────────────────
 const NAVY = '#1F3C51', SAGE = '#619C8A', GOLD = '#F2CC5F', ORANGE = '#EC8842', DANGER = '#C9512E', GRAY = '#D9D9D9';
 const STATE_COLOR = { active: SAGE, partial: GOLD, dormant: ORANGE, absent: '#9aa3ab', unknown: '#c3cad1' };
-const STATE_ES = { active: 'En uso', partial: 'Uso parcial', dormant: 'Sin uso', absent: 'No habilitado', unknown: 'No visible' };
+const STATE_ES = { active: 'In use', partial: 'Partial use', dormant: 'Not used', absent: 'Not enabled', unknown: 'Not visible' };
 
 const T = {}; for (const t of Object.values(probe.modules)) Object.assign(T, t);
 const n = k => (T[k]?.exists ? Number(T[k].rows ?? 0) : 0);
@@ -103,7 +103,7 @@ const byId = Object.fromEntries(mods.modules.map(m => [m.id, m]));
 const sorted = [...mods.modules].sort((a, b) => ['active', 'partial', 'dormant', 'absent', 'unknown'].indexOf(a.state) - ['active', 'partial', 'dormant', 'absent', 'unknown'].indexOf(b.state));
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
-const html = `<!doctype html><html lang="es"><head><meta charset="utf-8">
+const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <style>
 @page { size: A4; margin: 14mm 13mm; }
 * { box-sizing: border-box; }
@@ -116,7 +116,7 @@ h3 { font-size:11pt; margin-top:14px; }
          background:linear-gradient(150deg, ${NAVY} 0%, #16303f 100%); color:#fff; margin:-14mm -13mm; padding:22mm 18mm; }
 .cover h1 { color:#fff; font-size:30pt; line-height:1.15; margin:0 0 10px; }
 .cover .sub { color:${GOLD}; font-size:13pt; font-weight:600; }
-.badge { display:inline-block; background:${DANGER}; color:#fff; font-size:8.5pt; font-weight:700;
+.badge { display:inline-block; background:${SAGE}; color:#fff; font-size:8.5pt; font-weight:700;
          padding:3px 10px; border-radius:3px; letter-spacing:.06em; }
 /* El logo de BPC es navy: sobre la portada navy desaparece. Se invierte a blanco. */
 .logo { height:34px; filter: brightness(0) invert(1); }
@@ -140,85 +140,85 @@ ul { margin:5px 0 5px 16px; padding:0; } li { margin:3px 0; }
 <div class="cover">
   <div>${b64('bpc-logo.b64') ? `<img class="logo" src="data:image/png;base64,${b64('bpc-logo.b64')}">` : `<div style="font-size:15pt;font-weight:700;color:#fff">BPC</div>`}</div>
   <div>
-    <div class="badge">INTERNO · BETA — NO ENVIAR AL CLIENTE</div>
+    <div class="badge">PREPARED BY BPC</div>
     <h1 style="margin-top:16px">${esc(NAME)}</h1>
     <div class="sub">NetSuite Account Business Review</div>
     <div style="margin-top:22px;font-size:10pt;opacity:.85;max-width:120mm">
-      ${V ? esc(V.name) : 'Micro-vertical no determinado'} · cuenta <b>${esc(probe.account)}</b><br>
-      ${fmt(n('transaction'))} transacciones · ${fmt(n('transactionline'))} líneas · ${fmt(n('account'))} cuentas
+      ${V ? esc(V.name) : 'Micro-vertical not determined'} · cuenta <b>${esc(probe.account)}</b><br>
+      ${fmt(n('transaction'))} transactions · ${fmt(n('transactionline'))} lines · ${fmt(n('account'))} accounts
     </div>
   </div>
   <div style="font-size:8.5pt;opacity:.7">
-    Generado ${new Date().toISOString().slice(0, 10)} · análisis automático sobre SuiteQL/REST<br>
-    Todo lo prescriptivo es <b>sugerencia a validar con el cliente</b>, no diagnóstico cerrado.
+    Generated ${new Date().toISOString().slice(0, 10)} · automated analysis over SuiteQL / REST<br>
+    Everything prescriptive here is a <b>suggested change to validate together</b>, not a closed diagnosis.
   </div>
 </div>
 
 <div class="page-break"></div>
-<h2>1. Resumen</h2>
+<h2>1. Summary</h2>
 
 <div class="kpi">
   <div><div class="v">${yr.length ? money(years[yr[yr.length - 2]]?.rev || 0) : '—'}</div><div class="l">Revenue ${yr[yr.length - 2] || ''}</div></div>
-  <div><div class="v">${fmt(n('job'))}</div><div class="l">Proyectos / eventos</div></div>
-  <div><div class="v">${mods.stateCounts.active || 0}/${mods.modules.length}</div><div class="l">Módulos en uso</div></div>
-  <div><div class="v">${conn?.integrations?.length || 0}</div><div class="l">Integraciones activas</div></div>
+  <div><div class="v">${fmt(n('job'))}</div><div class="l">Projects / events</div></div>
+  <div><div class="v">${mods.stateCounts.active || 0}/${mods.modules.length}</div><div class="l">Modules in use</div></div>
+  <div><div class="v">${conn?.integrations?.length || 0}</div><div class="l">Connected applications</div></div>
 </div>
 
-${V ? `<div class="note"><b>Micro-vertical: ${esc(V.name)}</b> (confianza ${esc(V.confidence)}).<br>
-${esc(V.note)}<br><span class="small">Detectado del vocabulario propio de la cuenta: ${V.evidence.slice(0, 6).map(e => esc(e.replace(/`/g, ''))).join(' · ')}. <b>Confirmar con el cliente.</b></span></div>` : ''}
+${V ? `<div class="note"><b>Micro-vertical: ${esc(V.name)}</b> (confidence: ${esc(V.confidence)}).<br>
+${esc(V.note)}<br><span class="small">Derived from the vocabulary in your own account: ${V.evidence.slice(0, 6).map(e => esc(e.replace(/`/g, ''))).join(' · ')}. <b>Worth confirming.</b></span></div>` : ''}
 
-<h3>Hallazgos que sostienen la conversación</h3>
+<h3>Key observations</h3>
 ${(B?.redFlags || []).map(f => `<div class="flag">${esc(f)}</div>`).join('')}
 ${byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active'
-    ? `<div class="warn"><b>Compraron NSPB y no lo adoptaron.</b> El bundle del connector está instalado y aun así el presupuesto sigue entrando por carga nativa (${esc(byId['native-budgets'].evidence)}). No es una venta nueva: es un rescate de algo que ya pagan.</div>` : ''}
+    ? `<div class="warn"><b>Two parallel sources of truth for the budget.</b> The NSPB connector bundle is installed, and at the same time budgets continue to be loaded natively into NetSuite (${esc(byId['native-budgets'].evidence)}). Worth agreeing which one is intended to be authoritative — running both tends to cost reconciliation effort every cycle.</div>` : ''}
 
-<h2>2. Escala y resultado</h2>
+<h2>2. Scale and results</h2>
 ${pnlChart()}
-<table><tr><th>Año</th><th class="num">Revenue</th><th class="num">COGS</th><th class="num">Opex</th><th class="num">Margen bruto</th><th class="num">Resultado</th></tr>
+<table><tr><th>Year</th><th class="num">Revenue</th><th class="num">COGS</th><th class="num">Opex</th><th class="num">Gross margin</th><th class="num">Result</th></tr>
 ${yr.map(y => { const d = years[y]; const gm = d.rev ? (100 * (d.rev - d.cogs) / d.rev) : 0; const res = d.rev - d.cogs - d.opex;
   return `<tr><td>${y}${y === '2026' ? ' *' : ''}</td><td class="num">${money(d.rev)}</td><td class="num">${money(d.cogs)}</td><td class="num">${money(d.opex)}</td><td class="num">${gm.toFixed(0)}%</td><td class="num" style="color:${res < 0 ? DANGER : '#333'}">${money(res)}</td></tr>`; }).join('')}
 </table>
-<p class="small">* ${yr[yr.length - 1]} es año parcial. Cifras del GL con <code>posting='T'</code>; no son estados financieros auditados.</p>
-${B?.keyMetric ? `<div class="note"><b>La métrica que manda en este nicho:</b> ${esc(B.keyMetric)}</div>` : ''}
+<p class="small">* ${yr[yr.length - 1]} is a partial year. Figures come from the GL with <code>posting='T'</code>; these are not audited financial statements.</p>
+${B?.keyMetric ? `<div class="note"><b>The metric that matters most in this niche:</b> ${esc(B.keyMetric)}</div>` : ''}
 
 <div class="page-break"></div>
-<h2>3. Qué tienen habilitado y qué usan</h2>
+<h2>3. What is enabled and what is actually used</h2>
 ${stateBar()}
-<table><tr><th>Módulo</th><th>Estado</th><th>Evidencia</th></tr>
+<table><tr><th>Module</th><th>Status</th><th>Evidence</th></tr>
 ${sorted.map(m => `<tr><td>${esc(m.name)}</td><td><span class="pill" style="background:${STATE_COLOR[m.state]}">${STATE_ES[m.state]}</span></td><td>${esc(String(m.evidence).slice(0, 95))}</td></tr>`).join('')}
 </table>
-<p class="small"><b>"No visible" no es "no lo tienen".</b> SuiteQL solo expone un record type si la feature está habilitada <i>y</i> el rol de la integración la ve. Esos ${mods.stateCounts.unknown || 0} módulos requieren el export de SDF o la pantalla de Enable Features para cerrarse.</p>
+<p class="small"><b>"Not visible" does not mean "not there".</b> SuiteQL only exposes a record type when the feature is enabled <i>and</i> the integration role can see it. Those ${mods.stateCounts.unknown || 0} modules need an SDF export or the Enable Features screen to be resolved either way — we have deliberately not guessed.</p>
 
-<h2>4. Ecosistema conectado</h2>
-<table><tr><th>Aplicación</th><th class="num">Tokens</th><th class="num">Activos</th><th>Desde</th></tr>
+<h2>4. Connected ecosystem</h2>
+<table><tr><th>Application</th><th class="num">Tokens</th><th class="num">Active</th><th>Since</th></tr>
 ${(conn?.integrations || []).slice(0, 12).map(i => `<tr><td>${esc(i.app)}</td><td class="num">${i.tokens}</td><td class="num">${i.activos}</td><td>${esc(i.desde)}</td></tr>`).join('')}
 </table>
-${competing.length ? `<div class="warn"><b>Ya tienen software que cubre lo que podríamos proponer.</b> Verificar alcance real antes de posicionar nada — que exista el token no dice cuánto lo usan.
-<ul>${competing.map(c => `<li><b>${esc(c.app)}</b> (${esc(c.competing.area)}, desde ${esc(c.desde)}) — ${esc(c.competing.impacto)}</li>`).join('')}</ul></div>` : ''}
-${(B?.missingSuiteApps || []).length ? `<h3>SuiteApps del nicho que no tienen</h3><ul>${B.missingSuiteApps.map(a => `<li><b>${esc(a.name)}</b> — ${esc(a.what)}</li>`).join('')}</ul>` : ''}
+${competing.length ? `<div class="note"><b>Systems that already cover adjacent ground.</b> These are worth mapping before any new scope is considered, so that nothing is duplicated. Note that an active token tells us a connection exists — not how heavily it is used.
+<ul>${competing.map(c => `<li><b>${esc(c.app)}</b> (${esc(c.competing.area)}, since ${esc(c.desde)}) — ${esc(c.competing.impacto)}</li>`).join('')}</ul></div>` : ''}
+${(B?.missingSuiteApps || []).length ? `<h3>Industry SuiteApps not currently installed</h3><ul>${B.missingSuiteApps.map(a => `<li><b>${esc(a.name)}</b> — ${esc(a.what)}</li>`).join('')}</ul>` : ''}
 
 <div class="page-break"></div>
-<h2>5. Deuda de configuración</h2>
+<h2>5. Configuration debt</h2>
 <table>
-<tr><th>Hallazgo</th><th class="num">Cifra</th><th>Lectura</th></tr>
-<tr><td>Custom fields sin un solo valor</td><td class="num">${deadFields ? `${deadFields.dead} / ${deadFields.total}` : '—'}</td><td>Candidatos a deprecar. Confirmar antes que no los escriba un script o una integración de baja frecuencia.</td></tr>
-<tr><td>Cuentas sin ningún asiento</td><td class="num">${fmt((rd(path.join(DIR, 'netsuite', 'shape.json'))?.accounts_unused || []).length)} / ${fmt(n('account'))}</td><td>Inflan la dimensión Account si se arrastran a un modelo de planeación.</td></tr>
-<tr><td>Custom records / listas</td><td class="num">${fmt(n('customrecordtype'))} / ${fmt(n('customlist'))}</td><td>Superficie de mantenimiento.</td></tr>
-<tr><td>Scripts / deployments</td><td class="num">${fmt(n('script'))} / ${fmt(n('scriptdeployment'))}</td><td>Customización viva a considerar en cualquier upgrade.</td></tr>
+<tr><th>Finding</th><th class="num">Figure</th><th>What it means</th></tr>
+<tr><td>Custom fields with no value ever populated</td><td class="num">${deadFields ? `${deadFields.dead} / ${deadFields.total}` : '—'}</td><td>Candidates to retire. Before removing any, worth confirming none is written by a script or a low-frequency integration.</td></tr>
+<tr><td>Accounts with no journal activity</td><td class="num">${fmt((rd(path.join(DIR, 'netsuite', 'shape.json'))?.accounts_unused || []).length)} / ${fmt(n('account'))}</td><td>These inflate the Account dimension if carried into a planning model.</td></tr>
+<tr><td>Custom records / lists</td><td class="num">${fmt(n('customrecordtype'))} / ${fmt(n('customlist'))}</td><td>Ongoing maintenance surface.</td></tr>
+<tr><td>Scripts / deployments</td><td class="num">${fmt(n('script'))} / ${fmt(n('scriptdeployment'))}</td><td>Live customization to account for in any upgrade.</td></tr>
 </table>
 
-<h2>6. Qué recomendamos</h2>
+<h2>6. Suggested next steps</h2>
 ${gaps().map((g, i) => `<div class="flag"><b>${i + 1}. ${esc(g.t)}</b><br>${esc(g.d)}</div>`).join('')}
 
-<h2>7. Qué no pudimos ver</h2>
+<h2>7. What this analysis could not see</h2>
 <ul>
-<li><b>${mods.stateCounts.unknown || 0} módulos sin determinar</b> — se resuelven con <code>suitecloud object:import</code> o la pantalla de Enable Features.</li>
-<li><b>El dolor de cierre</b> — SuiteQL no dice cuánto tarda el cierre ni cuántas conciliaciones viven en Excel. Hay que preguntarlo.</li>
-<li><b>El lado NSPB</b> — sin el LCM de Planning no se puede cuantificar el estado de la implementación que ya tienen.</li>
-<li><b>Integraciones que no usan TBA</b> — OAuth 2.0, SOAP con credenciales de usuario y SuiteAnalytics Connect no aparecen en el inventario de tokens.</li>
+<li><b>${mods.stateCounts.unknown || 0} modules we could not determine</b> — resolvable with <code>suitecloud object:import</code> or the Enable Features screen.</li>
+<li><b>Close effort</b> — SuiteQL cannot tell us how long the close takes or how many reconciliations live in spreadsheets. That has to be discussed.</li>
+<li><b>The Planning side</b> — without an NSPB LCM export we cannot assess the state of the Planning implementation already in place.</li>
+<li><b>Integrations not using TBA</b> — OAuth 2.0, SOAP with user credentials and SuiteAnalytics Connect do not appear in the token inventory, so the ecosystem may be broader than shown.</li>
 </ul>
 
-<div class="note" style="margin-top:16px"><b>Sobre este documento.</b> Generado automáticamente desde la cuenta NetSuite del cliente vía SuiteQL/REST. Cada cifra sale de una consulta, ninguna está estimada. El benchmark del nicho proviene de fuentes públicas (SuiteSuccess y el catálogo de Oracle), no de una base propia de cuentas comparables — orienta la conversación, no la cierra.</div>
+<div class="note" style="margin-top:16px"><b>About this document.</b> Generated automatically from your NetSuite account over SuiteQL / REST. Every figure comes from a query — none is estimated. The industry benchmark draws on public sources (SuiteSuccess and Oracle's module catalog) rather than a proprietary base of comparable accounts, so it is meant to frame the discussion rather than settle it.</div>
 
 </body></html>`;
 
@@ -226,13 +226,13 @@ ${gaps().map((g, i) => `<div class="flag"><b>${i + 1}. ${esc(g.t)}</b><br>${esc(
 function gaps() {
   const g = [];
   if (byId['projects']?.state === 'partial' && n('projecttask') === 0)
-    g.push({ t: 'Activar PSA sobre los proyectos existentes', d: `Hay ${fmt(n('job'))} proyectos pero project tasks y time-to-charge en cero. Sin eso no hay margen por proyecto — y en un modelo pass-through esa es la única métrica que importa. Es el mayor retorno técnico del análisis.` });
+    g.push({ t: 'Enable PSA on the existing projects', d: `There are ${fmt(n('job'))} projects but project tasks and time-to-charge are at zero. Without them there is no per-project margin — and in a pass-through model that is the metric that matters most. This is the highest-return change we see in the analysis.` });
   if (byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active')
-    g.push({ t: 'Rescatar la adopción de NSPB', d: 'El connector está instalado y el presupuesto sigue cargándose de forma nativa. Antes de proponer alcance nuevo hay que entender por qué no se adoptó: suele ser modelo mal dimensionado o falta de ownership, no producto.' });
+    g.push({ t: 'Revisit the Planning (NSPB) rollout', d: 'The connector is installed while budgets are still loaded natively. Before considering any new scope, it is worth understanding what stalled adoption — in our experience that is usually model sizing or ownership rather than the product itself.' });
   for (const x of (vert?.gapsForVertical || []))
-    if (x.id !== 'projects') g.push({ t: `Revisar ${x.name}`, d: `Estado actual: ${STATE_ES[x.state] || x.state}. ${x.evidence}. Es de lo que un jugador maduro de este nicho suele tener andando.` });
+    if (x.id !== 'projects') g.push({ t: `Review ${x.name}`, d: `Current status: ${STATE_ES[x.state] || x.state}. ${x.evidence}. This is typically running at mature organizations in this niche.` });
   if (competing.length)
-    g.push({ t: 'Mapear el solapamiento con el stack existente', d: `${competing.map(c => c.app).join(', ')} cubren áreas donde BPC podría proponer. Entender el alcance real de cada uno antes de armar cualquier propuesta.` });
+    g.push({ t: 'Map the overlap with the existing stack', d: `${competing.map(c => c.app).join(', ')} cover adjacent ground. Confirming what each one actually handles today will avoid duplicated capability in anything that follows.` });
   return g;
 }
 

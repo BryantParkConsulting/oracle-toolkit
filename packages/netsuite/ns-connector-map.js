@@ -29,19 +29,19 @@ const fmt = x => Number(x || 0).toLocaleString("es-AR");
 // Software que compite con — o cubre ya — lo que BPC suele proponer. Detectarlo
 // tarde es la diferencia entre una propuesta informada y un papelón.
 const COMPETING = {
-  floqast: { area: "Cierre / conciliación de cuentas", impacto: "Cubre buena parte del caso de NSAR. Verificar alcance antes de posicionar Account Reconciliation." },
-  blackline: { area: "Cierre / conciliación", impacto: "Compite directo con NSAR." },
-  adaptive: { area: "Planeación (Workday Adaptive)", impacto: "Compite directo con NSPB." },
-  anaplan: { area: "Planeación", impacto: "Compite directo con NSPB." },
-  vena: { area: "Planeación", impacto: "Compite directo con NSPB." },
-  pigment: { area: "Planeación", impacto: "Compite directo con NSPB." },
-  ramp: { area: "Gastos / tarjetas corporativas", impacto: "Fuente de gasto fuera del GL: afecta el detalle disponible para planear." },
-  concur: { area: "Gastos y viajes", impacto: "Ídem: los expense reports pueden no vivir en NetSuite." },
-  expensify: { area: "Gastos", impacto: "Ídem." },
-  coupa: { area: "Procurement", impacto: "El compromiso de gasto vive afuera." },
-  tipalti: { area: "AP automation", impacto: "AP parcialmente fuera de NetSuite." },
-  avalara: { area: "Impuestos", impacto: "Cálculo de impuestos externo." },
-  salesforce: { area: "CRM", impacto: "El pipeline vive afuera: relevante para planeación de ingresos." },
+  floqast: { area: "Close management / account reconciliation", impacto: "Covers much of the Account Reconciliation use case. Worth confirming its scope before considering NSAR." },
+  blackline: { area: "Close management / reconciliation", impacto: "Directly overlaps with Account Reconciliation." },
+  adaptive: { area: "Planning (Workday Adaptive)", impacto: "Directly overlaps with Planning & Budgeting." },
+  anaplan: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
+  vena: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
+  pigment: { area: "Planning", impacto: "Directly overlaps with Planning & Budgeting." },
+  ramp: { area: "Expense / corporate cards", impacto: "A spend source outside the GL, which limits the detail available for planning." },
+  concur: { area: "Travel and expense", impacto: "Expense reports may not live in NetSuite, with the same effect." },
+  expensify: { area: "Expense management", impacto: "Same effect." },
+  coupa: { area: "Procurement", impacto: "Spend commitment lives outside NetSuite." },
+  tipalti: { area: "AP automation", impacto: "Part of AP runs outside NetSuite." },
+  avalara: { area: "Tax", impacto: "Tax calculation happens externally." },
+  salesforce: { area: "CRM", impacto: "The sales pipeline lives outside NetSuite, which matters for revenue planning." },
 };
 
 const norm = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
