@@ -11,7 +11,7 @@ Antes vivía repartido en `oracle-epm-mcp`, `epm-planning-forge`, `engagement-re
 ## Estructura
 
 ```
-epm-toolkit/
+bpc-toolkit/
 ├── packages/
 │   ├── mcp-planning/   MCP de Planning: LCM + REST en vivo, desde Claude
 │   ├── forge/          genera dimensiones y forms (era un repo aparte Y una copia adentro del MCP)
