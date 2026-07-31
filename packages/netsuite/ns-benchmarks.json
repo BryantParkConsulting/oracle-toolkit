@@ -1,0 +1,111 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-07-31",
+  "purpose": "Benchmark externo de qué módulos y SuiteApps corresponden a cada micro-vertical. BPC no tiene base propia de cuentas NetSuite para comparar, así que la referencia viene de fuentes públicas — no de nuestros clientes.",
+  "sources": [
+    {
+      "id": "suitesuccess-editions",
+      "title": "NetSuite SuiteSuccess Editions: Comprehensive ERP Guide",
+      "url": "https://www.houseblend.io/articles/netsuite-suitesuccess-editions-guide",
+      "confidence": "media",
+      "note": "Resumen de tercero sobre las ediciones SuiteSuccess de Oracle, no documentación oficial. Sirve para orientar la conversación; NO citarlo como palabra de Oracle frente al cliente."
+    },
+    {
+      "id": "netsuite-modules",
+      "title": "NetSuite Modules Guide (Oracle)",
+      "url": "https://www.netsuite.com/portal/resource/articles/erp/netsuite-modules.shtml",
+      "confidence": "alta",
+      "note": "Fuente oficial de Oracle para el catálogo de módulos."
+    },
+    {
+      "id": "erp-research-modules",
+      "title": "NetSuite Modules List 2026",
+      "url": "https://www.erpresearch.com/en-us/netsuite-modules-list",
+      "confidence": "media"
+    }
+  ],
+  "caveat": "SuiteSuccess prescribe un punto de partida por industria, no un deber-ser. Que un módulo esté en la edición del nicho no significa que este cliente lo necesite: es una pregunta para la reunión, no un hallazgo. Todo lo que salga de acá va como 'suggested change' a validar.",
+
+  "verticals": {
+    "events-dmc": {
+      "suiteSuccessEdition": "No hay edición SuiteSuccess específica de eventos/DMC. Lo más cercano es Services (PSA). Es un dato en sí: el nicho está mal servido por el estándar y se resuelve con SuiteApps de terceros.",
+      "expectedModules": ["projects", "ar-invoicing", "ap-vendor-bills", "expense-reports", "approval-routing", "arm-rev-rec"],
+      "industrySuiteApps": [
+        { "name": "ConventionSuite", "what": "gestión de eventos y servicios sobre NetSuite", "url": "https://conventionsuite.com/event-services-management-software/" },
+        { "name": "Sererra EventSeries", "what": "event management para NetSuite", "url": "https://www.suiteapp.com/Sererra-Event-Series-Event-Management-for-Net-Suite" },
+        { "name": "NuSmart Event Management", "what": "eventos, presupuesto y asistentes", "url": "https://www.nuvistastech.com/netsuite-event-management-solution/" }
+      ],
+      "keyMetric": "Rentabilidad POR PROGRAMA (evento). El modelo es pass-through: el revenue bruto engaña y el margen real vive en el management fee.",
+      "redFlags": [
+        { "test": "projects > 500 && projecttask == 0", "say": "Los eventos se llevan como contenedores de facturación, sin PSA. Sin project tasks ni time-to-charge no hay margen por evento — que es justamente la única métrica que importa en pass-through." },
+        { "test": "expense-reports not active", "say": "Un DMC gasta on-site en cada destino. Si los expense reports no viven en NetSuite, el costo real del evento se arma por fuera." }
+      ]
+    },
+    "saas": {
+      "suiteSuccessEdition": "Software / SaaS",
+      "expectedModules": ["suitebilling", "arm-rev-rec", "ar-invoicing", "crm-opportunities"],
+      "industrySuiteApps": [],
+      "keyMetric": "ARR / MRR, churn y renovación.",
+      "redFlags": [
+        { "test": "arm active && suitebilling absent", "say": "Reconocimiento de ingresos andando pero sin SuiteBilling: las suscripciones y renovaciones se manejan a mano o afuera." }
+      ]
+    },
+    "prof-services": {
+      "suiteSuccessEdition": "Services / Professional Services (PSA)",
+      "expectedModules": ["projects", "expense-reports", "ar-invoicing", "arm-rev-rec"],
+      "industrySuiteApps": [],
+      "keyMetric": "Utilización y realización de tarifa.",
+      "redFlags": [
+        { "test": "projects > 100 && timebill == 0", "say": "Proyectos sin time-to-charge: no hay utilización ni margen por proyecto." }
+      ]
+    },
+    "agency": {
+      "suiteSuccessEdition": "Advertising / Media & Publishing",
+      "expectedModules": ["projects", "ap-vendor-bills", "ar-invoicing", "expense-reports"],
+      "industrySuiteApps": [],
+      "keyMetric": "Net revenue (no gross), por el pass-through de medios."
+    },
+    "wholesale": {
+      "suiteSuccessEdition": "Wholesale Distribution",
+      "expectedModules": ["inventory", "demand-planning", "ar-invoicing", "ap-vendor-bills"],
+      "prescribedBySuiteSuccess": ["Order Management", "WMS", "Inventory Management", "Supply & Demand Planning", "Procurement", "CRM", "B2B ecommerce", "lot/serial y bin management"],
+      "keyMetric": "Rotación de inventario, fill rate, deadstock."
+    },
+    "manufacturing": {
+      "suiteSuccessEdition": "Manufacturing (discrete / process / mixed-mode)",
+      "expectedModules": ["manufacturing", "inventory", "demand-planning"],
+      "keyMetric": "Variaciones de costo estándar vs real, yield."
+    },
+    "media": {
+      "suiteSuccessEdition": "Media & Entertainment",
+      "expectedModules": ["arm-rev-rec", "ar-invoicing"],
+      "prescribedBySuiteSuccess": ["Project-based Billing", "Royalty Accounting", "Order Management", "Customer Portals", "subscripción/recurring billing", "Revenue Recognition ASC 606"],
+      "keyMetric": "ROI de campaña, churn de suscripción, ingreso por CPM."
+    },
+    "construction": {
+      "suiteSuccessEdition": "No hay edición específica; se arma sobre Services + Projects.",
+      "expectedModules": ["projects", "ap-vendor-bills", "ar-invoicing", "approval-routing"],
+      "keyMetric": "Percentage-of-completion, retainage, WIP schedule."
+    },
+    "realestate": {
+      "suiteSuccessEdition": "No hay edición específica.",
+      "expectedModules": ["fixed-assets", "ar-invoicing", "segments-class-dept-loc"],
+      "keyMetric": "Ocupación, CAM reconciliation, ASC 842."
+    },
+    "nonprofit": {
+      "suiteSuccessEdition": "Nonprofit / Social Impact",
+      "expectedModules": ["segments-class-dept-loc", "ar-invoicing"],
+      "keyMetric": "Fondos restringidos vs no restringidos, program service ratio."
+    },
+    "healthcare": {
+      "suiteSuccessEdition": "Healthcare & Life Sciences",
+      "expectedModules": ["ar-invoicing", "segments-class-dept-loc"],
+      "keyMetric": "Contractual allowances, mix de payers."
+    },
+    "logistics": {
+      "suiteSuccessEdition": "No hay edición específica.",
+      "expectedModules": ["ap-vendor-bills", "ar-invoicing"],
+      "keyMetric": "Costo por envío, accessorials."
+    }
+  }
+}

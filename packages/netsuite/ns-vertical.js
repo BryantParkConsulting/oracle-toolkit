@@ -142,13 +142,36 @@ const scored = VERTICALS.map(v => {
 const top = scored[0];
 const confidence = !top ? "ninguna" : top.score >= 18 ? "alta" : top.score >= 9 ? "media" : "baja";
 
+// ── benchmark externo ────────────────────────────────────────────────────────
+// BPC no tiene base propia de cuentas NetSuite para comparar, así que la
+// referencia sale de fuentes públicas (SuiteSuccess y el catálogo de Oracle).
+const BENCH = rd(path.join(__dirname, "ns-benchmarks.json")) || { verticals: {} };
+const bench = top ? BENCH.verticals[top.id] : null;
+
 // ── qué le falta para su nicho ───────────────────────────────────────────────
-let gaps = [];
+let gaps = [], missingSuiteApps = [], flags = [];
 if (top && modulesFile) {
   const byId = Object.fromEntries(modulesFile.modules.map(m => [m.id, m]));
-  gaps = top.expect.map(id => ({ id, mod: byId[id] }))
+  const expected = bench?.expectedModules || top.expect;
+  gaps = expected.map(id => ({ id, mod: byId[id] }))
     .filter(x => x.mod && x.mod.state !== "active")
     .map(x => ({ id: x.id, name: x.mod.name, state: x.mod.state, evidence: x.mod.evidence }));
+
+  // SuiteApps del nicho que no aparecen entre los bundles instalados
+  const installed = (rd(path.join(DIR, "erp", "connectors.json"))?.bundles || []).map(b => String(b.name || "").toLowerCase());
+  missingSuiteApps = (bench?.industrySuiteApps || [])
+    .filter(a => !installed.some(b => b.includes(String(a.name).toLowerCase().split(" ")[0])));
+
+  // red flags declaradas en el benchmark, evaluadas contra los hechos medidos
+  for (const rf of bench?.redFlags || []) {
+    const t = rf.test;
+    let hit = false;
+    if (/projects > 500 && projecttask == 0/.test(t)) hit = n("job") > 500 && n("projecttask") === 0;
+    else if (/expense-reports not active/.test(t)) hit = byId["expense-reports"]?.state !== "active";
+    else if (/arm active && suitebilling absent/.test(t)) hit = byId["arm-rev-rec"]?.state === "active" && byId["suitebilling"]?.state === "absent";
+    else if (/projects > 100 && timebill == 0/.test(t)) hit = n("job") > 100 && n("timebill") === 0;
+    if (hit) flags.push(rf.say);
+  }
 }
 
 // ── salida ───────────────────────────────────────────────────────────────────
@@ -158,6 +181,14 @@ const out = {
   alternatives: scored.slice(1, 4).map(v => ({ id: v.id, name: v.name, score: v.score })),
   facts,
   gapsForVertical: gaps,
+  benchmark: bench ? {
+    suiteSuccessEdition: bench.suiteSuccessEdition,
+    keyMetric: bench.keyMetric,
+    missingSuiteApps,
+    redFlags: flags,
+    sources: BENCH.sources,
+    caveat: BENCH.caveat,
+  } : null,
   caveat: "Los términos son ambiguos entre industrias — `FAM` es Fixed Assets en general pero *familiarization trip* en eventos y turismo; `Program` es software en un nicho y evento en otro. Por eso se puntúa por acumulación y se muestra la evidencia. **Confirmar el nicho con el cliente antes de usarlo en una recomendación comercial.**",
 };
 
@@ -175,5 +206,16 @@ if (top) {
     console.log(`\n  Lo que su nicho suele tener andando y acá no está activo:`);
     gaps.forEach(g => console.log(`    · ${g.name} — ${g.state}: ${String(g.evidence).slice(0, 70)}`));
   } else if (modulesFile) console.log(`\n  Tiene activo todo lo esperable para su nicho.`);
+
+  if (bench) {
+    console.log(`\n  Benchmark del nicho`);
+    console.log(`    Edición SuiteSuccess: ${bench.suiteSuccessEdition}`);
+    console.log(`    Métrica que manda:    ${bench.keyMetric}`);
+    if (missingSuiteApps.length) {
+      console.log(`    SuiteApps del nicho que NO tiene instaladas:`);
+      missingSuiteApps.forEach(a => console.log(`      · ${a.name} — ${a.what}`));
+    }
+    if (flags.length) { console.log(`    ⚠ Red flags:`); flags.forEach(f => console.log(`      · ${f}`)); }
+  }
 }
 console.log(`\n→ ${path.join(DIR, "erp", "vertical.json")}`);
