@@ -134,57 +134,57 @@ function stateBar() {
 function recommendations() {
   const R = [];
   if (n('job') > 500 && n('projecttask') === 0)
-    R.push({ pri: 'High', t: 'Make per-event profitability measurable',
+    R.push({ pri: 'High', t: 'Make the profit on each event visible',
       ev: `${fmt(n('job'))} projects carry billing, but project tasks and time-to-charge are both at zero. Cost of sales is already broken out by service line (${costRows.filter(r => r.tipo === 'COGS').slice(0, 4).map(r => String(r.name).replace(/^\d+\s+/, '').replace(/^Cost of [Ss]ales\s*-\s*/, '')).join(', ')}), so the cost taxonomy exists — it simply is not attributed to the event that consumed it.`,
-      sug: 'Attribute cost of sales to the project (event) that incurred it, and enable the minimum PSA footprint needed to carry it. This does not require redesigning the chart of accounts — the service-line split is already there.',
+      sug: 'We recommend attributing cost of sales to the event that incurred it, and enabling the minimum PSA footprint needed to carry that. It does not require redesigning your chart of accounts — the service-line split is already there.',
       why: `In a pass-through model gross revenue is a poor guide: the margin lives in the management fee and in how tightly each event is run. Without cost by event there is no way to tell a profitable program from one that consumed its fee. At ${money(D.rev)} of revenue and ${(100 * (D.rev - D.cogs) / (D.rev || 1)).toFixed(0)}% gross margin, a one-point improvement in event-level execution is worth roughly ${money(D.rev * 0.01)} a year.`,
       bpc: 'Design the job-costing model against the existing COGS taxonomy, configure the project structure and cost attribution, and stand up an event-level P&L that ties back to the GL.' });
 
   if (byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active') {
     const since = (conn?.integrations || []).filter(i => /pbcs|nspb/i.test(i.app)).map(i => i.desde).sort()[0];
-    R.push({ pri: 'High', t: 'Recover the return on the Planning investment already made',
+    R.push({ pri: 'High', t: 'Put the Planning system you already own to work',
       ev: `The NSPB connector bundle is installed and Planning integrations date back to ${since || 'several years ago'}. In parallel, ${byId['native-budgets'].evidence}.`,
-      sug: 'Before adding any new scope, establish which system is authoritative for the budget and understand what stalled adoption of the one already licensed.',
+      sug: 'We recommend you settle which system owns the budget before adding any new scope, and look at what stalled adoption of the one you already pay for.',
       why: 'Two sources of truth for the same budget cost reconciliation effort every cycle and undermine confidence in both. In our experience the cause is rarely the product — it is usually a model that was sized for a different business than the one that has to use it, or the absence of a clear owner.',
       bpc: 'Review the existing Planning model against how the business actually plans today, identify the specific gaps that pushed users back to spreadsheets, and propose a remediation path rather than a rebuild.' });
   }
 
   if (customers.length > 50 && cum(10) > 25)
-    R.push({ pri: 'High', t: 'Plan the two revenue engines separately',
+    R.push({ pri: 'High', t: 'Plan your two revenue engines separately',
       ev: `${fmt(customers.length)} billed customers, but the top 10 represent ${cum(10).toFixed(1)}% and the top 25 ${cum(25).toFixed(1)}% of billings.${agencyRev ? ` Several of the largest accounts are themselves event and incentive agencies, together about ${money(agencyRev)} — meaning a substantial share of volume arrives through a channel rather than direct from the end client.` : ''}`,
       sug: 'Model channel business and direct corporate business as distinct revenue engines, with their own drivers, margin assumptions and pipeline logic.',
       why: 'The two behave differently: channel volume is fewer, larger, more contractual relationships with thinner margin and concentration risk; direct business is higher-touch with different seasonality and win rates. A single blended forecast will be wrong on both, and it hides the concentration exposure.',
       bpc: 'Segment the revenue base, build the driver set for each engine, and design the planning model so that a shift in mix is visible rather than absorbed.' });
 
   if (swing > 2.5)
-    R.push({ pri: 'Medium', t: 'Build seasonality into the plan rather than smoothing it',
+    R.push({ pri: 'Medium', t: 'Build your seasonality into the plan instead of averaging it out',
       ev: `Monthly revenue swings ${swing.toFixed(1)}x between the strongest and weakest month of the last twelve.`,
       sug: 'Plan at monthly granularity with explicit seasonal profiles by service line, and extend the same curve to the cash and working-capital view.',
       why: 'An annual target divided by twelve is wrong every single month in a business shaped like this, which makes variance reporting meaningless — every month shows a variance that is really just the calendar. Vendor prepayments and receivables follow the same curve, so the cash requirement peaks well before the revenue does.',
       bpc: 'Derive seasonal profiles from actual history rather than assumption, and build the phasing logic into the model so it survives a change in event mix.' });
 
   if (belowLine > 0)
-    R.push({ pri: 'Medium', t: 'Separate operating performance from below-the-line charges',
+    R.push({ pri: 'Medium', t: 'Show operating performance separately from financing charges',
       ev: `The ${lastFull} net result of ${money(netResult)} absorbs ${money(goodwill)} of goodwill amortization and ${money(interest)} of interest expense — about ${money(belowLine)} of non-operating charges. Adding them back places operating performance near ${money(netResult + belowLine)}.`,
       sug: 'Structure the plan so that operating performance is visible on its own, with financing and purchase-accounting effects presented below it.',
       why: 'As reported, the business looks close to break-even, which is not what the operations are doing. Any target, incentive or investment case built on the net line will be aimed at the wrong number, and operational improvements will be invisible next to the amortization charge.',
       bpc: 'Define the reporting structure with finance, and build the model so both views come from the same data rather than from a separate spreadsheet.' });
 
   if (unusedAccounts || (fin && fin.coa.leavesWithoutActivity))
-    R.push({ pri: 'Medium', t: 'Clean the chart of accounts before it is mapped into Planning',
+    R.push({ pri: 'Medium', t: 'Clean up the chart of accounts before it is mapped into Planning',
       ev: `${fmt(unusedAccounts)} accounts have no journal activity at all${fin ? `, and ${fmt(fin.coa.leavesWithoutActivity)} of the ${fmt(fin.coa.leaves)} leaf accounts show no movement in the period analysed` : ''}.`,
       sug: 'Review inactive and unused accounts and retire what is genuinely dead before the structure is carried into a planning model.',
       why: 'Every account carried across becomes a dimension member that has to be maintained, calculated and reported on forever. Cleaning is far cheaper before the mapping than after, when references exist in forms, rules and reports.',
       bpc: 'Produce the candidate list with usage evidence for each account, and run the review with finance so the decision is documented.' });
 
-  R.push({ pri: 'High', t: 'Fix the data path for customer-level actuals',
+  R.push({ pri: 'High', t: 'Read customer revenue from the right place',
     ev: 'Revenue is recognized through journal entries that carry no entity, so at general-ledger level there is no customer attached to revenue.',
     sug: 'Source customer-level actuals from the billing layer — invoices and revenue arrangements — rather than from the GL, and validate that the two tie at total level.',
     why: 'Any plan or report that assumes customer revenue can be read from the GL will silently return nothing, or worse, partial figures. This is the kind of assumption that is usually discovered months into an implementation, after the model is built.',
     bpc: 'Define and test the extraction path, and build the tie-out that proves billing-layer revenue reconciles to the GL before it is relied on.' });
 
   if (deadFields?.dead)
-    R.push({ pri: 'Low', t: 'Retire configuration that is no longer earning its keep',
+    R.push({ pri: 'Low', t: 'Retire the configuration nobody uses',
       ev: `${fmt(deadFields.dead)} of ${fmt(deadFields.total)} measurable custom fields have never held a value, alongside ${fmt(n('customrecordtype'))} custom record types and ${fmt(n('script'))} scripts.`,
       sug: 'Review the never-populated fields for retirement, confirming first that none is written by a script or a low-frequency integration.',
       why: 'Unused configuration is not free: it lengthens every upgrade regression, clutters the interface for users, and makes it harder to tell which fields matter when the next integration is designed.',
@@ -331,6 +331,21 @@ function businessProfile() {
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
+/**
+ * Cada recomendación pertenece a un track: arreglar NetSuite, o construir sobre
+ * él con Oracle EPM. Mezclarlas obliga al lector a deducir a quién le habla cada
+ * una — y son equipos y presupuestos distintos.
+ */
+const TRACKS = [
+  { id: 'ns', title: 'A. Within NetSuite', sub: 'Changes to the ERP itself — they stand on their own and also unblock everything downstream.',
+    match: t => /profit on each event|chart of accounts|configuration nobody uses/i.test(t) },
+  { id: 'epm', title: 'B. For an Oracle EPM implementation (NSPB)', sub: 'What a Planning implementation would have to account for, whether it is a new build or a rescue of the one already licensed.',
+    match: t => /Planning system you already own|revenue engines|seasonality|operating performance separately|customer revenue from the right place/i.test(t) },
+  { id: 'other', title: 'C. To clarify before scoping anything', sub: 'Open questions that change the shape of any proposal.', match: () => true },
+];
+function trackOf(t) { return (TRACKS.find(k => k.match(t)) || TRACKS[TRACKS.length - 1]).id; }
+const grouped = TRACKS.map(k => ({ ...k, items: REC.list.filter(r => trackOf(r.t) === k.id) })).filter(k => k.items.length);
+
 const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <style>
 @page { size:A4; margin:14mm 13mm; }
@@ -475,13 +490,15 @@ ${savedSearchSpec()}` : ''}
 <div class="page-break"></div>
 <h2>5. What BPC recommends</h2>
 <p>Each recommendation below is grounded in a figure measured in the account. They are <b>suggestions to validate together</b> — the data tells us what is happening, not why, and the why usually changes the priority.</p>
-${REC.list.map((r, i) => `<div class="rec">
-<h3><span class="pill" style="background:${P[r.pri]}">${r.pri}</span> &nbsp;${i + 1}. ${esc(r.t)}</h3>
-<div class="lbl">What we see</div><p>${esc(r.ev)}</p>
-<div class="lbl">What we suggest</div><p>${esc(r.sug)}</p>
-<div class="lbl">Why it matters here</div><p>${esc(r.why)}</p>
-<div class="lbl">How BPC would help</div><p>${esc(r.bpc)}</p>
-</div>`).join('')}
+${grouped.map(k => `<h3 style="border-bottom:1px solid ${SAGE};padding-bottom:3px;margin-top:18px">${esc(k.title)}</h3>
+<p class="small" style="margin-top:-2px">${esc(k.sub)}</p>
+${k.items.map((r, i) => `<div class="rec">
+<h3><span class="pill" style="background:${P[r.pri]}">${r.pri}</span> &nbsp;${k.id.toUpperCase()}${i + 1}. ${esc(r.t)}</h3>
+<div class="lbl">What we found in your account</div><p>${esc(r.ev)}</p>
+<div class="lbl">What we recommend</div><p>${esc(r.sug)}</p>
+<div class="lbl">Why it matters for your business</div><p>${esc(r.why)}</p>
+<div class="lbl">How we would help</div><p>${esc(r.bpc)}</p>
+</div>`).join('')}`).join('')}
 
 ${REC.skip.length ? `<div class="note"><b>What we are deliberately not proposing.</b> ${REC.skip.map(c => `<b>${esc(c.app)}</b> has been connected since ${esc(c.desde)} and covers ${esc(c.competing.area).toLowerCase()}. We would want to understand its actual scope before suggesting anything adjacent to it, rather than proposing capability you already own.</div>`).join('')}` : ''}
 
