@@ -1,70 +1,101 @@
-# oracle-toolkit — BPC
+# oracle-toolkit
 
-Todo lo necesario para una entrega EPM en un solo lugar: **NSPB / Oracle Planning** y
-**NetSuite ERP**, desde la extracción cruda hasta el PDF con marca BPC.
+BPC's toolkit for Oracle EPM engagements: **NSPB / Oracle Planning** and **NetSuite ERP** —
+from raw extraction to a branded PDF deliverable.
 
-Antes vivía repartido en `oracle-epm-mcp`, `epm-planning-forge`, `engagement-report-kit`,
-`bpc-claude-plugins` y `nspb-migrate-fresh/tools`. Consolidado el 2026-07-31.
+Point it at a client's NetSuite account and it tells you which modules they actually use,
+what's connected, what their chart of accounts looks like, and what we should recommend.
+Point it at an NSPB LCM export and it tells you how their Planning environment is built.
 
-> ## 👉 ¿Primera vez? [**docs/GETTING-STARTED.md**](docs/GETTING-STARTED.md)
->
-> Instructivo completo de cero a entregable: **cómo pedirle el LCM al cliente**, **cómo se
-> crea el token de NetSuite paso a paso**, qué correr y en qué orden, el checklist previo a
-> entregar y qué hacer cuando algo falla. No asume contexto previo.
->
-> Para entender el diseño y las reglas internas: [`CLAUDE.md`](CLAUDE.md).
+> ### 👉 First time here? Read [**docs/GETTING-STARTED.md**](docs/GETTING-STARTED.md)
+> How to ask the client for the LCM export, how the NetSuite token is created step by step,
+> what to run and in what order. It assumes no prior context.
 
 ---
 
-## Estructura
+## Install
+
+```bash
+git clone https://github.com/brunohernangallo/oracle-toolkit.git
+```
+
+```bash
+cd oracle-toolkit && npm install
+```
+
+```bash
+node scripts/check-all.js
+```
+
+Requires Node 20+. PDF generation additionally needs Chrome or Edge; the NSPB route needs a
+Gemini API key.
+
+### Using it from Claude Code
+
+The toolkit ships a skill that walks you through an assessment end to end. Open Claude Code
+in the repo folder:
+
+```bash
+cd oracle-toolkit && claude
+```
+
+Claude reads `CLAUDE.md` on start, so it already knows the layout and the rules. Then just
+say what you want:
+
+> *"Run a NetSuite assessment for client Acme"*
+
+The **`epm-assessment`** skill takes over: it asks whether you're doing NSPB, NetSuite or
+both, requests only what it needs for the next step (the token, the LCM export), runs each
+phase, shows you the output, and then asks for the next input. The client folder is the
+state — you can stop and resume at any point.
+
+To make the skill available in every project, not just this one:
+
+```bash
+cp -r skills/epm-assessment ~/.claude/skills/
+```
+
+### Querying Planning live from Claude
+
+`packages/mcp-planning/` is an MCP server that exposes an NSPB environment to Claude — it can
+read an LCM snapshot and query or load data over REST. Register it once:
+
+```bash
+claude mcp add epm-planning -- node /absolute/path/to/oracle-toolkit/packages/mcp-planning/src/index.js
+```
+
+Then ask Claude things like *"list the business rules in the Plan cube"* or *"what's the FY26
+budget for account 5000"* and it answers from the live environment.
+
+---
+
+## Layout
 
 ```
 oracle-toolkit/
 ├── packages/
-│   ├── mcp-planning/   MCP de Planning: LCM + REST en vivo, desde Claude
-│   ├── forge/          genera dimensiones y forms (era un repo aparte Y una copia dentro del MCP)
-│   ├── lcm/            parse-lcm, enrich-kb, sanitize, navflow, audit → tenant-kb.json
-│   ├── planning/       operaciones en vivo: auth probe, dataslice load, validaciones
-│   ├── analysis/       cube-optimize, level-0, IPM, architecture/optimization report
-│   ├── netsuite/       extracción SuiteQL, módulos, conectores, micro-vertical, COA/IS/BS
-│   ├── recon/          NetSuite ↔ NSPB (semilla: revenue recon de Talogy)
-│   ├── reports/        md/JSON → PDF con el shell BPC (Chrome CDP :9222)
-│   └── engagement/     horas de engagement y reporte al cliente
-├── skills/             skill guiado epm-assessment + comandos /ns-* de NetSuite
-├── assets/             shell de diseño BPC (logo, hero, circles en base64)
-├── docs/               playbooks y la bitácora de aprendizajes
-└── clients/            datos de cliente — GITIGNORED EN BLOQUE, nunca a un remoto
+│   ├── netsuite/       SuiteQL extraction, module assessment, connectors, vertical, COA/IS/BS
+│   ├── lcm/            NSPB LCM export → tenant-kb.json
+│   ├── planning/       live operations against NSPB: auth, data load, validation
+│   ├── analysis/       cube optimization, level-0, IPM, current-state reports
+│   ├── reports/        md/JSON → BPC-branded PDF (Chrome CDP :9222)
+│   ├── mcp-planning/   MCP server for Planning (ESM)
+│   ├── forge/          generates dimensions and forms (ESM)
+│   ├── engagement/     engagement hours reporting
+│   └── recon/          NetSuite ↔ NSPB (seed; comparator not written yet)
+├── apps/nspb-excel-addin/   the Excel add-in + Cloudflare Worker product
+├── skills/             the guided assessment skill
+├── docs/               playbooks and the field-learnings log
+├── assets/             BPC design shell (logo, hero, base64)
+└── clients/            client data — GITIGNORED WHOLESALE, never leaves your disk
 ```
-
-## Empezar
-
-```bash
-npm install
-node scripts/check-all.js
-```
-
-El punto de entrada guiado es `skills/epm-assessment/SKILL.md`: pide lo que falta de a un
-paso en vez de exigir todo al principio, y usa la carpeta del cliente como estado.
 
 ---
 
-## Ruta NSPB — arranca con el LCM export
+## The NetSuite route
 
-```bash
-CLIENT=<c> GEMINI_API_KEY=... node packages/lcm/parse-lcm.js
-```
-
-```bash
-CLIENT=<c> node packages/analysis/architecture-report.js
-```
-
-Para el Optimization Review hacen falta además un export nivel-0 por cubo y el Activity
-Report; después `packages/analysis/cube-optimize.js`.
-
-## Ruta NetSuite — arranca con un token TBA del cliente
-
-La receta para crear la integración, el token y el rol está en
-[`docs/NS-ERP-README.md`](docs/NS-ERP-README.md) §3.
+You need a TBA token from the client's account — the full recipe is in
+[`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md).
 
 ```bash
 CLIENT=<c> node packages/netsuite/netsuite-export.js
@@ -87,61 +118,61 @@ CLIENT=<c> node packages/netsuite/ns-financials.js
 ```
 
 ```bash
-CLIENT=<c> CLIENT_NAME=<Nombre> node packages/reports/netsuite-abr-full.js
+CLIENT=<c> CLIENT_NAME=<Name> node packages/reports/netsuite-abr-full.js
 ```
 
-Consultas ad-hoc y probe de tablas: `packages/netsuite/ns-sql.js`.
+Ad-hoc queries and table probing: `packages/netsuite/ns-sql.js`.
 
-> Corré `ns-connector-map.js` **temprano**. Es lo que evita proponer algo que el cliente ya
-> compró: si aparece FloQast o BlackLine el caso de conciliación cambia; si aparece el bundle
-> `NSPBCS_`, Planning no es un upsell sino un problema de adopción.
+> **Run `ns-connector-map.js` early.** It's what stops you proposing something the client
+> already bought: if FloQast or BlackLine shows up, the reconciliation case changes; if the
+> `NSPBCS_` bundle shows up, Planning isn't an upsell — it's an adoption problem.
 
-### Qué produce cada script
+## The NSPB route
 
-| script | salida |
+```bash
+CLIENT=<c> GEMINI_API_KEY=... node packages/lcm/parse-lcm.js
+```
+
+```bash
+CLIENT=<c> node packages/analysis/architecture-report.js
+```
+
+The Optimization Review additionally needs a level-0 export per cube and the Activity Report;
+then `packages/analysis/cube-optimize.js`.
+
+## What each script produces
+
+| script | output |
 | --- | --- |
-| `netsuite/netsuite-export.js` | `netsuite/{probe,shape,metadata,fields}.json` — la extracción cruda |
-| `netsuite/ns-erp-assess.js` | `erp/modules.json` — 37 módulos en 5 estados |
-| `netsuite/ns-connector-map.js` | `erp/CONNECTORS.md` — bundles, integraciones, prefijos |
-| `netsuite/ns-vertical.js` | `erp/vertical.json` — micro-vertical + benchmark del nicho |
-| `netsuite/ns-financials.js` | `erp/FINANCIALS.md` — COA, IS y BS para el mapeo a Planning |
-| `netsuite/netsuite-assessment-report.js` | `netsuite/ASSESSMENT.md` — encaje de producto |
-| `reports/netsuite-abr-full.js` | ⭐ **el entregable grande**: ABR + recomendaciones de BPC |
-| `reports/netsuite-abr-pdf.js` | ABR corto, solo negocio |
-| `reports/nspb-integration-pdf.js` | discovery técnico para el equipo de Planning |
-
-Los generadores de PDF necesitan Chrome con `--remote-debugging-port=9222` y leen el shell
-de `assets/`.
+| `netsuite/netsuite-export.js` | `netsuite/*.json` — 5 extraction phases |
+| `netsuite/ns-erp-assess.js` | `erp/modules.json` — 37 modules across 5 states |
+| `netsuite/ns-connector-map.js` | `erp/CONNECTORS.md` — bundles, integrations, prefixes |
+| `netsuite/ns-vertical.js` | `erp/vertical.json` — micro-vertical + industry benchmark |
+| `netsuite/ns-financials.js` | `erp/FINANCIALS.md` — COA, P&L and balance sheet |
+| `reports/netsuite-abr-full.js` | ⭐ **the main deliverable**: ABR + BPC recommendations |
+| `reports/netsuite-abr-pdf.js` | short ABR, business only |
+| `reports/nspb-integration-pdf.js` | technical discovery for the Planning team |
 
 ---
 
-## Antes de tocar el pipeline de NetSuite
+## Before you touch the NetSuite pipeline
 
-Leé **[`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md)**: qué
-tablas existen y cuáles no, las trampas de datos, y cuatro cosas que dábamos por ciertas y
-resultaron falsas.
+Read [`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md): which
+tables exist and which don't, the data traps, and four things we assumed were true and
+weren't.
 
----
+## Rules
 
-## Reglas
+1. **Client data never leaves `clients/`**, ignored wholesale by a negative rule. These are
+   complete exports of real financial systems.
+2. **Credentials live in `.env`**, pasted by the user, rotated when the assessment ends.
+3. **An absence is not an absence.** SuiteQL only exposes a record type when the feature is
+   enabled *and* the role can see it. Report `unknown`, never `absent`.
+4. **Every deliverable is written in English**, with `en-US` number formatting.
+5. **Everything prescriptive is a suggested change** to validate with the client.
+6. **No invented numbers.** If it wasn't extracted, say "not extracted".
 
-1. **Los datos de cliente nunca salen de `clients/`**, ignorada en bloque con regla negativa.
-   No es paranoia: son exports completos de sistemas financieros reales.
-2. **Credenciales en `.env`**, las pega el usuario, se rotan al terminar el assessment.
-3. **Una ausencia no es una ausencia**: SuiteQL solo expone lo que la feature habilita *y* el
-   rol permite. Se reporta `unknown`, nunca `absent`.
-4. **Todo entregable va en inglés**; código, comentarios y estos README en español.
-5. **Todo lo prescriptivo va como "suggested change"** a validar con el cliente.
-6. **Sin números inventados.** Si no se extrajo, se dice "no extraído".
+## Conventions
 
-## Convenciones
-
-CJS y ESM conviven **por paquete**: `mcp-planning` y `forge` son ESM (`"type": "module"`), el
-resto CJS heredado de `tools/`. `check-all.js` valida cada archivo con el parser que le toca;
-no unificar a la fuerza.
-
-## Lo que quedó afuera a propósito
-
-`nspb-migrate-fresh` (worker + add-in + docs-site: producto desplegado, no toolkit),
-`nspbhub` (Customer Hub), `SourceWise`, `foundry` y `GSAAssistant` (SOW/change orders, otro
-dominio). Se consolidó el tooling de entrega, no todo lo que había en `C:\apps`.
+CJS and ESM coexist **per package**: `mcp-planning` and `forge` are ESM, the rest is CJS.
+`check-all.js` validates each file with the right parser — don't force them together.

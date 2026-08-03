@@ -132,7 +132,7 @@ const CANDIDATES = {
   "CRM": ["campaign", "supportcase", "issue", "solution", "opportunity", "task", "phonecall", "calendarevent", "note", "promotioncode"],
   "Nómina / RRHH": ["payrollitem", "employeestatus", "employeetype", "hcmjob", "jobrequisition"],
   "Customización": ["customrecordtype", "customlist", "customfield", "script", "scriptdeployment", "scheduledscriptinstance", "customersubsidiaryrelationship", "workflow"],
-  "Seguridad / Auditoría": ["role", "loginaudit", "systemnote", "systemnote2", "deletedrecord"],
+  "Seguridad / Auditoría": ["role", "integrationapp", "loginaudit", "systemnote", "systemnote2", "deletedrecord"],
   "Comercio / Web": ["website"],
   "Fixed Assets (FAM)": ["customrecord_ncfar_asset", "customrecord_ncfar_assettype", "customrecord_ncfar_depreciationhistory"],
 };
@@ -210,7 +210,7 @@ const BREAKDOWNS = [
   ["deployments_by_type", `SELECT s.scripttype, sd.status, COUNT(*) AS n
                            FROM scriptdeployment sd JOIN script s ON s.id = sd.script
                            GROUP BY s.scripttype, sd.status ORDER BY 3 DESC`],
-  ["workflows", `SELECT id, name, scriptid, isinactive FROM workflow ORDER BY name`],
+  ["workflows", `SELECT internalid, name, description, isinactive, islogenabled, datecreated FROM workflow ORDER BY name`],
   // `integrationapp` es lo unico que lista las integraciones registradas — incluidas
   // las que no usan TBA y por lo tanto no aparecen en oauthtoken.
   ["integration_apps", `SELECT id, name, state, createddate FROM integrationapp ORDER BY createddate`],
