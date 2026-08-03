@@ -328,6 +328,68 @@ function businessProfile() {
   <br><span class="small">Identified from the account's own vocabulary — ${V.evidence.slice(0, 5).map(e => esc(e.replace(/`/g, ''))).join(', ')}. Worth confirming with the client before it is used in any recommendation.</span></div>`;
 }
 
+/**
+ * Lo que el equipo de Planning necesita saber sobre la forma del entorno antes de
+ * diseñar: consolidación, moneda, calendario, libros. Cada fila es una decisión
+ * de modelo, no un dato suelto.
+ */
+function planningReadiness() {
+  const subs = shape.subsidiaries || [];
+  const curr = rd('netsuite/currencies.json') || [];
+  const elim = subs.filter(s => s.iselimination === 'T').length;
+  const countries = [...new Set(subs.map(s => s.country).filter(Boolean))];
+  const subCurr = [...new Set(subs.map(s => String(s.currency)).filter(Boolean))];
+  const base = curr.find(c => c.isbasecurrency === 'T');
+  const rates = n('currencyrate'), consol = n('consolidatedexchangerate');
+  const books = n('accountingbook');
+
+  const rows = [
+    { k: 'Legal entity structure',
+      v: `${fmt(subs.length)} subsidiaries${elim ? `, ${elim} of them elimination` : ''}`,
+      m: subs.length > 1
+        ? `Entity becomes a real dimension with a consolidation rollup. ${elim ? 'An elimination entity already exists, so intercompany treatment has a home.' : 'No elimination entity — intercompany treatment needs designing.'}`
+        : 'Single entity; Entity would be a trivial dimension.' },
+    { k: 'Geographic spread', v: countries.length ? countries.join(', ') : '—',
+      m: countries.length > 1 ? 'Multiple jurisdictions — statutory differences to confirm.' : 'Single jurisdiction, which keeps consolidation simple.' },
+    { k: 'Functional currency', v: subCurr.length > 1 ? `${subCurr.length} different functional currencies` : `single functional currency${base ? ` (${esc(base.name)})` : ''}`,
+      m: subCurr.length > 1
+        ? 'Translation and CTA are in scope — the model needs a currency dimension and translation logic.'
+        : 'No translation between entities. A currency dimension is likely unnecessary for consolidation.' },
+    { k: 'Transactional FX', v: `${fmt(curr.length)} currencies, ${fmt(rates)} exchange rates${consol ? `, ${fmt(consol)} consolidated rates` : ''}`,
+      m: rates > 100
+        ? 'Despite the single functional currency, transactions are recorded in several currencies. Confirm whether the plan needs to be built in local currency or only in the reporting one — it is the difference between a simple model and a rate-driven one.'
+        : 'Minimal FX activity.' },
+    { k: 'Accounting books', v: `${fmt(books)}`,
+      m: books > 1 ? 'Multiple books — the source of actuals has to be pinned down explicitly.' : 'Single book, so there is no ambiguity about where actuals come from.' },
+    { k: 'Fiscal calendar', v: `${fmt(n('accountingperiod'))} accounting periods`,
+      m: 'Confirm the fiscal year start and whether periods are calendar months before mapping Period.' },
+    { k: 'Statistical accounts', v: `${fmt((shape.accounts_by_type || []).filter(r => /stat/i.test(String(r.tipo))).reduce((s, r) => s + Number(r.n || 0), 0))}`,
+      m: 'These carry drivers such as headcount or volume. Few or none means drivers have to be built or sourced elsewhere.' },
+  ];
+
+  return `<h3>Environment shape — what the Planning team needs to know</h3>
+  <table><tr><th>Aspect</th><th>What we found</th><th>What it means for the model</th></tr>
+  ${rows.map(r => `<tr><td><b>${esc(r.k)}</b></td><td>${esc(r.v)}</td><td>${esc(r.m)}</td></tr>`).join('')}
+  </table>`;
+}
+
+/**
+ * Módulos que el nicho suele tener andando y este cliente no. Sale del benchmark
+ * por micro-vertical cruzado con el estado real de cada módulo — no es un
+ * catálogo de venta.
+ */
+function verticalGaps() {
+  const gaps = vert?.gapsForVertical || [];
+  const apps = B?.missingSuiteApps || [];
+  if (!gaps.length && !apps.length) return '';
+  return `<h3>Capabilities common in ${esc(V?.name || 'this niche')} that are not in place here</h3>
+  ${gaps.length ? `<table><tr><th>Capability</th><th>Current status</th><th>What we found</th></tr>
+  ${gaps.map(g => `<tr><td><b>${esc(g.name)}</b></td><td>${esc(SL[g.state] || g.state)}</td><td>${esc(String(g.evidence).slice(0, 90))}</td></tr>`).join('')}
+  </table>` : ''}
+  ${apps.length ? `<p>There are also purpose-built SuiteApps for this industry that are not installed: ${apps.map(a => `<b>${esc(a.name)}</b> (${esc(a.what)})`).join(', ')}. ${esc(B?.suiteSuccessEdition || '')}</p>` : ''}
+  <p class="small">This is a comparison against what mature organizations in the same niche typically run — not a recommendation to buy any of it. Whether each one is worth having depends on how you operate, which is a conversation rather than a data point.</p>`;
+}
+
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
@@ -474,8 +536,10 @@ ${fin ? `<div class="kpi">
   <div><div class="v">${fin.coa.maxDepth}</div><div class="l">Hierarchy levels</div></div>
   <div><div class="v">${fmt(fin.coa.leavesWithoutActivity)}</div><div class="l">Leaves with no activity</div></div>
 </div>
+${planningReadiness()}
 ${dimensionTable()}
 ${savedSearchSpec()}` : ''}
+${verticalGaps()}
 
 <div class="flag"><b>One structural constraint worth knowing early.</b> Revenue is recognized through journal entries that carry no entity, so at general-ledger level revenue has no customer attached. Customer-level actuals have to come from the billing layer, not the GL. Assumptions to the contrary tend to surface late in an implementation, once the model is already built.</div>
 

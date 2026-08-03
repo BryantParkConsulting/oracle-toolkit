@@ -196,7 +196,7 @@ const BREAKDOWNS = [
   ["scripts_deployed", `SELECT s.id, s.name, s.scripttype, s.scriptid, sd.status, sd.isdeployed
                         FROM script s LEFT JOIN scriptdeployment sd ON sd.script = s.id ORDER BY s.scripttype, s.name`],
   ["custom_record_types", `SELECT id, internalid, scriptid, name, isinactive FROM customrecordtype ORDER BY name`],
-  ["subsidiaries", `SELECT id, name, country, currency FROM subsidiary ORDER BY name`],
+  ["subsidiaries", `SELECT id, name, country, currency, iselimination FROM subsidiary ORDER BY name`],
   ["departments", `SELECT id, name, isinactive FROM department ORDER BY name`],
   ["locations", `SELECT id, name, isinactive FROM location ORDER BY name`],
   ["custom_segments", `SELECT * FROM customsegment`],
