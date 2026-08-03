@@ -169,14 +169,14 @@ unificar a la fuerza.
 
 ## apps/ — el producto
 
-`apps/nspb-assistant/` es el **NSPB Assistant**: add-in de Excel (Office.js) + Cloudflare Worker que responde preguntas sobre Planning en lenguaje natural, mas su docs-site en Firebase y la extension de Chrome.
+`apps/nspb-excel-addin/` es el add-in de Excel (Office.js) + Cloudflare Worker que responde preguntas sobre Planning en lenguaje natural, mas su docs-site en Firebase y la extension de Chrome.
 
 Es producto desplegado, no toolkit: se shippea a clientes y tiene su propio ciclo de deploy.
 
 ```bash
-cd apps/nspb-assistant/worker && npm run deploy
+cd apps/nspb-excel-addin/worker && npm run deploy
 ```
 
-Su guia tecnica propia esta en `apps/nspb-assistant/CLAUDE-nspb-assistant.md`.
+Su guia tecnica propia esta en `apps/nspb-excel-addin/CLAUDE-nspb-excel-addin.md`.
 
 **Cuidado:** el build del worker embebe `clients/<name>/tenant-kb.json` resolviendo rutas relativas a SU carpeta, no a la raiz del toolkit. Si movés algo, verificá esa resolucion.
