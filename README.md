@@ -158,7 +158,8 @@ then `packages/analysis/cube-optimize.js`.
 
 ## The four deliverables
 
-One extraction, four documents for four different readers — see [](docs/DELIVERABLES.md).
+One extraction, four documents for four different readers — see
+[`docs/DELIVERABLES.md`](docs/DELIVERABLES.md).
 
 ## Before you touch the NetSuite pipeline
 
