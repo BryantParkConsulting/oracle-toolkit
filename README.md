@@ -63,7 +63,11 @@ cp -r skills/epm-assessment ~/.claude/skills/
 claude mcp add netsuite -- node /absolute/path/to/oracle-toolkit/packages/mcp-netsuite/src/index.js
 ```
 
-Then ask in plain language — *"what did we bill in 2025?"*, *"which of our top customers are agencies?"*, *"can we report by department?"* — and it answers from the live account.
+### What you can ask it
+
+*Which modules do they have enabled but not use? · What did they bill in 2025, and what was the gross margin? · Who are the top 20 customers, and how concentrated is the revenue? · Can they report by department? · How many accounts have no activity at all? · How many script deployments never run?*
+
+Six tools: ad-hoc SuiteQL, record-type probing, P&L by year, revenue by customer, chart of accounts, and dimension tagging coverage.
 
 Six tools: ad-hoc SuiteQL, record-type probing, P&L by year, revenue by customer, chart of accounts, and dimension tagging coverage. Read-only: anything that is not a SELECT is rejected.
 
@@ -78,8 +82,11 @@ read an LCM snapshot and query or load data over REST. Register it once:
 claude mcp add epm-planning -- node /absolute/path/to/oracle-toolkit/packages/mcp-planning/src/index.js
 ```
 
-Then ask Claude things like *"list the business rules in the Plan cube"* or *"what's the FY26
-budget for account 5000"* and it answers from the live environment.
+### What you can ask it
+
+From an LCM snapshot, no credentials needed: *What dimensions does this application have? · Which business rules exist in the Plan cube? · Explain what rule CF_CashRollForward does.*
+
+Against a live environment: *What is the FY26 budget for account 5000? · List the jobs that ran today.*
 
 ---
 
