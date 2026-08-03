@@ -153,6 +153,7 @@ then `packages/analysis/cube-optimize.js`.
 | `reports/netsuite-abr-full.js` | ⭐ full account analysis + recommendations |
 | `reports/nspb-integration-pdf.js` | Planning implementation discovery |
 | `reports/netsuite-optimization-pdf.js` | configuration optimization review |
+| `reports/netsuite-full-pack.js` | all four bound into one PDF with dividers |
 
 ---
 

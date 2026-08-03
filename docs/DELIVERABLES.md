@@ -14,6 +14,7 @@ and require Chrome with `--remote-debugging-port=9222`.
 | **Account Analysis** | GSA, account team, discovery | ~15 pages | `netsuite-abr-full.js` |
 | **NSPB Integration Discovery** | Planning delivery team | ~6 pages | `nspb-integration-pdf.js` |
 | **Optimization Review** | client's admin / technical team | ~4 pages | `netsuite-optimization-pdf.js` |
+| **Complete pack** | all four in one, with full-page dividers | ~27 pages | `netsuite-full-pack.js` |
 
 ```bash
 CLIENT=<c> CLIENT_NAME=<Name> node packages/reports/netsuite-exec-brief.js
@@ -66,6 +67,16 @@ make it a false positive — recommending the deletion of a field written once a
 year-end script is worse than recommending nothing.
 
 ---
+
+## The complete pack
+
+`netsuite-full-pack.js` binds the four into a single PDF with a table of contents and a
+full-page divider before each part. It does not rebuild the content — it reads the HTML the
+four generators already produced, strips their covers and chains them, so there is still only
+one place where each section lives. Run it last, after the other four.
+
+Any part that has not been generated is skipped and reported, rather than left as an empty
+section.
 
 ## What they share
 
