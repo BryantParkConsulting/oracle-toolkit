@@ -155,6 +155,7 @@ is CJS. `npm run check` validates each file with the right parser — don't forc
 | file | when to read it |
 | --- | --- |
 | [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) | first time — end-to-end walkthrough |
+| [`docs/DELIVERABLES.md`](docs/DELIVERABLES.md) | which of the four documents to produce, and for whom |
 | [`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md) | ⭐ before touching the NetSuite pipeline |
 | [`docs/NS-ERP-README.md`](docs/NS-ERP-README.md) | NetSuite assessment playbook and QA |
 | [`docs/CUBE-OPTIMIZATION-README.md`](docs/CUBE-OPTIMIZATION-README.md) | before a cube optimization analysis |

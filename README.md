@@ -149,11 +149,16 @@ then `packages/analysis/cube-optimize.js`.
 | `netsuite/ns-connector-map.js` | `erp/CONNECTORS.md` — bundles, integrations, prefixes |
 | `netsuite/ns-vertical.js` | `erp/vertical.json` — micro-vertical + industry benchmark |
 | `netsuite/ns-financials.js` | `erp/FINANCIALS.md` — COA, P&L and balance sheet |
-| `reports/netsuite-abr-full.js` | ⭐ **the main deliverable**: ABR + BPC recommendations |
-| `reports/netsuite-abr-pdf.js` | short ABR, business only |
-| `reports/nspb-integration-pdf.js` | technical discovery for the Planning team |
+| `reports/netsuite-exec-brief.js` | 2-page brief for the CFO |
+| `reports/netsuite-abr-full.js` | ⭐ full account analysis + recommendations |
+| `reports/nspb-integration-pdf.js` | Planning implementation discovery |
+| `reports/netsuite-optimization-pdf.js` | configuration optimization review |
 
 ---
+
+## The four deliverables
+
+One extraction, four documents for four different readers — see [](docs/DELIVERABLES.md).
 
 ## Before you touch the NetSuite pipeline
 

@@ -74,6 +74,26 @@ const conn = rd('erp/connectors.json');
 const nspbBundle = byId['nspb-connector'];
 const nativeBudgets = byId['native-budgets'];
 
+/**
+ * Cobertura de tagueo. Los miembros dicen qué existe; la cobertura dice qué se
+ * puede sostener. Sin esta tabla, la de dimensiones induce a error.
+ */
+function covTable() {
+  const cov = (rd('netsuite/dimension_coverage.json') || [])[0];
+  if (!cov || !cov.total_lines) return '';
+  const tot = Number(cov.total_lines);
+  const p = k => 100 * Number(cov[k] || 0) / tot;
+  const verdict = v => v >= 95 ? 'Reliable' : v >= 70 ? 'Usable — confirm the gap' : v >= 30 ? '⚠ Partial' : '⚠ Effectively untagged';
+  const rows = [['Subsidiary', p('subsidiary')], ['Location', p('location')], ['Class', p('class')], ['Department', p('department')]];
+  const weak = rows.filter(([, v]) => v < 70);
+  return `<h3>Tagging coverage — what the data can actually support</h3>
+  <table><tr><th>Segment</th><th class="num">Lines tagged</th><th>Verdict</th></tr>
+  ${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v.toFixed(0)}%</td><td>${verdict(v)}</td></tr>`).join('')}
+  </table>
+  <p class="small">Share of transaction lines carrying a value for each segment, across ${fmt(tot)} lines in the last twelve months.</p>
+  ${weak.length ? `<div class="no"><b>${weak.map(([k]) => k).join(' and ')} cannot carry a plan.</b> Modelling at that level produces actuals with nowhere to land, and a plan that will not reconcile to the general ledger. Either the tagging is corrected upstream, or the model is designed at a level the data supports — a decision worth taking before the build, not during it.</div>` : ''}`;
+}
+
 const IS = fin.incomeStatement || {}, BS = fin.balanceSheet || {};
 const yrs = fin.years || [];
 
@@ -146,6 +166,8 @@ ${(fin.coa.byType || []).map(([t, c]) => `<tr><td>${esc(t)}</td><td class="num">
 ${dims.map(d => `<tr><td><b>${esc(d.nspb)}</b></td><td>${esc(d.src)}</td><td class="num">${fmt(d.members)}</td><td>${esc(d.note)}</td></tr>`).join('')}
 </table>
 <p class="small">Member counts are what exists in the account. They say nothing about how consistently transactions are tagged — that has to be measured per dimension before committing to granularity in the model.</p>
+
+${covTable()}
 
 <div class="page-break"></div>
 <h2>3. Reconciliation feasibility</h2>
