@@ -451,7 +451,8 @@ ${(conn?.competingTooling || []).length ? `<div class="note"><b>Systems already 
 <ul>${conn.competingTooling.map(c => `<li><b>${esc(c.app)}</b> (${esc(c.competing.area)}, since ${esc(c.desde)}) — ${esc(c.competing.impacto)}</li>`).join('')}</ul></div>` : ''}
 
 <div class="page-break"></div>
-<h2>4. Data foundation for planning</h2>
+<h2>4. Data foundation for Oracle EPM Planning (NSPB)</h2>
+<p>This section is written for whoever scopes or builds the Planning implementation. It answers the questions that decide the model before any design work starts: how large the Account dimension will be, which segment dimensions the data can actually support, where actuals have to be read from, and which saved searches the NetSuite&nbsp;→&nbsp;NSPB integration would need. The same reading applies to Account Reconciliation and Analytics Warehouse, which draw on the same foundation.</p>
 ${fin ? `<div class="kpi">
   <div><div class="v">${fmt(fin.coa.leaves)}</div><div class="l">Leaf accounts to map</div></div>
   <div><div class="v">${fmt(fin.coa.rollups)}</div><div class="l">Rollups rebuilt in Planning</div></div>
