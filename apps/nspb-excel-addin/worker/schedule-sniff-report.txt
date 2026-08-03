@@ -1,0 +1,38 @@
+﻿
+
+========================================================================
+  1. LOGIN
+========================================================================
+Command: epmautomate login demoadmin C:\ProgramData\Oracle\EPM Automate\creds.epw https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+Exit: 0
+--- stdout ---
+Login successful
+
+
+========================================================================
+  2. EXPORT JOB CONSOLE
+========================================================================
+Command: epmautomate exportJobConsole JobConsole.csv
+Exit: 0
+--- stdout ---
+Processing...
+
+Retrieving status...
+exportJobConsole completed successfully
+
+Details: The job console records export was successful. The export file name is JobConsole.zip. No. of records exported : 0, Parameters : {"fileName":"JobConsole.csv"}.
+
+
+
+========================================================================
+  3. LOGOUT
+========================================================================
+Command: epmautomate logout
+Exit: 0
+--- stdout ---
+logout completed successfully
+
+
+========================================================================
+  ALL LOG FILES (entire content)
+========================================================================

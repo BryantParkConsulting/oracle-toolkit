@@ -1,0 +1,2044 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI Planning Assistant for NSPB · NSPB MCP</title>
+<link rel="stylesheet" href="assets/colors_and_type.css?v=sarabun">
+<style>
+  /* ----- Type & spacing scale (1920×1080) ----- */
+  :root {
+    --type-display:  108px;
+    --type-title:     72px;
+    --type-title-sm:  56px;
+    --type-subtitle:  40px;
+    --type-lead:      34px;
+    --type-body:      28px;
+    --type-small:     22px;
+    --type-eyebrow:   20px;
+
+    --pad-x:    120px;
+    --pad-top:  120px;
+    --pad-bot:   96px;
+
+    --gap-title: 48px;
+    --gap-item:  32px;
+
+    --c-navy:    #1F3C51;
+    --c-navy-2:  #233D4C;
+    --c-green:   #619C8A;
+    --c-green-d: #047050;
+    --c-gold:    #F2CC5F;
+    --c-orange:  #EC8842;
+    --c-ink:     #1F3C51;
+    --c-ink-2:   #434343;
+    --c-ink-3:   #767676;
+    --c-line:    #E6E8EA;
+    --c-card:    #FAFAF7;
+  }
+
+  html, body { margin: 0; padding: 0; background: #0c1520; }
+  body { font-family: var(--ds-font-sans); color: var(--c-ink); }
+
+  /* ===== Slide base ===== */
+  deck-stage > section {
+    background: #fff;
+    color: var(--c-ink);
+    font-family: var(--ds-font-sans);
+    font-weight: 300;
+    overflow: hidden;
+  }
+  deck-stage > section.dark { background: var(--c-navy); color: #fff; }
+
+  /* ===== Chrome (logo + footer) ===== */
+  .chrome-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 88px;
+    display: flex; align-items: center;
+    padding: 0 var(--pad-x);
+    z-index: 6;
+  }
+  .logo-mark {
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--ds-font-display);
+    font-size: 24px; font-weight: 600; letter-spacing: -0.01em;
+    color: var(--c-navy);
+    white-space: nowrap;
+  }
+  .logo-mark .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; background: var(--c-green); }
+  .dark .logo-mark { color: #fff; }
+  .dark .logo-mark .dot { background: var(--c-gold); }
+  .chrome-top .spacer { flex: 1; }
+  .chrome-top .crumb {
+    font-size: 14px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--c-ink-3);
+    white-space: nowrap;
+  }
+  .dark .chrome-top .crumb { color: rgba(255,255,255,0.62); }
+
+  .chrome-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 64px;
+    display: flex; align-items: center;
+    padding: 0 var(--pad-x);
+    font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--c-ink-3);
+    border-top: 1px solid var(--c-line);
+    z-index: 6;
+    white-space: nowrap;
+  }
+  .chrome-bottom > div { white-space: nowrap; }
+  .chrome-bottom .spacer { flex: 1; }
+  .dark .chrome-bottom { color: rgba(255,255,255,0.55); border-top-color: rgba(255,255,255,0.10); }
+
+  /* ===== Type primitives ===== */
+  .eyebrow {
+    font-size: var(--type-eyebrow);
+    font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--c-green-d);
+  }
+  .dark .eyebrow { color: var(--c-gold); }
+
+  .title {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: var(--type-title);
+    line-height: 1.04;
+    letter-spacing: -0.022em;
+    margin: 0;
+  }
+  .title-sm {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: var(--type-title-sm);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .display {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: var(--type-display);
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .lead {
+    font-size: var(--type-lead);
+    line-height: 1.35;
+    font-weight: 300;
+    color: var(--c-ink);
+    margin: 0;
+  }
+  .dark .lead { color: rgba(255,255,255,0.88); }
+  .body-text {
+    font-size: var(--type-body);
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--c-ink-2);
+    margin: 0;
+  }
+  .dark .body-text { color: rgba(255,255,255,0.78); }
+  .small-text {
+    font-size: var(--type-small);
+    line-height: 1.5;
+    color: var(--c-ink-3);
+  }
+  .dark .small-text { color: rgba(255,255,255,0.55); }
+
+  .rule-green { height: 4px; width: 80px; background: var(--c-green); border-radius: 2px; }
+  .rule-gold  { height: 4px; width: 80px; background: var(--c-gold);  border-radius: 2px; }
+
+  /* ===== Slide-specific helpers ===== */
+  .frame {
+    position: absolute;
+    inset: 88px var(--pad-x) 64px var(--pad-x);
+    display: flex; flex-direction: column;
+  }
+
+  /* corner ribbon decoration */
+  .corner-ribbon {
+    position: absolute; right: -120px; top: 80px;
+    width: 200px; height: 200px;
+    background: url('assets/patterns/corner-ribbon.png') center / contain no-repeat;
+    opacity: 0.35; pointer-events: none; z-index: 1;
+  }
+  .corner-ribbon.bl {
+    right: auto; top: auto; left: -80px; bottom: -80px;
+    transform: rotate(180deg);
+    opacity: 0.5;
+  }
+
+  /* numbered card grids */
+  .num-card {
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 44px 44px 40px;
+    position: relative;
+    display: flex; flex-direction: column;
+    gap: 20px;
+  }
+  .num-card .num {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--c-green-d);
+    letter-spacing: -0.02em;
+  }
+  .num-card h4 {
+    font-family: var(--ds-font-display);
+    font-size: 32px; font-weight: 400; line-height: 1.2;
+    margin: 0; color: var(--c-navy);
+  }
+  .num-card p {
+    margin: 0; font-size: 22px; line-height: 1.5; color: var(--c-ink-2);
+  }
+
+  /* capability tile */
+  .cap-tile {
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 40px 40px 36px;
+    display: flex; flex-direction: column; gap: 20px;
+    min-height: 240px;
+  }
+  .cap-tile .cap-num {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: 36px;
+    color: var(--c-green-d);
+    letter-spacing: 0.02em;
+  }
+  .cap-tile h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.25;
+    margin: 0;
+    color: var(--c-navy);
+  }
+  .cap-tile p {
+    margin: 0; font-size: 20px; line-height: 1.5; color: var(--c-ink-2);
+  }
+
+  /* comparison table */
+  .compare {
+    width: 100%; border-collapse: collapse;
+    font-size: 24px; line-height: 1.3;
+  }
+  .compare thead th {
+    font-size: 20px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    text-align: left; padding: 18px 28px;
+    color: var(--c-ink-3);
+    border-bottom: 2px solid var(--c-navy);
+  }
+  .compare thead th.cell-them {
+    color: var(--c-ink-3);
+  }
+  .compare thead th.cell-us {
+    color: var(--c-green-d);
+    background: rgba(97,156,138,0.08);
+    border-bottom-color: var(--c-green-d);
+  }
+  .compare tbody td {
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--c-line);
+    font-weight: 400;
+  }
+  .compare tbody td.cell-cap {
+    color: var(--c-navy); font-weight: 500;
+  }
+  .compare tbody td.cell-them { color: var(--c-ink-3); }
+  .compare tbody td.cell-us {
+    background: rgba(97,156,138,0.06);
+    color: var(--c-navy); font-weight: 500;
+  }
+  .compare tbody tr:last-child td { border-bottom: none; }
+  .check {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--c-green); color: #fff;
+    font-size: 18px; font-weight: 700;
+  }
+  .cross {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid #D9D9D9; color: #BFBFBF;
+    font-size: 16px;
+  }
+
+  /* arch flow */
+  .flow-step {
+    flex: 1;
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 36px 32px 32px;
+    display: flex; flex-direction: column; gap: 18px;
+    min-height: 280px;
+    position: relative;
+  }
+  .flow-step .step-num {
+    font-family: var(--ds-font-mono);
+    font-size: 16px; letter-spacing: 0.18em;
+    color: var(--c-green-d); font-weight: 500;
+  }
+  .flow-step h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 26px; line-height: 1.25;
+    margin: 0; color: var(--c-navy);
+  }
+  .flow-step p {
+    margin: 0; font-size: 18px; line-height: 1.5; color: var(--c-ink-2);
+  }
+  .flow-arrow {
+    flex-shrink: 0; width: 56px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--c-green);
+  }
+
+  /* badges */
+  .badge-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 16px 26px;
+    border: 1px solid var(--c-line);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 20px; color: var(--c-ink-2);
+    font-weight: 400;
+  }
+  .badge .dot {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--c-green);
+  }
+
+  /* revenue cards */
+  .rev-card {
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 40px 40px 36px;
+    display: flex; flex-direction: column; gap: 16px;
+    min-height: 460px;
+  }
+  .rev-card .tag {
+    font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-weight: 700; color: var(--c-green-d);
+  }
+  .rev-card h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 26px; line-height: 1.2;
+    margin: 0; color: var(--c-navy);
+  }
+  .rev-card .figure {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: 64px; line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--c-navy);
+    margin-top: 8px;
+  }
+  .rev-card .figure-label {
+    font-size: 16px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--c-ink-3); font-weight: 600;
+    margin-top: 8px;
+  }
+  .rev-card ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .rev-card ul li {
+    position: relative; padding-left: 22px;
+    font-size: 19px; line-height: 1.5; color: var(--c-ink-2);
+  }
+  .rev-card ul li::before {
+    content: ""; position: absolute; left: 0; top: 11px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--c-green);
+  }
+
+  /* timeline */
+  .timeline {
+    position: relative;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .timeline::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 38px;
+    height: 2px; background: var(--c-line);
+  }
+  .tl-step {
+    position: relative;
+    padding-top: 100px;
+  }
+  .tl-step .marker {
+    position: absolute; top: 24px; left: 0;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .tl-step .marker .ring {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; border: 4px solid var(--c-green);
+  }
+  .tl-step.now .marker .ring { background: var(--c-green); }
+  .tl-step .when {
+    font-size: 18px; letter-spacing: 0.16em; text-transform: uppercase;
+    font-weight: 700; color: var(--c-green-d);
+  }
+  .tl-step h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 28px; line-height: 1.25;
+    margin: 0; color: var(--c-navy);
+  }
+  .tl-step p {
+    margin-top: 14px; font-size: 20px; line-height: 1.5; color: var(--c-ink-2);
+  }
+
+  /* checklist */
+  .checklist { display: flex; flex-direction: column; gap: 28px; }
+  .checklist .item {
+    display: flex; align-items: flex-start; gap: 28px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--c-line);
+  }
+  .checklist .item:last-child { border-bottom: none; }
+  .checklist .box {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    border: 2px solid var(--c-navy);
+    border-radius: 8px;
+    margin-top: 2px;
+  }
+  .checklist .item.done .box {
+    background: var(--c-green);
+    border-color: var(--c-green);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 22px; font-weight: 700;
+  }
+  .checklist .item h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 32px; line-height: 1.25;
+    margin: 0; color: var(--c-navy);
+  }
+  .checklist .item .meta {
+    margin-top: 6px; font-size: 20px; color: var(--c-ink-3);
+  }
+  .checklist .item.done h4 { color: var(--c-ink-3); }
+
+  /* ===== Knowledge fusion ===== */
+  .kf-box {
+    background:#fff; border:1px solid var(--c-line); border-radius:16px;
+    padding:24px 28px; display:flex; flex-direction:column; gap:8px;
+    border-left: 5px solid var(--c-green);
+  }
+  .kf-box.tone-navy   { border-left-color: var(--c-navy);   background: rgba(31,60,81,0.04); }
+  .kf-box.tone-green  { border-left-color: var(--c-green);  background: rgba(97,156,138,0.08); }
+  .kf-box.tone-gold   { border-left-color: var(--c-gold);   background: rgba(242,204,95,0.14); }
+  .kf-box.tone-orange { border-left-color: var(--c-orange); background: rgba(236,136,66,0.10); }
+  .kf-box .lbl {
+    font-family:var(--ds-font-mono); font-size:14px; letter-spacing:0.18em;
+    color:var(--c-green-d); font-weight:600;
+  }
+  .kf-box h5 {
+    font-family:var(--ds-font-display); font-weight:400; font-size:24px;
+    line-height:1.2; margin:0; color:var(--c-navy);
+  }
+  .kf-box p { margin:0; font-size:18px; line-height:1.45; color:var(--c-ink-2); }
+  .kf-brain {
+    width:240px; height:240px; border-radius:50%;
+    background:var(--c-navy); color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; font-family:var(--ds-font-display); font-weight:300; letter-spacing:-0.02em;
+    box-shadow:0 12px 40px rgba(31,60,81,0.25);
+  }
+  .kf-brain .ic { font-size:64px; line-height:1; }
+  .kf-brain .lbl { font-size:18px; letter-spacing:0.18em; text-transform:uppercase; font-weight:700; color:var(--c-gold); }
+
+  .prov-badge {
+    display:inline-block; padding:4px 12px; border-radius:6px;
+    font-family:var(--ds-font-mono); font-size:13px; font-weight:600;
+    letter-spacing:0.12em; margin-right:14px; min-width:78px; text-align:center;
+  }
+  .prov-kb     { background:rgba(31,60,81,0.10);   color:var(--c-navy); }
+  .prov-tenant { background:rgba(97,156,138,0.18); color:var(--c-green-d); }
+  .prov-live   { background:rgba(242,204,95,0.30); color:#7a5b10; }
+
+  /* ===== Pricing tiers ===== */
+  .tier {
+    background:#fff; border:1px solid var(--c-line); border-radius:20px;
+    padding:28px 28px; display:flex; flex-direction:column; gap:10px;
+    position:relative;
+  }
+  .tier.feat {
+    background:var(--c-navy); color:#fff; border:none;
+    box-shadow:0 16px 48px rgba(31,60,81,0.22);
+  }
+  .tier .badge-feat {
+    align-self:flex-start;
+    background:var(--c-gold); color:var(--c-navy);
+    padding:5px 14px; border-radius:999px;
+    font-size:12px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+    margin-bottom:2px;
+    white-space:nowrap;
+  }
+  .tier .tname {
+    font-family:var(--ds-font-display); font-weight:400; font-size:24px;
+    color:var(--c-navy); margin:0;
+  }
+  .tier.feat .tname { color:#fff; }
+  .tier .tprice {
+    font-family:var(--ds-font-display); font-weight:300;
+    font-size:48px; line-height:1; letter-spacing:-0.02em; color:var(--c-navy);
+  }
+  .tier.feat .tprice { color:var(--c-gold); }
+  .tier .tprice .per {
+    font-family:var(--ds-font-sans); font-size:16px; font-weight:500;
+    color:var(--c-ink-3); letter-spacing:0; margin-left:6px;
+  }
+  .tier.feat .tprice .per { color:rgba(255,255,255,0.65); }
+  .tier .ttag {
+    font-size:14px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--c-green-d); font-weight:700;
+  }
+  .tier.feat .ttag { color:var(--c-gold); }
+  .tier ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+  .tier ul li {
+    position:relative; padding-left:20px; font-size:15px; line-height:1.4;
+    color:var(--c-ink-2);
+  }
+  .tier.feat ul li { color:rgba(255,255,255,0.85); }
+  .tier ul li::before {
+    content:"✓"; position:absolute; left:0; top:0;
+    color:var(--c-green-d); font-weight:700; font-size:16px;
+  }
+  .tier.feat ul li::before { color:var(--c-gold); }
+
+  /* color variants */
+  .flow-step.v1 { background: rgba(97,156,138,0.12); border-color: rgba(97,156,138,0.35); }
+  .flow-step.v1 .step-num { color: var(--c-green-d); }
+  .flow-step.v2 { background: rgba(242,204,95,0.18); border-color: rgba(242,204,95,0.45); }
+  .flow-step.v2 .step-num { color: #8a6a18; }
+  .flow-step.v3 { background: rgba(236,136,66,0.14); border-color: rgba(236,136,66,0.35); }
+  .flow-step.v3 .step-num { color: #B7511B; }
+  .flow-step.v4 { background: var(--c-navy); border-color: var(--c-navy); }
+  .flow-step.v4 .step-num { color: var(--c-gold); }
+  .flow-step.v4 h4 { color: #fff; }
+  .flow-step.v4 p { color: rgba(255,255,255,0.78); }
+
+  .prob-card.v1 { background: rgba(97,156,138,0.10); border-color: rgba(97,156,138,0.30); }
+  .prob-card.v2 { background: rgba(242,204,95,0.16); border-color: rgba(242,204,95,0.40); }
+  .prob-card.v2 .icon-wrap { background: rgba(242,204,95,0.30); color: #8a6a18; }
+  .prob-card.v2 .marker { color: #8a6a18; }
+  .prob-card.v3 { background: rgba(236,136,66,0.12); border-color: rgba(236,136,66,0.30); }
+  .prob-card.v3 .icon-wrap { background: rgba(236,136,66,0.20); color: #B7511B; }
+  .prob-card.v3 .marker { color: #B7511B; }
+
+  .cap-tile.v1 { background: rgba(97,156,138,0.10); border-color: rgba(97,156,138,0.30); }
+  .cap-tile.v2 { background: rgba(242,204,95,0.16); border-color: rgba(242,204,95,0.40); }
+  .cap-tile.v2 .cap-num { color: #8a6a18; }
+  .cap-tile.v3 { background: rgba(236,136,66,0.12); border-color: rgba(236,136,66,0.30); }
+  .cap-tile.v3 .cap-num { color: #B7511B; }
+  .cap-tile.v4 { background: var(--c-navy); border-color: var(--c-navy); }
+  .cap-tile.v4 .cap-num { color: var(--c-gold); }
+  .cap-tile.v4 h4 { color: #fff; }
+  .cap-tile.v4 p { color: rgba(255,255,255,0.78); }
+
+  .rev-card.v1 { background: rgba(97,156,138,0.10); border-color: rgba(97,156,138,0.30); }
+  .rev-card.v2 { background: rgba(242,204,95,0.16); border-color: rgba(242,204,95,0.40); }
+  .rev-card.v2 .tag { color: #8a6a18; }
+  .rev-card.v3 { background: rgba(236,136,66,0.12); border-color: rgba(236,136,66,0.30); }
+  .rev-card.v3 .tag { color: #B7511B; }
+
+  /* ===== Product screens ===== */
+  .scr-card {
+    background:#fff; border:1px solid var(--c-line); border-radius:16px;
+    overflow:hidden; display:flex; flex-direction:column;
+    box-shadow:0 12px 36px rgba(31,60,81,0.10);
+  }
+  .scr-card .scr-img {
+    width:100%; height:560px; object-fit:cover; object-position:top center;
+    border-bottom:1px solid var(--c-line); display:block;
+  }
+  .scr-card .scr-meta { padding:18px 22px; }
+  .scr-card .scr-meta .lbl {
+    font-family:var(--ds-font-mono); font-size:13px; letter-spacing:0.16em;
+    color:var(--c-green-d); font-weight:600; text-transform:uppercase;
+  }
+  .scr-card .scr-meta h5 {
+    font-family:var(--ds-font-display); font-weight:400; font-size:22px;
+    line-height:1.2; margin:6px 0 4px; color:var(--c-navy);
+  }
+  .scr-card .scr-meta p { margin:0; font-size:15px; line-height:1.4; color:var(--c-ink-2); }
+
+  /* CTA box for revenue total */
+  .total-box {
+    margin-top: 40px;
+    background: var(--c-navy);
+    color: #fff;
+    border-radius: 20px;
+    padding: 40px 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .total-box .label-stack { display: flex; flex-direction: column; gap: 8px; }
+  .total-box .lbl {
+    font-size: 18px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-weight: 700; color: var(--c-gold);
+  }
+  .total-box .desc {
+    font-size: 24px; color: rgba(255,255,255,0.78);
+  }
+  .total-box .figure {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: 96px; line-height: 1;
+    letter-spacing: -0.022em;
+    color: #fff;
+  }
+
+  /* problem cards */
+  .prob-card {
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 44px 40px;
+    display: flex; flex-direction: column; gap: 24px;
+    min-height: 380px;
+  }
+  .prob-card .icon-wrap {
+    width: 72px; height: 72px; border-radius: 16px;
+    background: rgba(97,156,138,0.12);
+    color: var(--c-green-d);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .prob-card h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 30px; line-height: 1.25;
+    margin: 0; color: var(--c-navy);
+  }
+  .prob-card p {
+    margin: 0; font-size: 22px; line-height: 1.5; color: var(--c-ink-2);
+  }
+  .prob-card .marker {
+    font-family: var(--ds-font-mono);
+    font-size: 16px; color: var(--c-green-d); font-weight: 500;
+    letter-spacing: 0.16em;
+  }
+
+  /* market columns */
+  .market-col {
+    background: #fff;
+    border: 1px solid var(--c-line);
+    border-radius: 20px;
+    padding: 48px 44px;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .market-col.dark-col {
+    background: var(--c-navy); color: #fff; border: none;
+  }
+  .market-col .stat {
+    font-family: var(--ds-font-display);
+    font-weight: 300;
+    font-size: 96px; line-height: 1;
+    letter-spacing: -0.022em;
+    color: var(--c-navy);
+  }
+  .market-col.dark-col .stat { color: var(--c-gold); }
+  .market-col h4 {
+    font-family: var(--ds-font-display);
+    font-weight: 400; font-size: 28px; line-height: 1.25;
+    margin: 0; color: var(--c-navy);
+  }
+  .market-col.dark-col h4 { color: #fff; }
+  .market-col p {
+    margin: 0; font-size: 22px; line-height: 1.5; color: var(--c-ink-2);
+  }
+  .market-col.dark-col p { color: rgba(255,255,255,0.82); }
+  .market-col .tag {
+    font-size: 16px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-weight: 700; color: var(--c-green-d);
+  }
+  .market-col.dark-col .tag { color: var(--c-gold); }
+  .market-col ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .market-col ul li {
+    position: relative; padding-left: 24px;
+    font-size: 20px; line-height: 1.5;
+  }
+  .market-col ul li::before {
+    content: ""; position: absolute; left: 0; top: 12px;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--c-green);
+  }
+  .market-col.dark-col ul li::before { background: var(--c-gold); }
+
+  /* center arrow callout */
+  .market-arrow {
+    grid-column: 1 / -1;
+    margin-top: 32px;
+    display: flex; align-items: center; justify-content: center; gap: 28px;
+    padding: 28px 40px;
+    background: rgba(242,204,95,0.18);
+    border-radius: 999px;
+    font-family: var(--ds-font-display);
+    font-weight: 400;
+    font-size: 32px;
+    color: var(--c-navy);
+  }
+  .market-arrow .equals {
+    color: var(--c-green-d); font-weight: 600;
+  }
+</style>
+<script type="application/json" id="speaker-notes">[]</script>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+<!-- ============================================================
+     SLIDE 1 — COVER
+     ============================================================ -->
+<section class="dark" data-label="01 Cover">
+  <!-- Photo + pattern right half -->
+  <div style="position:absolute;inset:0 0 0 50%;">
+    <img src="assets/backgrounds/hero-skyline-nyc.png"
+         style="width:100%;height:100%;object-fit:cover;filter:saturate(0.65) contrast(1.05);">
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,#1F3C51 0%,rgba(31,60,81,0.55) 35%,rgba(31,60,81,0.18) 100%);"></div>
+    <div style="position:absolute;inset:0;background:url('assets/patterns/circles-pattern.png') center right/cover no-repeat;mix-blend-mode:screen;opacity:0.42;"></div>
+  </div>
+
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">Internal · Leadership Briefing</div>
+  </div>
+
+  <div style="position:absolute; left:120px; top:280px; right:55%; z-index:3;">
+    <div class="eyebrow" style="margin-bottom:36px;">A New Product Line</div>
+    <h1 class="display" style="color:#fff;">AI Planning<br>Assistant<br><span style="color:var(--c-gold);">for NSPB</span></h1>
+    <div class="rule-gold" style="margin-top:48px;"></div>
+    <p class="lead" style="color:rgba(255,255,255,0.85); margin-top:36px; max-width:640px;">
+      The tool that transforms how we sell<br>and deliver NetSuite Planning &amp; Budgeting.
+    </p>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>nspbmcp.web.app</div>
+    <div class="spacer"></div>
+    <div>May 2026 · Confidential</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 2 — THE PROBLEM
+     ============================================================ -->
+<section data-label="02 Problem">
+  <div class="corner-ribbon"></div>
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">02 · The Problem</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">The Problem Today</div>
+      <h2 class="title" style="margin-top:24px;">Why clients aren't<br>adopting NSPB.</h2>
+      <div class="rule-green" style="margin-top:32px;"></div>
+    </div>
+
+    <div style="margin-top:80px; display:grid; grid-template-columns:repeat(3,1fr); gap:32px; flex:1;">
+      <div class="prob-card v1">
+        <div class="marker">01</div>
+        <div class="icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+        </div>
+        <h4>NSPB feels too complex.</h4>
+        <p>End users can't run their own operations — every action requires a consultant in the loop.</p>
+      </div>
+      <div class="prob-card v2">
+        <div class="marker">02</div>
+        <div class="icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M7 14l4-4 3 3 5-6"></path></svg>
+        </div>
+        <h4>ERP clients don't see day-to-day use.</h4>
+        <p>They walk away from Planning because they can't picture how their team would actually use it.</p>
+      </div>
+      <div class="prob-card v3">
+        <div class="marker">03</div>
+        <div class="icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+        </div>
+        <h4>Every question becomes consulting hours.</h4>
+        <p>Each client request is paid time on both sides — the relationship gets transactional fast.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>The Problem Today</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 3 — THE SOLUTION
+     ============================================================ -->
+<section data-label="03 Solution">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">03 · The Solution</div>
+  </div>
+
+  <div class="frame">
+    <div style="display:grid; grid-template-columns: 1.05fr 1fr; gap:80px; align-items:start;">
+      <div>
+        <div class="eyebrow">The Solution</div>
+        <h2 class="title-sm" style="margin-top:24px;">A financial assistant<br>that lives inside Excel.</h2>
+        <div class="rule-green" style="margin-top:28px;"></div>
+        <p class="lead" style="margin-top:28px;">
+          The user types a question in plain English inside Excel.
+          The assistant executes the action directly in NSPB and returns
+          the result to the same cell.
+        </p>
+        <div class="badge-row" style="margin-top:36px;">
+          <div class="badge"><span class="dot" style="background:var(--c-gold);"></span>Powered by Gemini 2.5</div>
+          <div class="badge"><span class="dot"></span>Deployed on Cloudflare</div>
+          <div class="badge"><span class="dot" style="background:var(--c-orange);"></span>No new infrastructure</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+        <div class="cap-tile v1">
+          <div class="cap-num">01</div>
+          <h4>Query &amp; analyze data</h4>
+          <p>Slice planning data and return answers in seconds — directly in Excel.</p>
+        </div>
+        <div class="cap-tile v2">
+          <div class="cap-num">02</div>
+          <h4>Open &amp; manage planning forms</h4>
+          <p>Launch the right form, populated with the right context — no menus.</p>
+        </div>
+        <div class="cap-tile v3">
+          <div class="cap-num">03</div>
+          <h4>AI-assisted forecasting</h4>
+          <p>Draft, adjust and commit forecasts using natural-language prompts.</p>
+        </div>
+        <div class="cap-tile v4">
+          <div class="cap-num">04</div>
+          <h4>Run business rules &amp; jobs</h4>
+          <p>Trigger calculations and integration jobs without leaving the workbook.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>The Solution · An assistant inside Excel</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 4 — DIFFERENTIATION
+     ============================================================ -->
+<section data-label="04 Differentiation">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">04 · Differentiation</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Differentiation</div>
+      <h2 class="title-sm" style="margin-top:20px;">No equivalent exists in the market today.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:48px; display:grid; grid-template-columns: 1fr; gap:40px;">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th style="width:46%;">Capability</th>
+            <th class="cell-them" style="width:27%;">Current competitors</th>
+            <th class="cell-us"   style="width:27%;">Our AI Assistant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-cap">View &amp; slice data</td>
+            <td class="cell-them"><span class="check">✓</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Modify data inside NSPB</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Open planning forms</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Run business rules</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">AI-assisted forecasting</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Auto-configuration per client</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Integrated inside Excel</td>
+            <td class="cell-them"><span class="cross">—</span></td>
+            <td class="cell-us"><span class="check">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="body-text" style="font-size:24px; max-width:1200px;">
+        Competitors offer <strong style="color:var(--c-navy); font-weight:600;">visualization</strong>.
+        We offer <strong style="color:var(--c-green-d); font-weight:600;">an assistant that takes action</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Differentiation · vs. competition</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 5 — HOW IT WORKS
+     ============================================================ -->
+<section data-label="05 How it works">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">05 · Architecture</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">How It Works</div>
+      <h2 class="title-sm" style="margin-top:20px;">Built to scale, with no infrastructure overhead.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:64px; display:flex; align-items:stretch; gap:8px;">
+      <div class="flow-step v1">
+        <div class="step-num">STEP 01</div>
+        <h4>User types a question in Excel.</h4>
+        <p>Natural-language prompt, in the same workbook the team already uses.</p>
+      </div>
+      <div class="flow-arrow">
+        <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M2 16h32M26 6l10 10-10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="flow-step v2">
+        <div class="step-num">STEP 02</div>
+        <h4>AI interprets &amp; selects an action.</h4>
+        <p>Gemini 2.5 maps the prompt to the right NSPB operation — query, form, rule, or job.</p>
+      </div>
+      <div class="flow-arrow">
+        <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M2 16h32M26 6l10 10-10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="flow-step v3">
+        <div class="step-num">STEP 03</div>
+        <h4>Action runs directly in NSPB.</h4>
+        <p>The assistant calls the NSPB API on the user's behalf — no clicks, no menus.</p>
+      </div>
+      <div class="flow-arrow">
+        <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M2 16h32M26 6l10 10-10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="flow-step v4">
+        <div class="step-num">STEP 04</div>
+        <h4>Result returns to Excel instantly.</h4>
+        <p>Numbers, confirmation messages, or refreshed forecasts — back in the workbook.</p>
+      </div>
+    </div>
+
+    <div class="badge-row" style="margin-top:56px;">
+      <div class="badge"><span class="dot"></span>No servers of our own — Cloudflare Workers</div>
+      <div class="badge"><span class="dot" style="background:var(--c-gold);"></span>Configurable per client in minutes — automated parser</div>
+      <div class="badge"><span class="dot" style="background:var(--c-orange);"></span>Extensible to NSAW, NSAR, and any product with an API</div>
+      <div class="badge"><span class="dot" style="background:var(--c-green);"></span>Centrally hosted — every client always on the latest version</div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>How It Works · Architecture overview</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 5b — CENTRALLY MANAGED
+     ============================================================ -->
+<section data-label="05b Centrally Managed">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">05b · Centrally Managed</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Cloud · Always Current</div>
+      <h2 class="title-sm" style="margin-top:20px;">One cloud. Every client on the latest version.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:56px; display:grid; grid-template-columns:repeat(3,1fr); gap:32px; flex:1;">
+      <div class="cap-tile v1">
+        <div class="cap-num">01</div>
+        <h4>Hosted by us, not by the client.</h4>
+        <p>Lives on Cloudflare. No VM, no agent, no install on the client side — Excel just calls our endpoint.</p>
+      </div>
+      <div class="cap-tile v2">
+        <div class="cap-num">02</div>
+        <h4>We ship — every tenant gets it.</h4>
+        <p>Bug fixes, new actions, new models — pushed once and live for all clients in minutes.</p>
+      </div>
+      <div class="cap-tile v4">
+        <div class="cap-num">03</div>
+        <h4>Knowledge base updates centrally.</h4>
+        <p>NSPB best practices, formulas and parsers improve in our KB and every client benefits — no upgrade project.</p>
+      </div>
+    </div>
+
+    <div class="badge-row" style="margin-top:48px;">
+      <div class="badge"><span class="dot"></span>Zero client-side install</div>
+      <div class="badge"><span class="dot" style="background:var(--c-gold);"></span>Single source of truth — KB + parsers + rules</div>
+      <div class="badge"><span class="dot" style="background:var(--c-orange);"></span>Continuous improvement, no migration cost</div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Centrally Managed · SaaS delivery</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 5c — PRODUCT IN ACTION
+     ============================================================ -->
+<section data-label="05c In Action">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">05c · In Action</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Product · In Action</div>
+      <h2 class="title-sm" style="margin-top:20px;">It already lives inside Excel.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:32px; display:grid; grid-template-columns:1.15fr 1fr 1fr 1fr; gap:20px; flex:1;">
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/chat-explain.png" alt="Conversational KB — set substitution variable"/>
+        <div class="scr-meta">
+          <div class="lbl">Conversational KB</div>
+          <h5>"How do I set a substitution variable?"</h5>
+          <p>Asks in plain English. The assistant explains, shows the exact command, offers follow-up questions.</p>
+        </div>
+      </div>
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/excel-openform.png" alt="Open form palette inside Excel"/>
+        <div class="scr-meta">
+          <div class="lbl">Inside Excel</div>
+          <h5>Open any form by name.</h5>
+          <p>Ribbon next to AutoSum. Type "open form" — the right form pops up, pre-filtered.</p>
+        </div>
+      </div>
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/slash-palette.png" alt="Slash command palette"/>
+        <div class="scr-meta">
+          <div class="lbl">Slash palette</div>
+          <h5>Type / to discover everything.</h5>
+          <p>Every NSPB action as a command — no menus, no documentation hunt.</p>
+        </div>
+      </div>
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/show-dimensions.png" alt="Show dimensions matches"/>
+        <div class="scr-meta">
+          <div class="lbl">Browse metadata</div>
+          <h5>"Show dimensions" — instant.</h5>
+          <p>Cubes, members, accounts — surfaced from the live tenant.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>In Action · Real screens, real tenant</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 5d — UNDER THE HOOD
+     ============================================================ -->
+<section data-label="05d Under the Hood">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">05d · Under the Hood</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Operator Surface</div>
+      <h2 class="title-sm" style="margin-top:20px;">Status, setup &amp; help — built in.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:36px; display:grid; grid-template-columns:repeat(3,1fr); gap:24px; flex:1;">
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/status.png" alt="Status tab — substitution variables, planning jobs"/>
+        <div class="scr-meta">
+          <div class="lbl">Status</div>
+          <h5>Live tenant snapshot.</h5>
+          <p>Substitution variables, last 10 planning jobs, scheduled jobs — visible at a glance.</p>
+        </div>
+      </div>
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/help.png" alt="Help tab — first-time setup"/>
+        <div class="scr-meta">
+          <div class="lbl">Help</div>
+          <h5>Guided first-time setup.</h5>
+          <p>Three fields to fill in — Host, login, Gemini key — and "Detect everything" builds the tenant catalog.</p>
+        </div>
+      </div>
+      <div class="scr-card">
+        <img class="scr-img" src="assets/screens/office-addin.png" alt="Office Add-in install dialog"/>
+        <div class="scr-meta">
+          <div class="lbl">Install</div>
+          <h5>One-click Office add-in.</h5>
+          <p>Distributed through the Microsoft 365 admin center as a shared add-in. No desktop install on the user side.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Under the Hood · Status, Help, Install</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 5e — DELIVERY ACCELERATOR (Three products, one codebase)
+     ============================================================ -->
+<section data-label="05e Delivery Accelerator">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">05e · Delivery Accelerator</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Three products. One codebase.</div>
+      <h2 class="title-sm" style="margin-top:20px;">Same engine — for clients, for knowledge, for delivery.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+      <p class="lead" style="margin-top:20px; max-width:1200px;">
+        The same chat the client uses also accelerates how implementing NSPB. Implementation cost drops, margin rises, time-to-value collapses.
+      </p>
+    </div>
+
+    <!-- Three audiences row -->
+    <div style="margin-top:32px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+      <div class="cap-tile v1">
+        <div class="cap-num">A</div>
+        <h4>End-user assistant</h4>
+        <p>Excel-native AI for the client's finance team. The product we already showed.</p>
+      </div>
+      <div class="cap-tile v2">
+        <div class="cap-num">B</div>
+        <h4>Active knowledge base</h4>
+        <p>NSPB best practices + each tenant's live config — a living reference, not static docs.</p>
+      </div>
+      <div class="cap-tile v4">
+        <div class="cap-num">C</div>
+        <h4>Delivery accelerator</h4>
+        <p>consultants use the same chat to scaffold implementations in hours, not weeks.</p>
+      </div>
+    </div>
+
+    <!-- Delivery acceleration use cases -->
+    <div style="margin-top:28px;">
+      <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:14px;">Delivery use cases · what the chat will unlock for consultants</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;">
+        <div class="kf-box tone-orange" style="padding:22px 26px;">
+          <div class="lbl">SuiteQL bridge</div>
+          <h5 style="font-size:22px;">NetSuite → NSPB in seconds.</h5>
+          <p>Pull chart of accounts, products, employees and entities directly from NetSuite via SuiteQL — no manual export, no copy-paste.</p>
+        </div>
+        <div class="kf-box tone-green" style="padding:22px 26px;">
+          <div class="lbl">Excel → SmartView</div>
+          <h5 style="font-size:22px;">Messy budget → input form.</h5>
+          <p>Client sends a budget Excel in any format. The AI normalizes it into a SmartView-ready data input form, automatically.</p>
+        </div>
+        <div class="kf-box tone-navy" style="padding:22px 26px;">
+          <div class="lbl">Hierarchies + Workforce</div>
+          <h5 style="font-size:22px;">Excel hierarchies → dimensions.</h5>
+          <p>Client cost-center / product / account hierarchies in any layout. Workforce employee lists. Both turn into NSPB dimensions and cubes via prompt.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px 28px; background:var(--c-navy); border-radius:12px; display:flex; align-items:center; gap:24px;">
+      <div style="font-family:var(--ds-font-display); font-weight:300; font-size:24px; color:var(--c-gold); white-space:nowrap;">Weeks → Hours</div>
+      <div style="height:32px; width:1px; background:rgba(255,255,255,0.25);"></div>
+      <p style="margin:0; font-size:18px; line-height:1.4; color:rgba(255,255,255,0.85);">
+        Faster delivery means more NSPB projects per consultant per year — direct lift on services revenue, on top of the SaaS subscription. (Future development — roadmap from month 4.)
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Delivery Accelerator · Triple-purpose platform</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 6 — MARKET OPPORTUNITY
+     ============================================================ -->
+<section data-label="06 Market">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">06 · Market Opportunity</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Market Opportunity</div>
+      <h2 class="title-sm" style="margin-top:20px;">AI as a lever for new NSPB sales.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:56px; display:grid; grid-template-columns: 1fr 1fr; gap:48px; flex:1; align-content:start;">
+      <div class="market-col">
+        <div class="tag">Existing Base</div>
+        <div class="stat">60</div>
+        <h4>Clients with NSPB live today.</h4>
+        <p>Immediate cross-sell opportunity — adding the AI subscription on top of existing NSPB seats.</p>
+      </div>
+      <div class="market-col dark-col">
+        <div class="tag">ERP Clients Without Planning</div>
+        <div class="stat">150–200</div>
+        <h4>ERP clients who never bought NSPB.</h4>
+        <ul>
+          <li>Primary objection: "it's too complex."</li>
+          <li>The AI assistant removes that barrier in a 5-minute demo.</li>
+        </ul>
+      </div>
+
+      <div class="market-arrow">
+        <span>An AI demo</span>
+        <span class="equals">=</span>
+        <span>an NSPB sale.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Market Opportunity · Existing base + ERP clients</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 6.5 — CONVERSION SENSITIVITY
+     ============================================================ -->
+<section data-label="07 Sensitivity">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">07 · Sensitivity</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Sensitivity Analysis</div>
+      <h2 class="title-sm" style="margin-top:20px;">How conversion rate moves the number.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+      <p class="lead" style="margin-top:24px; max-width:1200px;">
+        Applied to ~180 ERP clients without Planning. NSPB implementation revenue only — AI subscription ARR layers on top.
+      </p>
+    </div>
+
+    <div style="margin-top:48px;">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th style="width:34%;">Scenario</th>
+            <th style="width:22%;">Conversion rate</th>
+            <th style="width:22%;">NSPB sales · Year 1</th>
+            <th class="cell-us" style="width:22%;">Implementation revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-cap">Very conservative</td>
+            <td class="cell-them">5%</td>
+            <td class="cell-them">9 clients</td>
+            <td class="cell-us">$270K</td>
+          </tr>
+          <tr style="background: rgba(242,204,95,0.10);">
+            <td class="cell-cap" style="color:var(--c-navy); font-weight:600;">Base case · in deck</td>
+            <td class="cell-them" style="color:var(--c-navy); font-weight:600;">11%</td>
+            <td class="cell-them" style="color:var(--c-navy); font-weight:600;">20 clients</td>
+            <td class="cell-us" style="font-weight:700; font-size:26px;">$600K</td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Optimistic</td>
+            <td class="cell-them">20%</td>
+            <td class="cell-them">36 clients</td>
+            <td class="cell-us">$1.08M</td>
+          </tr>
+          <tr>
+            <td class="cell-cap">Stretch · with sales push</td>
+            <td class="cell-them">30%</td>
+            <td class="cell-them">54 clients</td>
+            <td class="cell-us">$1.62M</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:40px; padding:28px 40px; background:var(--c-card); border-left:4px solid var(--c-green); border-radius:8px;">
+      <p class="body-text" style="font-size:24px; color:var(--c-navy);">
+        Pilot signal will set the real number. If two pilots close 1 of 3 demos (~33%), the 11% base case is materially understated.
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Sensitivity · ERP-to-NSPB conversion rate</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 7 — REVENUE MODEL
+     ============================================================ -->
+<section data-label="08 Revenue">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">08 · Revenue Model</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Revenue Model · Conservative case</div>
+      <h2 class="title-sm" style="margin-top:20px;">Year-one revenue projection.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:48px; display:grid; grid-template-columns: repeat(3, 1fr); gap:28px;">
+      <div class="rev-card v1">
+        <div class="tag">Stream 1</div>
+        <h4>AI subscriptions, existing base.</h4>
+        <ul>
+          <li>30 of 60 clients adopt (50%)</li>
+          <li>$800 / month per client</li>
+        </ul>
+        <div style="flex:1;"></div>
+        <div>
+          <div class="figure">$288K</div>
+          <div class="figure-label">ARR · $24K MRR</div>
+        </div>
+      </div>
+      <div class="rev-card v2">
+        <div class="tag">Stream 2</div>
+        <h4>New NSPB implementations.</h4>
+        <ul>
+          <li>20 ERP clients converted (of ~180)</li>
+          <li>$30,000 per implementation</li>
+        </ul>
+        <div style="flex:1;"></div>
+        <div>
+          <div class="figure">$600K</div>
+          <div class="figure-label">One-time services</div>
+        </div>
+      </div>
+      <div class="rev-card v3">
+        <div class="tag">Stream 3</div>
+        <h4>AI subscriptions, new clients.</h4>
+        <ul>
+          <li>20 new clients × $800 / month</li>
+          <li>Recurring from month 1</li>
+        </ul>
+        <div style="flex:1;"></div>
+        <div>
+          <div class="figure">$192K</div>
+          <div class="figure-label">ARR</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="total-box">
+      <div class="label-stack">
+        <div class="lbl">Year One · Total Incremental Revenue</div>
+        <div class="desc">Conservative scenario, blended one-time + recurring.</div>
+      </div>
+      <div class="figure">$1.08M</div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Revenue Model · Conservative year-one projection</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 8 — ROADMAP
+     ============================================================ -->
+<section data-label="09 Roadmap">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">09 · Roadmap</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Product Roadmap</div>
+      <h2 class="title-sm" style="margin-top:20px;">A natural product expansion path.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div class="timeline" style="margin-top:80px;">
+      <div class="tl-step now">
+        <div class="marker">
+          <div class="ring"></div>
+          <div class="when">Today</div>
+        </div>
+        <h4>AI Chat for NSPB.</h4>
+        <p>Production-ready and live in client demos.</p>
+      </div>
+      <div class="tl-step">
+        <div class="marker">
+          <div class="ring"></div>
+          <div class="when">Months 2–3</div>
+        </div>
+        <h4>First paying clients.</h4>
+        <p>Iterate the product loop with real customer feedback.</p>
+      </div>
+      <div class="tl-step">
+        <div class="marker">
+          <div class="ring"></div>
+          <div class="when">Months 4–6</div>
+        </div>
+        <h4>Expansion to NSAW.</h4>
+        <p>Same architecture applied to NetSuite Analytics Warehouse.</p>
+      </div>
+      <div class="tl-step">
+        <div class="marker">
+          <div class="ring"></div>
+          <div class="when">Months 7–12</div>
+        </div>
+        <h4>NSAR and beyond.</h4>
+        <p>Extend to NSAR and any other NetSuite product with an API.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:80px; padding:32px 40px; background:var(--c-card); border-left:4px solid var(--c-green); border-radius:8px;">
+      <p class="body-text" style="font-size:26px; color:var(--c-navy);">
+        Same architecture. Same team. New modules.
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Roadmap · Twelve-month product horizon</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 10 — KNOWLEDGE FUSION
+     ============================================================ -->
+<section data-label="10 Knowledge Fusion">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">10 · Knowledge Fusion</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">How It Knows What It Knows</div>
+      <h2 class="title-sm" style="margin-top:20px;">Three knowledge layers fuse into one answer.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:48px; display:grid; grid-template-columns: 1fr 1.4fr; gap:48px; align-items:center;">
+      <!-- Left: 3 source layers + brain -->
+      <div style="display:grid; grid-template-columns: 1fr auto; gap:20px; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <div class="kf-box tone-navy">
+            <div class="lbl">Layer 1 · KB</div>
+            <h5>Product knowledge base</h5>
+            <p>NSPB concepts, formulas, best practices.</p>
+          </div>
+          <div class="kf-box tone-green">
+            <div class="lbl">Layer 2 · Tenant</div>
+            <h5>Client configuration</h5>
+            <p>Cubes, dimensions, member names — parsed automatically.</p>
+          </div>
+          <div class="kf-box tone-gold">
+            <div class="lbl">Layer 3 · Live</div>
+            <h5>Real-time NSPB data</h5>
+            <p>Current values, jobs, form state — fetched on demand.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+          <svg width="60" height="200" viewBox="0 0 60 200" fill="none">
+            <path d="M0 30 Q40 30 50 100 Q40 170 0 170 M0 100 L50 100" stroke="#619C8A" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M44 94 L52 100 L44 106" stroke="#619C8A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Right: brain + output -->
+      <div style="display:flex; align-items:center; gap:32px;">
+        <div class="kf-brain">
+          <div class="ic">🧠</div>
+          <div style="font-size:30px;">AI</div>
+          <div class="lbl">Fusion</div>
+        </div>
+        <svg width="60" height="40" viewBox="0 0 60 40" fill="none" style="flex-shrink:0;">
+          <path d="M2 20 L52 20 M44 12 L52 20 L44 28" stroke="#619C8A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div style="flex:1; background:var(--c-card); border:1px solid var(--c-line); border-radius:16px; padding:28px 28px;">
+          <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:18px;">Output · with provenance</div>
+          <div style="display:flex; flex-direction:column; gap:14px; font-size:18px; line-height:1.5; color:var(--c-ink-2);">
+            <div><span class="prov-badge prov-kb">KB</span>Forecast = baseline × seasonal index.</div>
+            <div><span class="prov-badge prov-tenant">TENANT</span>Cube "FinPlan" → member "Q3-FY26".</div>
+            <div><span class="prov-badge prov-live">LIVE</span>Current value: $4.2M (read 2s ago).</div>
+            <div><span class="prov-badge prov-kb">KB</span>Suggested rule: ApplyGrowthFactor.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; padding:24px 36px; background:var(--c-navy); border-radius:12px;">
+      <p style="margin:0; font-family:var(--ds-font-display); font-weight:300; font-size:24px; color:#fff; font-style:italic;">
+        "The AI never invents a name that isn't in Layer 2."
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Knowledge Fusion · KB + Tenant + Live</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 11 — TOKEN COST PER COMPANY
+     ============================================================ -->
+<section data-label="11 Token Cost">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">11 · Token Cost</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Unit Economics · Token Cost</div>
+      <h2 class="title-sm" style="margin-top:20px;">What a real client actually costs us.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:36px; display:grid; grid-template-columns: 1.05fr 1fr; gap:48px;">
+      <!-- Left: cost per turn + monthly est -->
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        <div>
+          <div style="font-size:16px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:14px;">Cost per turn · by model</div>
+          <table class="compare" style="font-size:20px;">
+            <tbody>
+              <tr><td class="cell-cap" style="padding:14px 24px;">Gemini Flash</td><td class="cell-them" style="padding:14px 24px;">$0.0002</td></tr>
+              <tr><td class="cell-cap" style="padding:14px 24px;">Gemini Pro</td><td class="cell-them" style="padding:14px 24px;">$0.0030</td></tr>
+              <tr><td class="cell-cap" style="padding:14px 24px;">Action call</td><td class="cell-them" style="padding:14px 24px;">$0.0040</td></tr>
+              <tr><td class="cell-cap" style="padding:14px 24px;">Intercept (cached)</td><td class="cell-us" style="padding:14px 24px; font-weight:600;">$0.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <div style="font-size:16px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:14px;">Monthly cost estimate · by company size</div>
+          <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
+            <div class="kf-box tone-green"><div class="lbl">Small · 1 user</div><h5 style="font-size:32px;">$1.50<span style="font-size:16px; color:var(--c-ink-3); margin-left:6px;">/mo</span></h5></div>
+            <div class="kf-box tone-navy"><div class="lbl">Mid · 5 users</div><h5 style="font-size:32px;">$5<span style="font-size:16px; color:var(--c-ink-3); margin-left:6px;">/mo</span></h5></div>
+            <div class="kf-box tone-gold"><div class="lbl">Large · 20 users</div><h5 style="font-size:32px;">$14<span style="font-size:16px; color:var(--c-ink-3); margin-left:6px;">/mo</span></h5></div>
+            <div class="kf-box tone-orange"><div class="lbl">Enterprise · 50 users</div><h5 style="font-size:32px;">$58<span style="font-size:16px; color:var(--c-ink-3); margin-left:6px;">/mo</span></h5></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: donut + cost levers -->
+      <div style="display:flex; flex-direction:column; gap:24px;">
+        <div style="display:flex; gap:24px; align-items:center;">
+          <svg width="220" height="220" viewBox="0 0 42 42" style="flex-shrink:0;">
+            <circle cx="21" cy="21" r="15.915" fill="#fff" stroke="#EEEEEE" stroke-width="6"/>
+            <!-- 70% Pro (navy) -->
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#1F3C51" stroke-width="6" stroke-dasharray="70 30" stroke-dashoffset="25"/>
+            <!-- 18% Flash (sage) -->
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#619C8A" stroke-width="6" stroke-dasharray="18 82" stroke-dashoffset="-45"/>
+            <!-- 7% CF (gold) -->
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#F2CC5F" stroke-width="6" stroke-dasharray="7 93" stroke-dashoffset="-63"/>
+            <!-- 5% NSPB (orange) -->
+            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#EC8842" stroke-width="6" stroke-dasharray="5 95" stroke-dashoffset="-70"/>
+            <text x="21" y="21" text-anchor="middle" dominant-baseline="middle" font-family="Sarabun" font-size="5" font-weight="300" fill="#1F3C51">100%</text>
+            <text x="21" y="26" text-anchor="middle" dominant-baseline="middle" font-family="Sarabun" font-size="2.4" fill="#767676">cost mix</text>
+          </svg>
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:18px; white-space:nowrap;">
+            <div style="display:flex; align-items:center; gap:12px;"><span style="width:14px;height:14px;background:#1F3C51;border-radius:3px;flex-shrink:0;"></span><strong style="color:var(--c-navy);">70%</strong> Gemini Pro</div>
+            <div style="display:flex; align-items:center; gap:12px;"><span style="width:14px;height:14px;background:#619C8A;border-radius:3px;flex-shrink:0;"></span><strong style="color:var(--c-navy);">18%</strong> Gemini Flash</div>
+            <div style="display:flex; align-items:center; gap:12px;"><span style="width:14px;height:14px;background:#F2CC5F;border-radius:3px;flex-shrink:0;"></span><strong style="color:var(--c-navy);">7%</strong> Cloudflare</div>
+            <div style="display:flex; align-items:center; gap:12px;"><span style="width:14px;height:14px;background:#EC8842;border-radius:3px;flex-shrink:0;"></span><strong style="color:var(--c-navy);">5%</strong> NSPB API</div>
+          </div>
+        </div>
+
+        <div style="background:var(--c-card); border-radius:12px; padding:20px 24px;">
+          <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-green-d); margin-bottom:10px;">Cost levers</div>
+          <ul style="list-style:none; padding:0; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; font-size:17px; color:var(--c-ink-2);">
+            <li>• Auto-routing Flash vs Pro</li>
+            <li>• Intercept cache layer</li>
+            <li>• Prompt caching</li>
+            <li>• Pre-cached schemas</li>
+            <li style="grid-column:1/-1;">• Concise EXPLAIN mode</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Token Cost · Per company unit economics</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 12 — PRICING MODEL
+     ============================================================ -->
+<section data-label="12 Pricing">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">12 · Pricing Model</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Pricing Model · Three Tiers</div>
+      <h2 class="title-sm" style="margin-top:20px;">Flat monthly fee. 85–98% gross margin.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+    </div>
+
+    <div style="margin-top:32px; display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:start;">
+      <div class="tier">
+        <div class="ttag">Starter</div>
+        <h4 class="tname">For small teams.</h4>
+        <div class="tprice">$500<span class="per">/ month</span></div>
+        <ul style="margin-top:8px;">
+          <li>Up to 3 users</li>
+          <li>Core Excel assistant</li>
+          <li>BYOK — client's own Gemini or Claude key</li>
+          <li>Standard support · email</li>
+          <li>Annual contract · monthly billing</li>
+        </ul>
+      </div>
+
+      <div class="tier feat">
+        <div class="badge-feat">Most popular</div>
+        <div class="ttag">Team</div>
+        <h4 class="tname">For finance organizations.</h4>
+        <div class="tprice">$800<span class="per">/ month</span></div>
+        <ul style="margin-top:8px;">
+          <li>Up to 20 users</li>
+          <li>Full assistant + forecasting</li>
+          <li>Managed key, or BYOK (Gemini / Claude)</li>
+          <li>SSO · audit logs</li>
+          <li>Priority support · 8×5</li>
+          <li>Quarterly business review</li>
+        </ul>
+      </div>
+
+      <div class="tier">
+        <div class="ttag">Enterprise</div>
+        <h4 class="tname">For multi-entity groups.</h4>
+        <div class="tprice">$1,500<span class="per">+ / month</span></div>
+        <ul style="margin-top:8px;">
+          <li>Unlimited users</li>
+          <li>Multi-entity, multi-tenant</li>
+          <li>BYOK on client's Gemini / Claude tenant — data stays private</li>
+          <li>SSO · SCIM · custom roles</li>
+          <li>Branded UI · SLA 99.9%</li>
+          <li>Dedicated CSM · 24×7</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:28px; display:grid; grid-template-columns:1.1fr 1fr; gap:32px; align-items:start;">
+      <div>
+        <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:12px;">Margin per tier · monthly</div>
+        <table class="compare" style="font-size:18px;">
+          <thead><tr>
+            <th style="padding:12px 18px; width:28%;">Tier</th>
+            <th style="padding:12px 18px;">Price</th>
+            <th style="padding:12px 18px;">AI cost</th>
+            <th class="cell-us" style="padding:12px 18px;">Gross margin</th>
+          </tr></thead>
+          <tbody>
+            <tr><td class="cell-cap" style="padding:12px 18px;">Starter</td><td class="cell-them" style="padding:12px 18px;">$500</td><td class="cell-them" style="padding:12px 18px;">~$10</td><td class="cell-us" style="padding:12px 18px; font-weight:600;">98%</td></tr>
+            <tr><td class="cell-cap" style="padding:12px 18px;">Team</td><td class="cell-them" style="padding:12px 18px;">$800</td><td class="cell-them" style="padding:12px 18px;">~$50</td><td class="cell-us" style="padding:12px 18px; font-weight:600;">94%</td></tr>
+            <tr><td class="cell-cap" style="padding:12px 18px;">Enterprise</td><td class="cell-them" style="padding:12px 18px;">$1,500</td><td class="cell-them" style="padding:12px 18px;">~$220</td><td class="cell-us" style="padding:12px 18px; font-weight:600;">85%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="background:var(--c-card); border-left:4px solid var(--c-green); border-radius:8px; padding:24px 28px;">
+        <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-green-d); margin-bottom:10px;">Why this works</div>
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; font-size:17px; line-height:1.5; color:var(--c-ink-2);">
+          <li>• Marginal cost ≈ AI spend, nothing else.</li>
+          <li>• BYOK option — client's data stays on their LLM tenant.</li>
+          <li>• One codebase serves every tier.</li>
+          <li>• Sticky — sits inside the daily workbook.</li>
+          <li>• Land &amp; expand — Starter graduates to Team.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Pricing Model · Starter / Team / Enterprise</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 13 — LICENSING & GO-TO-MARKET
+     ============================================================ -->
+<section data-label="13 Licensing">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">13 · Licensing &amp; GTM</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Licensing &amp; Go-to-Market</div>
+      <h2 class="title-sm" style="margin-top:20px;">Sell it like SaaS — not like a SOW.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+      <p class="lead" style="margin-top:24px; max-width:1200px;">
+        Self-serve checkout with a credit card. Cancel any time. SOW only when procurement requires it.
+      </p>
+    </div>
+
+    <div style="margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <!-- Left: Self-serve SaaS -->
+      <div class="tier" style="min-height:auto;">
+        <div class="ttag">Self-serve SaaS · Starter &amp; Team</div>
+        <h4 class="tname">Click-to-sign. Pay by card.</h4>
+        <ul style="margin-top:8px;">
+          <li>Stripe checkout · live in minutes</li>
+          <li>Click-to-accept Terms of Service · no SOW</li>
+          <li>Credit card · auto-billed</li>
+          <li>Self-serve cancel any time · no calls, no email</li>
+          <li>14-day free trial on the client's own tenant</li>
+        </ul>
+      </div>
+
+      <!-- Right: Enterprise contract -->
+      <div class="tier feat" style="min-height:auto;">
+        <div class="ttag">Enterprise contract</div>
+        <h4 class="tname">Traditional SOW &amp; invoice.</h4>
+        <ul style="margin-top:8px;">
+          <li>MSA + SOW · for procurement-driven buyers</li>
+          <li>Invoiced · NET 30/60</li>
+          <li>Annual or multi-year commitment</li>
+          <li>Onboarding billed as professional services</li>
+          <li>Dedicated CSM</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Billing terms strip -->
+    <div style="margin-top:32px; background:var(--c-card); border-radius:16px; padding:28px 32px; display:grid; grid-template-columns:repeat(3,1fr); gap:32px;">
+      <div>
+        <div style="font-family:var(--ds-font-mono); font-size:14px; letter-spacing:0.16em; color:var(--c-green-d); font-weight:600; margin-bottom:8px;">MONTHLY</div>
+        <div style="font-family:var(--ds-font-display); font-weight:300; font-size:36px; line-height:1; color:var(--c-navy); margin-bottom:8px;">List price</div>
+        <p style="margin:0; font-size:18px; line-height:1.4; color:var(--c-ink-2);">Cancel any time from the customer panel. No commitment.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--ds-font-mono); font-size:14px; letter-spacing:0.16em; color:var(--c-green-d); font-weight:600; margin-bottom:8px;">ANNUAL · PREPAID</div>
+        <div style="font-family:var(--ds-font-display); font-weight:300; font-size:36px; line-height:1; color:var(--c-navy); margin-bottom:8px;">2 months free</div>
+        <p style="margin:0; font-size:18px; line-height:1.4; color:var(--c-ink-2);">Pay 10, get 12. ≈17% discount. Improves cashflow + reduces churn.</p>
+      </div>
+      <div>
+        <div style="font-family:var(--ds-font-mono); font-size:14px; letter-spacing:0.16em; color:var(--c-green-d); font-weight:600; margin-bottom:8px;">TRIAL</div>
+        <div style="font-family:var(--ds-font-display); font-weight:300; font-size:36px; line-height:1; color:var(--c-navy); margin-bottom:8px;">14 days</div>
+        <p style="margin:0; font-size:18px; line-height:1.4; color:var(--c-ink-2);">Live on the client's own tenant. Card on file, charged at day 15.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:20px 32px; background:var(--c-navy); border-radius:12px; display:flex; align-items:center; gap:24px;">
+      <div style="font-family:var(--ds-font-display); font-weight:300; font-size:24px; color:var(--c-gold); white-space:nowrap;">Demo → live in 24h</div>
+      <div style="height:32px; width:1px; background:rgba(255,255,255,0.25);"></div>
+      <p style="margin:0; font-size:18px; line-height:1.4; color:rgba(255,255,255,0.85);">
+        No legal cycle on the SaaS path — the deal closes while the demo is still fresh.
+      </p>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Licensing · Self-serve SaaS + Enterprise contract</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 14 — MAINTENANCE & CAPACITY
+     ============================================================ -->
+<section data-label="14 Maintenance">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">14 · Maintenance &amp; Capacity</div>
+  </div>
+
+  <div class="frame">
+    <div>
+      <div class="eyebrow">Maintenance &amp; Team Capacity</div>
+      <h2 class="title-sm" style="margin-top:20px;">What it takes to keep this running.</h2>
+      <div class="rule-green" style="margin-top:24px;"></div>
+      <p class="lead" style="margin-top:20px; max-width:1200px;">
+        The product has a built-in feedback loop. Each week we triage, fix, and deploy — for every client at once.
+      </p>
+    </div>
+
+    <!-- Time per phase -->
+    <div style="margin-top:32px;">
+      <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-ink-3); margin-bottom:14px;">Dedicated time required · per phase</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:24px;">
+        <div class="kf-box tone-orange" style="padding:24px 28px;">
+          <div class="lbl">Launch · months 1–2</div>
+          <h5 style="font-size:22px;">~50% of one engineer</h5>
+          <p>Hardening the parser, onboarding the first 3–5 clients, closing critical bugs from real usage.</p>
+        </div>
+        <div class="kf-box tone-green" style="padding:24px 28px;">
+          <div class="lbl">Steady · months 3–6</div>
+          <h5 style="font-size:22px;">~25% of one engineer</h5>
+          <p>Weekly bug triage + deploy. New features driven by client feedback. KB updates for new NSPB releases.</p>
+        </div>
+        <div class="kf-box tone-navy" style="padding:24px 28px;">
+          <div class="lbl">Scale · 6+ months</div>
+          <h5 style="font-size:22px;">~15% + new feature spikes</h5>
+          <p>Maintenance is light. Larger spikes when extending to NSAW / NSAR — scoped as separate initiatives.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback loop + ask -->
+    <div style="margin-top:28px; display:grid; grid-template-columns:1.15fr 1fr; gap:28px;">
+      <div style="background:var(--c-card); border-radius:16px; padding:24px 28px;">
+        <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-green-d); margin-bottom:12px;">Built-in feedback loop</div>
+        <div style="display:flex; gap:18px; align-items:flex-start;">
+          <img src="assets/screens/report-bug.png" alt="Report a bug tab" style="width:160px; border-radius:10px; border:1px solid var(--c-line); flex-shrink:0;"/>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:15px; color:var(--c-ink-2);">
+              <span style="background:#fff; border:1px solid var(--c-line); border-radius:8px; padding:6px 12px; font-weight:500;">"Report a bug" tab</span>
+              <span style="color:var(--c-green);">→</span>
+              <span style="background:#fff; border:1px solid var(--c-line); border-radius:8px; padding:6px 12px; font-weight:500;">Weekly triage</span>
+              <span style="color:var(--c-green);">→</span>
+              <span style="background:#fff; border:1px solid var(--c-line); border-radius:8px; padding:6px 12px; font-weight:500;">Fix &amp; analyze</span>
+              <span style="color:var(--c-green);">→</span>
+              <span style="background:var(--c-navy); color:#fff; border-radius:8px; padding:6px 12px; font-weight:500;">Deploy to all</span>
+            </div>
+            <p style="margin:12px 0 0; font-size:15px; color:var(--c-ink-3); line-height:1.4;">
+              Bug form attaches environment + last debug log automatically. One repo, one deploy — every client benefits the same day.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--c-navy); color:#fff; border-radius:16px; padding:24px 28px;">
+        <div style="font-size:14px; letter-spacing:0.16em; text-transform:uppercase; font-weight:700; color:var(--c-gold); margin-bottom:10px;">The Ask</div>
+        <h5 style="font-family:var(--ds-font-display); font-weight:400; font-size:24px; line-height:1.2; margin:0 0 10px;">Assign me dedicated time to build &amp; maintain this.</h5>
+        <p style="margin:0; font-size:17px; line-height:1.45; color:rgba(255,255,255,0.82);">
+          Without protected capacity, this competes with billable client work and the product stalls. The cost is small relative to the revenue it unlocks.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Maintenance · Time required + feedback loop</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 15 — NEXT STEPS
+     ============================================================ -->
+<section data-label="15 Next Steps">
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">15 · Next Steps</div>
+  </div>
+
+  <div class="frame">
+    <div style="display:grid; grid-template-columns: 0.85fr 1.15fr; gap:80px; align-items:start; flex:1;">
+      <div>
+        <div class="eyebrow">Next Steps</div>
+        <h2 class="title-sm" style="margin-top:24px;">What we need<br>to get started.</h2>
+        <div class="rule-green" style="margin-top:28px;"></div>
+        <p class="lead" style="margin-top:32px; max-width:480px;">
+          Four commitments from leadership — and the product is ready to go to market.
+        </p>
+      </div>
+
+      <div class="checklist">
+        <div class="item done">
+          <div class="box">✓</div>
+          <div>
+            <h4>Validate with two pilot clients.</h4>
+            <div class="meta">In progress · early signal positive</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="box"></div>
+          <div>
+            <h4>Define the internal commercial structure.</h4>
+            <div class="meta">Pricing, ownership, comp split</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="box"></div>
+          <div>
+            <h4>Build the sales deck for demos.</h4>
+            <div class="meta">Account-ready narrative + live demo script</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="box"></div>
+          <div>
+            <h4>Identify the top 20 ERP candidates for NSPB.</h4>
+            <div class="meta">Sequenced from highest-fit to lowest</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>Next Steps · Four commitments to launch</div>
+    <div class="spacer"></div>
+    <div>NSPB MCP</div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SLIDE 10 — CLOSING
+     ============================================================ -->
+<section class="dark" data-label="16 Closing">
+  <!-- Pattern overlay -->
+  <div style="position:absolute;inset:0;background:url('assets/patterns/circles-pattern.png') center / cover no-repeat; opacity:0.18; mix-blend-mode:screen;"></div>
+  <div class="corner-ribbon bl"></div>
+
+  <div class="chrome-top">
+    <div class="logo-mark"><span class="dot"></span>NSPB MCP</div>
+    <div class="spacer"></div>
+    <div class="crumb">16 · Closing</div>
+  </div>
+
+  <div style="position:absolute; left:120px; right:120px; top:50%; transform:translateY(-50%); z-index:3;">
+    <div class="eyebrow" style="margin-bottom:32px;">Closing</div>
+    <h1 class="display" style="color:#fff; font-size:140px;">
+      The opportunity<br>is <span style="color:var(--c-gold);">now.</span>
+    </h1>
+    <div class="rule-gold" style="margin-top:48px;"></div>
+    <p class="lead" style="color:rgba(255,255,255,0.9); margin-top:40px; max-width:1100px; font-size:36px;">
+      The market doesn't have a solution like this. We have the product,
+      we have the clients, and we have the expertise.<br>
+      What's left is to structure it.
+    </p>
+    <p class="small-text" style="color:rgba(255,255,255,0.65); margin-top:36px; font-size:22px; letter-spacing:0.16em; text-transform:uppercase; font-weight:600;">
+      Next step — agree internally, and start running demos.
+    </p>
+  </div>
+
+  <div class="chrome-bottom">
+    <div>nspbmcp.web.app</div>
+    <div class="spacer"></div>
+    <div>Thank you</div>
+  </div>
+</section>
+
+</deck-stage>
+
+<script src="deck-stage.js"></script>
+</body>
+</html>

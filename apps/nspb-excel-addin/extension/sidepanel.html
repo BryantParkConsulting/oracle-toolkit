@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="sidepanel.css" />
+  <title>NSPB AI</title>
+</head>
+<body>
+  <header class="hdr">
+    <div class="brand">NSPB&nbsp;AI <span class="ver">Web Console Copilot</span></div>
+    <div class="hdr-btns">
+      <button id="settings-toggle" class="icon-btn" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- ── Settings panel (collapsible) ───────────────────────────── -->
+  <section id="settings" class="settings hidden">
+    <label>Planning URL (the real console)
+      <input id="cfg-planning" type="text" placeholder="https://nspb-….oraclecloud.com" />
+    </label>
+    <div class="row2">
+      <label>Username (optional)
+        <input id="cfg-user" type="text" autocomplete="off" />
+      </label>
+      <label>Password (optional)
+        <input id="cfg-pass" type="password" autocomplete="off" />
+      </label>
+    </div>
+    <label>AI API key (optional)
+      <input id="cfg-aikey" type="password" autocomplete="off"
+             placeholder="leave empty to use the shared key" />
+    </label>
+    <label class="kb-row">Tenant KB (tenant-kb.json)
+      <input id="cfg-kb-file" type="file" accept=".json" />
+    </label>
+    <div id="kb-status" class="kb-status">No KB imported.</div>
+    <button id="cfg-save" class="primary">Save</button>
+  </section>
+
+  <!-- ── Menu overlay (Commands / Forms / Rules / Variables / Status) ── -->
+  <section id="menu" class="menu hidden">
+    <div class="menu-hdr">
+      <span class="menu-title">Menu</span>
+    </div>
+    <div class="menu-tabs">
+      <button class="menu-tab active" data-tab="commands">Actions</button>
+      <button class="menu-tab" data-tab="forms">Forms</button>
+      <button class="menu-tab" data-tab="rules">Rules</button>
+      <button class="menu-tab" data-tab="variables">Variables</button>
+      <button class="menu-tab" data-tab="status">Status</button>
+    </div>
+    <input id="menu-filter" class="menu-filter" placeholder="Filter…" autocomplete="off" />
+    <div id="menu-body" class="menu-body"></div>
+    <div class="menu-foot"><button id="menu-close-bottom">✕ Close menu</button></div>
+  </section>
+
+  <!-- ── Chat ───────────────────────────────────────────────────── -->
+  <main id="log" class="log"></main>
+
+  <!-- ── Rotating tip (inspiration for what to ask) ──────────────── -->
+  <div id="tip" class="tip" title="Click to try"></div>
+
+  <!-- ── Persistent quick-action chips (always visible) ──────────── -->
+  <div id="quickbar" class="quickbar"></div>
+
+  <form id="composer" class="composer">
+    <input id="input" type="text" autocomplete="off"
+           placeholder="Ask anything, or: open form &lt;name&gt;" />
+    <button id="send" type="submit">➤</button>
+  </form>
+
+  <script src="config.local.js"></script>
+  <script src="navmap.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

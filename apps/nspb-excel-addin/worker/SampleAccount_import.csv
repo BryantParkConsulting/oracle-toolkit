@@ -1,0 +1,4 @@
+﻿Account,Parent,Default Alias,Account Type,Time Balance,Data Storage (NetSuite),Two Pass Calculation,Formula
+Test_Acct_001,Account,Test Account 001,Expense,Flow,Store,FALSE,
+Test_Acct_002,Account,Test Account 002,Revenue,Flow,Store,FALSE,
+Test_Acct_003,Test_Acct_001,Test Account 003,Expense,Flow,Store,FALSE,

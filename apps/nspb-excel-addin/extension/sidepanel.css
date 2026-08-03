@@ -1,0 +1,197 @@
+/* ── Oracle Redwood-inspired theme ───────────────────────────────
+   Mirrors the NSPB / EPM Cloud console: light neutral surfaces, dark
+   charcoal nav bar, BLACK primary buttons (like the "Refresh" button),
+   thin-bordered light chips, muted Oracle-blue links. */
+:root {
+  --bg:        #f4f4f5;   /* page background — light neutral gray   */
+  --surface:   #ffffff;   /* cards, inputs, bubbles                 */
+  --ink:       #1b1d1f;   /* primary text (near-black)              */
+  --ink-soft:  #5c5f62;   /* secondary text                        */
+  --ink-faint: #8a8d90;   /* hints, placeholders                   */
+  --line:      #dcdcdd;   /* hairline borders                      */
+  --line-soft: #ececed;   /* lighter separators                    */
+  --dark:      #1f2226;   /* charcoal nav bar (Redwood top strip)  */
+  --dark-2:    #2c3036;   /* charcoal hover                        */
+  --accent:    #2a6dba;   /* Oracle link/selection blue            */
+  --accent-bg: #eaf1fb;   /* selected-row tint                     */
+  --accent-bd: #b9d2f0;   /* accent border                         */
+  --warn-bg:   #fdf6e3;   /* soft amber (tips / system notes)      */
+  --warn-bd:   #f0e0b0;
+  --warn-ink:  #7a5b16;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; height: 100%;
+  font-family: "Oracle Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px; color: var(--ink); background: var(--bg);
+}
+body { display: flex; flex-direction: column; height: 100vh; position: relative; }
+
+/* ── Header (charcoal nav bar) ───────────────────────────────── */
+.hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: var(--dark); color: #fff; flex: 0 0 auto;
+}
+.brand { font-weight: 700; letter-spacing: .2px; }
+.ver { font-weight: 400; opacity: .55; font-size: 11px; }
+.hdr-btns { display: flex; gap: 5px; }
+.icon-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.28);
+  color: #fff; font-size: 14px; width: 27px; height: 27px; border-radius: 4px;
+  cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: rgba(255,255,255,.14); }
+.icon-btn.dark { border-color: rgba(255,255,255,.28); }
+
+/* ── Settings panel ──────────────────────────────────────────── */
+.settings {
+  padding: 12px; background: var(--surface); border-bottom: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 9px; flex: 0 0 auto;
+}
+.settings.hidden { display: none; }
+.settings label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--ink-soft); }
+.settings input[type=text], .settings input[type=password] {
+  padding: 7px 9px; border: 1px solid var(--line); border-radius: 4px; font-size: 12px;
+  background: var(--surface); color: var(--ink);
+}
+.settings input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+.row2 { display: flex; gap: 8px; }
+.row2 label { flex: 1; }
+.kb-status { font-size: 11px; color: var(--ink-soft); }
+
+/* Primary button — BLACK, like Oracle's "Refresh" / "Save". */
+.primary, .composer button {
+  background: var(--ink); color: #fff; border: 1px solid var(--ink); border-radius: 4px;
+  padding: 8px 14px; cursor: pointer; font-weight: 600; font-family: inherit;
+}
+.primary:hover, .composer button:hover { background: #000; }
+
+/* ── Menu overlay (full takeover — never overlaps the chat) ───── */
+.menu {
+  position: absolute; inset: 0; z-index: 40;
+  background: var(--surface); display: flex; flex-direction: column;
+}
+.menu.hidden { display: none; }
+.menu-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: var(--dark); color: #fff; flex: 0 0 auto;
+}
+.menu-title { font-weight: 700; letter-spacing: .2px; }
+.menu-tabs { display: flex; border-bottom: 1px solid var(--line); flex: 0 0 auto; background: var(--surface); }
+.menu-tab {
+  flex: 1; padding: 11px 4px; border: 0; background: transparent; cursor: pointer;
+  font-size: 12px; color: var(--ink-soft); border-bottom: 2px solid transparent; font-family: inherit;
+}
+.menu-tab:hover { background: var(--bg); }
+.menu-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.menu-filter {
+  margin: 10px 12px 6px; padding: 8px 10px; border: 1px solid var(--line);
+  border-radius: 4px; font-size: 13px; flex: 0 0 auto; background: var(--surface); color: var(--ink);
+}
+.menu-filter:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+.menu-body { overflow-y: auto; padding: 4px 10px 10px; flex: 1 1 auto; }
+/* Action rows (icon + label + desc) — compact, list-like (not big buttons). */
+.menu-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 9px; border-radius: 5px; cursor: pointer;
+  border: 1px solid var(--line-soft); margin-bottom: 3px; background: var(--surface);
+}
+.menu-item:hover { background: var(--accent-bg); border-color: var(--accent-bd); }
+.menu-item .mi-ico { font-size: 14px; flex: 0 0 auto; line-height: 1; }
+.menu-item .mi-text { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.menu-item .mi-label { font-weight: 600; font-size: 12px; color: var(--ink); }
+.menu-item .mi-desc { color: var(--ink-soft); font-size: 10.5px; line-height: 1.25; }
+.menu-empty { color: var(--ink-faint); font-size: 12px; padding: 14px; text-align: center; }
+/* Section headers (e.g. module names in Forms) — clearly readable, not faint. */
+.menu-section {
+  font-size: 11px; font-weight: 700; letter-spacing: .2px;
+  color: var(--ink); padding: 12px 2px 5px; border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+.menu-section:first-child { padding-top: 4px; }
+/* Compact list rows (forms / rules / variables) — table-like, dense. */
+.menu-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding: 5px 8px; border-bottom: 1px solid var(--line-soft); cursor: pointer;
+}
+.menu-row:hover { background: var(--accent-bg); }
+.menu-row .r-main { min-width: 0; display: flex; flex-direction: column; gap: 0; }
+.menu-row .r-name { font-weight: 600; font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.menu-row .r-sub { color: var(--ink-soft); font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.menu-row .r-meta { color: var(--ink-soft); font-size: 11px; white-space: nowrap; flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+.menu-row .r-flag { color: var(--accent); font-size: 11px; flex: 0 0 auto; }
+/* A full-width action button inside a tab (e.g. "Check variables"). */
+.menu-act {
+  width: 100%; text-align: left; padding: 8px 10px; margin: 4px 0 8px;
+  border: 1px solid var(--accent-bd); background: var(--accent-bg); color: var(--accent);
+  border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.menu-act:hover { filter: brightness(.97); }
+/* Bottom close bar — solid dark so it's clearly visible & reachable. */
+.menu-foot { flex: 0 0 auto; padding: 8px 10px; border-top: 1px solid var(--line); background: var(--surface); }
+.menu-foot button {
+  width: 100%; padding: 11px; border: 1px solid var(--ink); background: var(--ink);
+  color: #fff; border-radius: 5px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  letter-spacing: .2px;
+}
+.menu-foot button:hover { background: #000; }
+
+/* ── Rotating tip ────────────────────────────────────────────── */
+.tip {
+  flex: 0 0 auto; padding: 8px 12px; font-size: 12px; cursor: pointer;
+  background: var(--warn-bg); border-top: 1px solid var(--warn-bd); color: var(--warn-ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .25s;
+}
+.tip:hover { filter: brightness(.98); }
+.tip:empty { display: none; }
+
+/* ── Persistent quick-action chip bar ────────────────────────── */
+.quickbar {
+  flex: 0 0 auto; display: flex; gap: 6px; overflow-x: auto; padding: 9px 11px;
+  background: var(--surface); border-top: 1px solid var(--line); white-space: nowrap;
+}
+.quickbar::-webkit-scrollbar { height: 0; }
+/* Oracle filter-pill style: white, thin border, dark text. */
+.qchip {
+  flex: 0 0 auto; padding: 6px 12px; border-radius: 5px; cursor: pointer;
+  font-size: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font-family: inherit;
+}
+.qchip:hover { background: var(--bg); border-color: #c7c7c8; }
+.qchip-menu { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+.qchip-menu:hover { background: #000; }
+
+/* ── Chat log ────────────────────────────────────────────────── */
+.log {
+  flex: 1 1 auto; overflow-y: auto; padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.msg { max-width: 90%; padding: 9px 12px; border-radius: 8px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+.msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 3px; }
+.msg.ai   { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
+.msg.sys  { align-self: center; background: var(--warn-bg); border: 1px solid var(--warn-bd); font-size: 11px; color: var(--warn-ink); }
+.msg code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 12px; border: 1px solid var(--line-soft); }
+.msg a.open-link { color: var(--accent); text-decoration: underline; cursor: pointer; }
+
+/* In-bubble action chips — Oracle filter-pill look. */
+.chip {
+  display: inline-block; margin: 5px 5px 0 0; padding: 6px 12px;
+  background: var(--surface); border: 1px solid var(--accent-bd); color: var(--accent);
+  border-radius: 5px; font-size: 12px; cursor: pointer; font-family: inherit;
+}
+.chip:hover { background: var(--accent-bg); }
+.chip-fill { border-color: var(--line); color: var(--ink-soft); border-style: dashed; }
+.chip-fill:hover { background: var(--bg); }
+
+/* ── Composer ────────────────────────────────────────────────── */
+.composer {
+  display: flex; gap: 6px; padding: 10px; background: var(--surface);
+  border-top: 1px solid var(--line); flex: 0 0 auto;
+}
+.composer input {
+  flex: 1; padding: 9px 11px; border: 1px solid var(--line); border-radius: 4px; font-size: 13px;
+  background: var(--surface); color: var(--ink);
+}
+.composer input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+.composer button { padding: 9px 14px; }

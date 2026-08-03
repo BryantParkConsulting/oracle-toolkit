@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NSPB Copilot — Architecture Deck</title>
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --ink-soft: #374151;
+    --line: #e5e7eb;
+    --bg: #fafafa;
+    --accent: #f97316;       /* NSPB orange */
+    --accent-soft: #fed7aa;
+    --gemini: #4285f4;
+    --claude: #cc785c;
+    --good: #16a34a;
+    --good-soft: #dcfce7;
+    --warn: #f59e0b;
+    --warn-soft: #fef3c7;
+    --bad: #dc2626;
+    --kb: #8b5cf6;
+    --tenant: #06b6d4;
+    --live: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; background: #444; }
+  .slide {
+    width: 1280px; height: 720px;
+    margin: 24px auto; background: #fff;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    padding: 56px 64px;
+    position: relative; overflow: hidden;
+    page-break-after: always;
+    color: var(--ink);
+  }
+  .slide-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px; }
+  .slide-num { font-size: 12px; color: #9ca3af; letter-spacing: 0.1em; }
+  .brand { font-weight: 800; font-size: 14px; letter-spacing: 0.02em; }
+  .brand .accent { color: var(--accent); }
+  h1 { font-size: 44px; font-weight: 800; margin: 0 0 8px; line-height: 1.1; }
+  h2 { font-size: 22px; font-weight: 700; margin: 0 0 24px; color: var(--ink-soft); }
+  h3 { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
+  .lead { font-size: 18px; color: var(--ink-soft); margin: 0 0 32px; line-height: 1.5; max-width: 1100px; }
+  .footer { position: absolute; bottom: 24px; left: 64px; right: 64px; display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; }
+
+  /* SLIDE 1 — hero */
+  .hero { display: flex; gap: 48px; align-items: stretch; }
+  .hero-left { flex: 1.1; display: flex; flex-direction: column; justify-content: center; }
+  .hero-right { flex: 0.9; display: flex; align-items: center; justify-content: center; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin: 24px 0 32px; }
+  .pill { background: var(--accent-soft); color: #9a3412; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .feature { background: var(--bg); border-left: 3px solid var(--accent); padding: 12px 16px; }
+  .feature-title { font-weight: 700; font-size: 14px; margin: 0 0 4px; }
+  .feature-desc { font-size: 12px; color: var(--ink-soft); margin: 0; }
+  .hero-card {
+    width: 380px; background: linear-gradient(135deg, #0a0a0a 0%, #1f2937 100%);
+    color: #fff; border-radius: 16px; padding: 28px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .hero-card h3 { font-size: 20px; color: #fff; margin: 0 0 8px; }
+  .hero-card p { font-size: 13px; opacity: 0.85; margin: 0 0 16px; line-height: 1.5; }
+  .hero-msg { background: rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.5; margin-top: 12px; }
+  .hero-msg.user { background: var(--accent); color: #fff; text-align: right; }
+  .hero-msg .who { display: block; font-size: 10px; opacity: 0.7; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .chip-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .chip { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 4px 10px; font-size: 10px; }
+
+  /* SLIDE 2 — architecture */
+  .arch-canvas { position: relative; width: 100%; height: 480px; }
+  .arch-box { position: absolute; border: 2px solid var(--ink); background: #fff; border-radius: 8px; padding: 12px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .arch-box .arch-title { font-weight: 700; font-size: 13px; margin: 0 0 4px; }
+  .arch-box .arch-sub { font-size: 11px; color: var(--ink-soft); margin: 0; line-height: 1.4; }
+  .arch-box.client { left: 0; top: 80px; width: 240px; border-color: #2563eb; }
+  .arch-box.worker { left: 360px; top: 80px; width: 280px; border-color: var(--accent); }
+  .arch-box.ai { left: 760px; top: 0; width: 220px; border-color: var(--gemini); }
+  .arch-box.ai-claude { left: 760px; top: 130px; width: 220px; border-color: var(--claude); }
+  .arch-box.nspb { left: 1010px; top: 80px; width: 220px; border-color: var(--good); }
+  .arch-box.storage { left: 0; top: 280px; width: 240px; border-color: #6b7280; background: #f9fafb; }
+  .arch-box.delivery-cloud { left: 360px; top: 280px; width: 280px; border-color: var(--kb); background: #f5f3ff; }
+  .arch-arrow { position: absolute; height: 2px; background: var(--ink); }
+  .arch-arrow::after { content: ""; position: absolute; right: -7px; top: -4px; width: 0; height: 0; border-left: 8px solid var(--ink); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .arch-label { position: absolute; font-size: 10px; color: var(--ink-soft); background: #fff; padding: 1px 6px; }
+  .arch-legend { position: absolute; bottom: 0; left: 0; right: 0; display: flex; gap: 24px; font-size: 11px; color: var(--ink-soft); }
+  .arch-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+
+  /* SLIDE 3 — intelligence layers */
+  .layers { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .layer { border-radius: 12px; padding: 20px; min-height: 320px; display: flex; flex-direction: column; }
+  .layer-1 { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border: 2px solid var(--kb); }
+  .layer-2 { background: linear-gradient(135deg, #cffafe 0%, #ecfeff 100%); border: 2px solid var(--tenant); }
+  .layer-3 { background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid var(--live); }
+  .layer-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; letter-spacing: 0.05em; }
+  .layer-tag.l1 { background: var(--kb); color: #fff; }
+  .layer-tag.l2 { background: var(--tenant); color: #fff; }
+  .layer-tag.l3 { background: var(--live); color: #fff; }
+  .layer h3 { font-size: 18px; margin: 0 0 4px; }
+  .layer-sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 12px; }
+  .layer-content { font-size: 12px; line-height: 1.6; flex: 1; }
+  .layer-content code { background: rgba(255,255,255,0.6); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .layer-stat { background: #fff; border-radius: 6px; padding: 8px 10px; margin-top: 8px; font-size: 11px; }
+  .layer-stat strong { display: block; font-size: 14px; }
+
+  .routing { margin-top: 24px; background: var(--bg); border-radius: 12px; padding: 16px 20px; }
+  .routing-title { font-size: 13px; font-weight: 700; margin: 0 0 12px; }
+  .routing-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .routing-cell { font-size: 11px; line-height: 1.5; }
+  .routing-cell strong { color: var(--ink); }
+
+  /* SLIDE 4 — comparison */
+  .compare-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .compare-table th { text-align: left; padding: 12px 14px; font-size: 13px; background: #f3f4f6; border-bottom: 2px solid var(--line); }
+  .compare-table th.them { color: #6b7280; }
+  .compare-table th.us { color: var(--accent); background: var(--accent-soft); }
+  .compare-table td { padding: 10px 14px; font-size: 12px; vertical-align: top; border-bottom: 1px solid var(--line); line-height: 1.5; }
+  .compare-table td.criterion { font-weight: 700; width: 230px; }
+  .compare-table td.them-cell { color: #6b7280; }
+  .compare-table td.us-cell { background: #fffbeb; }
+  .compare-table .check { color: var(--good); font-weight: 700; }
+  .compare-table .x { color: var(--bad); font-weight: 700; }
+
+  .closing { background: linear-gradient(135deg, #0a0a0a 0%, #1f2937 100%); color: #fff; padding: 20px 28px; border-radius: 12px; margin-top: 16px; }
+  .closing-title { font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+  .closing-text { font-size: 13px; opacity: 0.9; line-height: 1.6; margin: 0; }
+
+  @media print {
+    body { background: #fff; }
+    .slide { margin: 0; box-shadow: none; }
+  }
+
+  /* ── extra styles for slides 5–9 ── */
+  .seq { width: 100%; max-width: 1100px; margin: 0 auto; }
+  .seq-row { display: grid; grid-template-columns: 130px 1fr 80px; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .seq-step { display: flex; align-items: center; gap: 8px; }
+  .seq-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .seq-where { font-size: 11px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .seq-detail { font-size: 12px; line-height: 1.5; }
+  .seq-detail code { background: var(--bg); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+  .seq-time { font-size: 11px; color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
+  .seq-time strong { color: var(--accent); }
+
+  .json-block { background: #1f2937; color: #d1d5db; border-radius: 8px; padding: 16px; font-family: "SF Mono", Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre; overflow: hidden; }
+  .json-block .k { color: #93c5fd; }
+  .json-block .s { color: #86efac; }
+  .json-block .n { color: #fcd34d; }
+  .json-block .c { color: #6b7280; font-style: italic; }
+
+  .flow-box { display: grid; grid-template-columns: repeat(5, 1fr) ; gap: 8px; margin: 16px 0; }
+  .flow-step { background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 10px; text-align: center; position: relative; }
+  .flow-step.active { border-color: var(--accent); background: var(--accent-soft); }
+  .flow-step::after { content: "→"; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: var(--ink-soft); font-weight: 700; }
+  .flow-step:last-child::after { display: none; }
+  .flow-step-icon { font-size: 22px; }
+  .flow-step-label { font-size: 11px; font-weight: 700; margin-top: 4px; }
+  .flow-step-sub { font-size: 10px; color: var(--ink-soft); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+  .stat { background: var(--bg); border-radius: 8px; padding: 16px; text-align: center; border-top: 3px solid var(--accent); }
+  .stat-value { font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--ink-soft); margin: 4px 0 0; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .timeline-item { position: relative; padding-bottom: 14px; }
+  .timeline-item::before { content: ""; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 1px var(--accent); }
+  .timeline-time { font-size: 10px; color: var(--ink-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .timeline-title { font-size: 14px; font-weight: 700; margin: 2px 0 4px; }
+  .timeline-detail { font-size: 12px; color: var(--ink-soft); margin: 0; line-height: 1.4; }
+
+  .roadmap-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .roadmap-col { background: var(--bg); border-radius: 12px; padding: 18px; }
+  .roadmap-col.now { border-top: 4px solid var(--good); }
+  .roadmap-col.next { border-top: 4px solid var(--warn); }
+  .roadmap-col.later { border-top: 4px solid var(--kb); }
+  .roadmap-col h3 { margin: 0 0 4px; font-size: 16px; }
+  .roadmap-col .when { font-size: 10px; color: var(--ink-soft); margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+  .roadmap-col ul { margin: 0; padding-left: 18px; }
+  .roadmap-col li { font-size: 12px; line-height: 1.6; margin-bottom: 6px; }
+
+  /* ── visual diagrams for slides 10–12 ── */
+  .fusion-canvas { position: relative; width: 100%; height: 480px; }
+  .fusion-source { position: absolute; width: 220px; padding: 14px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .fusion-source.kb     { left: 0; top: 0; background: linear-gradient(135deg,#ede9fe,#f5f3ff); border: 2px solid var(--kb); }
+  .fusion-source.tenant { left: 0; top: 175px; background: linear-gradient(135deg,#cffafe,#ecfeff); border: 2px solid var(--tenant); }
+  .fusion-source.sheet  { left: 0; top: 350px; background: linear-gradient(135deg,#dcfce7,#f0fdf4); border: 2px solid var(--live); }
+  .fusion-source h4 { margin: 0 0 4px; font-size: 14px; }
+  .fusion-source p { margin: 0; font-size: 11px; line-height: 1.5; color: var(--ink-soft); }
+  .fusion-source .badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; margin-bottom: 6px; letter-spacing: 0.05em; }
+  .fusion-source.kb .badge { background: var(--kb); color: #fff; }
+  .fusion-source.tenant .badge { background: var(--tenant); color: #fff; }
+  .fusion-source.sheet .badge { background: var(--live); color: #fff; }
+
+  .fusion-brain { position: absolute; left: 460px; top: 175px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #1f2937, #0a0a0a); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(0,0,0,0.3); border: 4px solid var(--accent); }
+  .fusion-brain .b-icon { font-size: 36px; }
+  .fusion-brain .b-title { font-size: 13px; font-weight: 700; margin-top: 6px; }
+  .fusion-brain .b-sub { font-size: 10px; opacity: 0.7; }
+
+  .fusion-out { position: absolute; left: 760px; top: 100px; width: 320px; padding: 14px; background: var(--accent-soft); border: 2px solid var(--accent); border-radius: 12px; }
+  .fusion-out h4 { margin: 0 0 8px; font-size: 14px; color: #9a3412; }
+  .fusion-out .out-line { font-size: 11px; line-height: 1.5; padding: 4px 0; border-bottom: 1px dashed rgba(0,0,0,0.1); }
+  .fusion-out .out-line:last-child { border: 0; }
+  .fusion-out .from { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px; margin-right: 4px; }
+  .fusion-out .from.kb { background: var(--kb); color: #fff; }
+  .fusion-out .from.t  { background: var(--tenant); color: #fff; }
+  .fusion-out .from.s  { background: var(--live); color: #fff; }
+
+  .fusion-arrow { position: absolute; height: 3px; background: linear-gradient(90deg, var(--ink) 50%, var(--accent) 100%); }
+  .fusion-arrow::after { content: ""; position: absolute; right: -8px; top: -4px; width: 0; height: 0; border-left: 10px solid var(--accent); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+  .fusion-out-arrow { position: absolute; height: 3px; background: var(--accent); }
+  .fusion-out-arrow::after { content: ""; position: absolute; right: -8px; top: -4px; width: 0; height: 0; border-left: 10px solid var(--accent); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+
+  /* ── token & pricing visuals ── */
+  .cost-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+  .cost-table th { padding: 10px 12px; text-align: left; background: #f3f4f6; border-bottom: 2px solid var(--line); font-size: 11px; }
+  .cost-table th:not(:first-child) { text-align: right; }
+  .cost-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .cost-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+  .cost-table tr.total { background: var(--accent-soft); font-weight: 700; }
+  .cost-table tr.total td { border-top: 2px solid var(--accent); }
+  .cost-bar { display: inline-block; height: 8px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .donut { width: 200px; height: 200px; }
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 12px; }
+  .price-card { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 20px; position: relative; display: flex; flex-direction: column; }
+  .price-card.featured { border-color: var(--accent); transform: scale(1.02); box-shadow: 0 8px 24px rgba(249,115,22,0.15); }
+  .price-card.featured::before { content: "Most flexible"; position: absolute; top: -12px; left: 16px; background: var(--accent); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+  .price-tier { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+  .price-name { font-size: 22px; font-weight: 800; margin: 4px 0 6px; }
+  .price-amount { font-size: 28px; font-weight: 800; color: var(--accent); }
+  .price-per { font-size: 12px; color: var(--ink-soft); }
+  .price-features { list-style: none; padding: 0; margin: 16px 0 0; flex: 1; }
+  .price-features li { padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--line); }
+  .price-features li::before { content: "✓ "; color: var(--good); font-weight: 700; }
+  .price-features li.x::before { content: "✗ "; color: #d4d4d4; }
+
+  .usage-row { display: grid; grid-template-columns: 200px 1fr 80px 90px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 12px; }
+  .usage-bar-bg { width: 100%; height: 12px; background: #f3f4f6; border-radius: 6px; overflow: hidden; }
+  .usage-bar-fill { height: 100%; border-radius: 6px; transition: width .3s; }
+</style>
+</head>
+<body>
+
+<!-- ─────────────────────── SLIDE 1 — Title / Value Prop ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">01 / 12 — Overview</span>
+  </div>
+
+  <div class="hero">
+    <div class="hero-left">
+      <h1>An NSPB Copilot — not just an MCP wrapper.</h1>
+      <p class="lead">A conversational add-in for Excel that knows <strong>your tenant</strong>, talks to it live, and explains <em>why</em> things are the way they are. Built on top of MCP, but the MCP is the smallest piece.</p>
+
+      <div class="pills">
+        <span class="pill">Live REST</span>
+        <span class="pill">Tenant-aware</span>
+        <span class="pill">Multimodal</span>
+        <span class="pill">Persistent cache</span>
+        <span class="pill">Auto-routing AI</span>
+        <span class="pill">Office.js integration</span>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <p class="feature-title">📋 Open any form → write to Excel</p>
+          <p class="feature-desc">Form metadata + grid + attached rules. ~80 ms cached.</p>
+        </div>
+        <div class="feature">
+          <p class="feature-title">▶ Run business rules from chat</p>
+          <p class="feature-desc">Auto-prompts RTPs. Live REST, no EPM Automate.</p>
+        </div>
+        <div class="feature">
+          <p class="feature-title">🧠 Analyze any sheet with Pro</p>
+          <p class="feature-desc">Variance, top drivers, anomalies — references real numbers.</p>
+        </div>
+        <div class="feature">
+          <p class="feature-title">📐 Drill / pivot / filter without SmartView</p>
+          <p class="feature-desc">Modify the active grid in NL: "keep only Sales".</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-card">
+        <h3>NSPB MCP <span style="opacity:0.5;font-size:13px;font-weight:400">v0.120</span></h3>
+        <p>Chat where you work — inside Excel.</p>
+        <div class="hero-msg user">
+          <span class="who">You</span>
+          analyze actual vs forecast variance
+        </div>
+        <div class="hero-msg">
+          <span class="who">Copilot · Pro · 12s</span>
+          OpEx is +$2.3M over forecast YTD, concentrated in Marketing (+$1.1M, driven by TP3 spike). Revenue ahead by $4.5M. Net: +$2.2M to plan.
+          <div class="chip-strip">
+            <span class="chip">Top drivers</span>
+            <span class="chip">Open Marketing</span>
+            <span class="chip">Why TP3?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>NSPB MCP</span>
+    <span>Architecture Deck · 2026</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 2 — Architecture ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">02 / 12 — Architecture</span>
+  </div>
+
+  <h1>How a question becomes an answer.</h1>
+  <h2>Six moving parts, one stateless edge worker as the brain.</h2>
+
+  <div class="arch-canvas">
+    <div class="arch-box client">
+      <p class="arch-title">📊 Excel Add-in (taskpane)</p>
+      <p class="arch-sub">Office.js · Webview2<br>Slash menu · Chips · Forms grid</p>
+    </div>
+    <div class="arch-box worker">
+      <p class="arch-title">⛅ Cloudflare Worker (stateless)</p>
+      <p class="arch-sub">Routing · Tool dispatch · Prompt build<br>SmartView XML proxy · REST adapter</p>
+    </div>
+    <div class="arch-box ai">
+      <p class="arch-title">🤖 Gemini 2.5 Flash / Pro</p>
+      <p class="arch-sub">5–15s · Tool calls · Multimodal</p>
+    </div>
+    <div class="arch-box ai-claude">
+      <p class="arch-title">🟣 Claude Sonnet (alt)</p>
+      <p class="arch-sub">Same shape, swappable</p>
+    </div>
+    <div class="arch-box nspb">
+      <p class="arch-title">🔶 Oracle NSPB</p>
+      <p class="arch-sub">/HyperionPlanning · /interop · /aif<br>SmartView XML · Basic Auth</p>
+    </div>
+    <div class="arch-box storage">
+      <p class="arch-title">💾 4-tier durable storage</p>
+      <p class="arch-sub">OfficeRuntime · localStorage<br>IndexedDB · Hidden Excel sheet</p>
+    </div>
+    <div class="arch-box delivery-cloud">
+      <p class="arch-title">📦 Delivery (offline)</p>
+      <p class="arch-sub">tenant-kb.json + installer<br>per-client folder, emailed on update</p>
+    </div>
+
+    <!-- Arrows: client → worker → AI -->
+    <div class="arch-arrow" style="left:240px; top:115px; width:120px;"></div>
+    <div class="arch-label" style="left:265px; top:100px;">/api/chat</div>
+
+    <div class="arch-arrow" style="left:640px; top:50px; width:120px;"></div>
+    <div class="arch-label" style="left:665px; top:35px;">prompt</div>
+
+    <div class="arch-arrow" style="left:640px; top:170px; width:120px;"></div>
+    <div class="arch-label" style="left:665px; top:155px;">prompt</div>
+
+    <!-- worker → NSPB -->
+    <div class="arch-arrow" style="left:640px; top:115px; width:370px;"></div>
+    <div class="arch-label" style="left:790px; top:100px;">live REST + SmartView</div>
+
+    <!-- client ↓ storage -->
+    <div class="arch-arrow" style="left:120px; top:160px; width:2px; height:120px; background:var(--ink);"></div>
+    <div class="arch-arrow" style="display:none"></div>
+    <div class="arch-label" style="left:130px; top:215px;">read/write</div>
+
+    <!-- worker ↓ NSPB MCP -->
+    <div class="arch-arrow" style="left:500px; top:160px; width:2px; height:120px; background:var(--ink);"></div>
+    <div class="arch-label" style="left:510px; top:215px;">embedded KB</div>
+
+    <div class="arch-legend">
+      <span><span class="arch-legend-dot" style="background:#2563eb"></span>Client (browser)</span>
+      <span><span class="arch-legend-dot" style="background:var(--accent)"></span>Edge worker (Cloudflare)</span>
+      <span><span class="arch-legend-dot" style="background:var(--gemini)"></span>Gemini AI</span>
+      <span><span class="arch-legend-dot" style="background:var(--good)"></span>Oracle NSPB</span>
+      <span><span class="arch-legend-dot" style="background:#6b7280"></span>Local persistence</span>
+      <span><span class="arch-legend-dot" style="background:var(--kb)"></span>Delivery-side</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Stateless edge · No data persisted on Cloudflare · NSPB credentials per-request</span>
+    <span>Architecture Deck · 02</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 3 — Intelligence Layers ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">03 / 12 — Intelligence</span>
+  </div>
+
+  <h1>Three knowledge layers, fused per question.</h1>
+  <h2>The chat doesn't <em>retrieve</em> — it <em>routes</em> and <em>fuses</em>.</h2>
+
+  <div class="layers">
+    <div class="layer layer-1">
+      <span class="layer-tag l1">LAYER 1</span>
+      <h3>Concept (kb.md)</h3>
+      <p class="layer-sub">Generic NSPB expertise · embedded in bundle</p>
+      <div class="layer-content">
+        How alternate hierarchies work. What a Smart Push does. When to refresh the database. Best-practice month-end close steps. Sub variable conventions.
+        <p style="margin:10px 0 0;color:#6b7280;font-size:11px;">~ 175 KB curated markdown · NSPB consultant knowledge · same for every client</p>
+      </div>
+      <div class="layer-stat"><strong>Static</strong>Refreshed nightly from Delivery cloud</div>
+    </div>
+
+    <div class="layer layer-2">
+      <span class="layer-tag l2">LAYER 2</span>
+      <h3>Tenant (per client)</h3>
+      <p class="layer-sub">LCM export + live discovery · per tenant</p>
+      <div class="layer-content">
+        <code>NSP_NFS</code>, <code>Workforc</code>, <code>Report</code> cubes. 162 forms grouped by module. 89 business rules with attachments. 41 sub variables (<code>NSP_PER_RptCurrMo</code>, …). Real scenarios: <code>Actual</code>, <code>Forecast</code>, <code>Budget</code>.
+        <p style="margin:10px 0 0;color:#6b7280;font-size:11px;">tenant-kb.json (LCM) + Detect everything probes</p>
+      </div>
+      <div class="layer-stat"><strong>Per-tenant</strong>Imported once, cached forever</div>
+    </div>
+
+    <div class="layer layer-3">
+      <span class="layer-tag l3">LAYER 3</span>
+      <h3>Live (REST · per turn)</h3>
+      <p class="layer-sub">SmartView + REST · executes now</p>
+      <div class="layer-content">
+        Open form data slices. Run rules + return job ID. Set sub variables. List inbox files. Submit edits. Compare scenarios from real cube data. Variance analytics on actual numbers.
+        <p style="margin:10px 0 0;color:#6b7280;font-size:11px;">Calls Oracle NSPB live · returns numbers, not docs</p>
+      </div>
+      <div class="layer-stat"><strong>Real-time</strong>Read & write to the tenant</div>
+    </div>
+  </div>
+
+  <div class="routing">
+    <p class="routing-title">🧭 The router decides which layers to fuse, per question type.</p>
+    <div class="routing-grid">
+      <div class="routing-cell">
+        <strong>"What is a substitution variable?"</strong><br>
+        <span style="color:#9ca3af">Generic concept</span><br>
+        → Layer 1 only · Flash · 5s
+      </div>
+      <div class="routing-cell">
+        <strong>"How do I copy data between scenarios in MY tenant?"</strong><br>
+        <span style="color:#9ca3af">Implementation</span><br>
+        → Layer 1 + 2 · Pro · 12s · grounded in real names
+      </div>
+      <div class="routing-cell">
+        <strong>"Analyze actual vs forecast variance"</strong><br>
+        <span style="color:#9ca3af">Action on data</span><br>
+        → Layer 2 + 3 · Pro · 15s · writes <code>Analysis_*</code> sheet
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Anti-hallucination: tenant facts override KB examples · names verbatim, no invented FY33 / Louisiana</span>
+    <span>Architecture Deck · 03</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 4 — Beyond MCP ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">04 / 12 — Beyond MCP</span>
+  </div>
+
+  <h1>What makes it more than a tool gateway.</h1>
+  <h2>MCP exposes tools. A copilot <em>composes</em> them — and works around their failures.</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th class="criterion-col" style="width:230px;"></th>
+        <th class="them">Vanilla MCP</th>
+        <th class="us">NSPB Copilot</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="criterion">Tool execution</td>
+        <td class="them-cell"><span class="check">✓</span> single tool per turn</td>
+        <td class="us-cell"><span class="check">✓</span> multi-tool orchestration · auto-retry on Pro after Flash MALFORMED</td>
+      </tr>
+      <tr>
+        <td class="criterion">Tenant grounding</td>
+        <td class="them-cell"><span class="x">✗</span> stateless tools — no notion of <em>this</em> client</td>
+        <td class="us-cell"><span class="check">✓</span> per-tenant KB + live discovery — answers reference YOUR cubes/forms/rules verbatim</td>
+      </tr>
+      <tr>
+        <td class="criterion">Routing intelligence</td>
+        <td class="them-cell"><span class="x">✗</span> always same model</td>
+        <td class="us-cell"><span class="check">✓</span> Flash for concepts (5s) · Pro for implementation (12s) · explicit EXPLAIN MODE for FAQ</td>
+      </tr>
+      <tr>
+        <td class="criterion">Conversation flow</td>
+        <td class="them-cell"><span class="x">✗</span> Q → A → end</td>
+        <td class="us-cell"><span class="check">✓</span> chip-driven follow-ups · zoom_in / zoom_out / keep_only over the active grid · contextual</td>
+      </tr>
+      <tr>
+        <td class="criterion">Persistence</td>
+        <td class="them-cell"><span class="x">✗</span> session-scoped</td>
+        <td class="us-cell"><span class="check">✓</span> 4-tier durable settings (Office / local / IndexedDB / hidden Excel sheet) · form cache survives forever</td>
+      </tr>
+      <tr>
+        <td class="criterion">Hallucination control</td>
+        <td class="them-cell"><span class="x">✗</span> model-dependent</td>
+        <td class="us-cell"><span class="check">✓</span> tenant facts in prompt · explicit "use only listed names" rule · client-side intercepts for cubes/dims (zero AI)</td>
+      </tr>
+      <tr>
+        <td class="criterion">Excel integration</td>
+        <td class="them-cell"><span class="x">✗</span> chat only</td>
+        <td class="us-cell"><span class="check">✓</span> writes grids to sheets · paints editable cells · keeps SmartView format · multimodal (paste images)</td>
+      </tr>
+      <tr>
+        <td class="criterion">Onboarding</td>
+        <td class="them-cell"><span class="x">✗</span> manual config per user</td>
+        <td class="us-cell"><span class="check">✓</span> one button "Load everything" — imports JSON, discovers REST, pre-caches 150 forms, writes report</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="closing">
+    <p class="closing-title">The copilot is the orchestration layer over MCP — not a replacement.</p>
+    <p class="closing-text">MCP gives the model hands. The copilot gives it eyes (active sheet), memory (per-tenant facts), routing (Flash vs Pro), and a UI (chips, intent tree, slash menu) that turns conversational AI into something an FP&A user can trust on a Tuesday afternoon.</p>
+  </div>
+
+  <div class="footer">
+    <span>Live at gentle-moon-046f.nspbassistant.workers.dev · v0.120</span>
+    <span>Architecture Deck · 04</span>
+  </div>
+</div>
+
+<!-- ─────────────────────── SLIDE 5 — Anatomy of a response ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">05 / 12 — Anatomy of a response</span>
+  </div>
+
+  <h1>What happens between the keystroke and the answer.</h1>
+  <h2>9 stages, all measurable. End-to-end ~5–15 seconds.</h2>
+
+  <div class="seq">
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">1</div><div class="seq-where">Client</div></div>
+      <div class="seq-detail"><strong>Capture & route.</strong> Input typed → check slash menu → check intent regex → decide which intercept handles it. Some commands never hit AI: <code>show me the cubes</code>, <code>set variable X</code>, <code>open form Y</code>.</div>
+      <div class="seq-time"><strong>0 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">2</div><div class="seq-where">Client</div></div>
+      <div class="seq-detail"><strong>Auto-classify.</strong> If the question starts with <code>How / What / Why / When</code> → flag <code>forceExplain=true</code>. If it's an action verb (<code>analyze</code>, <code>compare</code>) → leave tools enabled.</div>
+      <div class="seq-time"><strong>+1 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">3</div><div class="seq-where">Client → Worker</div></div>
+      <div class="seq-detail"><strong>POST /api/chat.</strong> Body carries: messages, settings (host/user/pwd), <code>tenantKb</code>, <code>appConfig</code>, <code>activeSheet</code> (if any), <code>lastGrid</code>, the <code>forceExplain</code> flag.</div>
+      <div class="seq-time"><strong>+50 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">4</div><div class="seq-where">Worker</div></div>
+      <div class="seq-detail"><strong>Build prompt.</strong> Stitch KB.md + TENANT FACTS (cubes, dims, vars, sample forms/rules) + active sheet context + tools schema. EXPLAIN MODE uses a slim KB-only prompt.</div>
+      <div class="seq-time"><strong>+5 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">5</div><div class="seq-where">Worker</div></div>
+      <div class="seq-detail"><strong>Pick model.</strong> Concept → Flash (5s). Implementation/analysis → Pro (12s). Routing decided per turn from the question text.</div>
+      <div class="seq-time"><strong>+1 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">6</div><div class="seq-where">Worker → Gemini</div></div>
+      <div class="seq-detail"><strong>Call AI.</strong> Gemini reads the prompt, decides: prose answer OR call a tool (<code>analyze_active_sheet</code>, <code>build_adhoc</code>, <code>open_form</code>, …). Returns either text or tool args.</div>
+      <div class="seq-time"><strong>+3–12 s</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">7</div><div class="seq-where">Worker</div></div>
+      <div class="seq-detail"><strong>Tool dispatch.</strong> If tool requested: hit NSPB REST / SmartView XML → parse → return result back to AI for narration. Loop up to 6 turns.</div>
+      <div class="seq-time"><strong>+0.5–3 s</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">8</div><div class="seq-where">Worker → Client</div></div>
+      <div class="seq-detail"><strong>Compose response.</strong> Send back: prose reply + grids (to write to Excel sheets) + chip hints + grid descriptor (for next-turn modify_grid).</div>
+      <div class="seq-time"><strong>+50 ms</strong></div>
+    </div>
+    <div class="seq-row">
+      <div class="seq-step"><div class="seq-num">9</div><div class="seq-where">Client</div></div>
+      <div class="seq-detail"><strong>Render.</strong> Write grids to Excel via Office.js (yellow cells for input forms). Render bubble + clickable chips. Persist evolved grid descriptor for next turn.</div>
+      <div class="seq-time"><strong>+200 ms</strong></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Stateless turn — no server-side memory · Excel writes happen client-side via Office.js</span>
+    <span>Architecture Deck · 05</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 6 — Tenant onboarding & JSON KB ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">06 / 12 — Tenant onboarding</span>
+  </div>
+
+  <h1>From client metadata to a working copilot in 3 minutes.</h1>
+  <h2>One JSON file is everything the chat needs to know about a tenant.</h2>
+
+  <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin-top: 16px;">
+    <div>
+      <h3 style="margin-bottom:12px;">Onboarding flow</h3>
+      <div class="flow-box" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="flow-step active">
+          <div class="flow-step-icon">📦</div>
+          <div class="flow-step-label">LCM export</div>
+          <div class="flow-step-sub">From client's NSPB</div>
+        </div>
+        <div class="flow-step active">
+          <div class="flow-step-icon">⚙️</div>
+          <div class="flow-step-label">parse-lcm.js</div>
+          <div class="flow-step-sub">Delivery-side script</div>
+        </div>
+        <div class="flow-step active">
+          <div class="flow-step-icon">📄</div>
+          <div class="flow-step-label">tenant-kb.json</div>
+          <div class="flow-step-sub">~ 500 KB</div>
+        </div>
+        <div class="flow-step active">
+          <div class="flow-step-icon">📧</div>
+          <div class="flow-step-label">Email to client</div>
+          <div class="flow-step-sub">Single attachment</div>
+        </div>
+        <div class="flow-step active">
+          <div class="flow-step-icon">⚡</div>
+          <div class="flow-step-label">"Load everything"</div>
+          <div class="flow-step-sub">~ 2–3 min</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px;">What "Load everything" does in one click</h3>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-time">0:00</div>
+          <div class="timeline-title">Save user form fields</div>
+          <p class="timeline-detail">Host / Username / Password / AI key persisted to all 4 storage tiers.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">0:01</div>
+          <div class="timeline-title">Import tenant-kb.json</div>
+          <p class="timeline-detail">forms[], rules[], dashboards[], navigationFlows[], substitutionVariables[], fdmee[].</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">0:05</div>
+          <div class="timeline-title">Live discovery probes (14 in parallel)</div>
+          <p class="timeline-detail">Cubes · Dimensions · Periods · Years · Scenarios · Versions · Currencies · Recent jobs · Integrations · Pipelines · Period mappings · Saved queries · Locations · Job types.</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">0:30</div>
+          <div class="timeline-title">Pre-cache form slices (5 in parallel)</div>
+          <p class="timeline-detail">~150 forms × ~2s each → IndexedDB. Future opens are instant (~80 ms).</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-time">2:30</div>
+          <div class="timeline-title">Write NSPB_Discovery sheet · post chat recap</div>
+          <p class="timeline-detail">Complete probe report on a sheet, summary in the chat. Ready to use.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:12px;">tenant-kb.json (shape)</h3>
+      <div class="json-block">{
+  <span class="k">"client"</span>: <span class="s">"Acme Corp"</span>,
+  <span class="k">"appName"</span>: <span class="s">"NetSuite"</span>,
+  <span class="k">"generatedAt"</span>: <span class="s">"2026-05-07"</span>,
+  <span class="k">"schemaVersion"</span>: <span class="n">5</span>,
+
+  <span class="c">// 162 forms grouped by module</span>
+  <span class="k">"forms"</span>: [{
+    <span class="k">"name"</span>: <span class="s">"OpEx by Department."</span>,
+    <span class="k">"module"</span>: <span class="s">"OpEx"</span>,
+    <span class="k">"cube"</span>: <span class="s">"NSP_NFS"</span>,
+    <span class="k">"isInput"</span>: <span class="n">true</span>,
+    <span class="k">"description"</span>: <span class="s">"Operating exp..."</span>,
+    <span class="k">"attachedRules"</span>: [
+      { <span class="k">"name"</span>: <span class="s">"NFS_Form_Trending"</span>,
+        <span class="k">"runOnSave"</span>: <span class="n">true</span>,
+        <span class="k">"kind"</span>: <span class="s">"runnable"</span> },
+      { <span class="k">"name"</span>: <span class="s">"CURRENCY"</span>,
+        <span class="k">"kind"</span>: <span class="s">"calcScript"</span> }
+    ]
+  }, ...],
+
+  <span class="c">// 89 business rules</span>
+  <span class="k">"rules"</span>: [{
+    <span class="k">"name"</span>: <span class="s">"NFS_All Accts Forecast"</span>,
+    <span class="k">"hasRTP"</span>: <span class="n">true</span>,
+    <span class="k">"description"</span>: <span class="s">"..."</span>
+  }, ...],
+
+  <span class="c">// 41 sub variables</span>
+  <span class="k">"substitutionVariables"</span>: [
+    { <span class="k">"name"</span>: <span class="s">"NSP_PER_RptCurrMo"</span>,
+      <span class="k">"value"</span>: <span class="s">"TP4"</span> },
+    ...
+  ],
+
+  <span class="c">// nav flow → forms-by-module</span>
+  <span class="k">"navigationFlows"</span>: [...],
+
+  <span class="c">// FDMEE: integrations, pipelines, locations</span>
+  <span class="k">"fdmee"</span>: { ... }
+}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Generated by parse-lcm.js · We keep one folder per client at C:\NSPB_MCP\clients\&lt;name&gt;\</span>
+    <span>Architecture Deck · 06</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 7 — Continuous improvement ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">07 / 12 — Continuous improvement</span>
+  </div>
+
+  <h1>The product gets better while clients use it.</h1>
+  <h2>Every NSPB MCP fix or KB addition reaches every tenant within minutes — no install required.</h2>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div>
+      <h3 style="margin-bottom:12px;">How a single deploy reaches everyone</h3>
+      <div class="flow-box" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+        <div class="flow-step">
+          <div class="flow-step-icon">👤</div>
+          <div class="flow-step-label">Client uses</div>
+          <div class="flow-step-sub">Hits an edge case</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-icon">🐞</div>
+          <div class="flow-step-label">Bug reported</div>
+          <div class="flow-step-sub">"Report a bug" tab</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-icon">⚙️</div>
+          <div class="flow-step-label">Updates</div>
+          <div class="flow-step-sub">edit + build + deploy</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-icon">⛅</div>
+          <div class="flow-step-label">Live everywhere</div>
+          <div class="flow-step-sub">~ 30 sec via Cloudflare</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px;">What gets shared across clients automatically</h3>
+      <ul style="font-size:13px; line-height:1.7; color:var(--ink-soft);">
+        <li><strong>kb.md additions</strong> — every NSPB lesson learned from one client improves answers for all</li>
+        <li><strong>Tool fixes</strong> — when one client surfaces a SmartView edge case, the parse fix ships globally</li>
+        <li><strong>UI improvements</strong> — chip ergonomics, intent tree, slash menu</li>
+        <li><strong>Anti-hallucination rules</strong> — patterns we discover from tenant A protect tenant B</li>
+        <li><strong>New tools</strong> — analyze_active_sheet today, anomaly_detector tomorrow</li>
+      </ul>
+
+      <h3 style="margin-top:24px;">What stays per-client</h3>
+      <ul style="font-size:13px; line-height:1.7; color:var(--ink-soft);">
+        <li><strong>tenant-kb.json</strong> — only updated when we re-run LCM parser</li>
+        <li><strong>API keys & credentials</strong> — never leave the user's machine</li>
+        <li><strong>Cached form data</strong> — local IndexedDB</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:12px;">The compounding effect</h3>
+      <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="stat">
+          <p class="stat-value">~ 30s</p>
+          <p class="stat-label">Bug fix → live for all clients</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">0</p>
+          <p class="stat-label">Client install steps per update</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">1</p>
+          <p class="stat-label">Codebase serving N tenants</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">∞</p>
+          <p class="stat-label">KB lessons compound across clients</p>
+        </div>
+      </div>
+
+      <h3 style="margin-top:16px;">Bug reporting lives inside the chat</h3>
+      <div class="hero-card" style="width:100%; max-width:none; margin-top:8px;">
+        <h3 style="font-size:16px;">Report a bug · 3 fields, 30 seconds</h3>
+        <p style="font-size:11px;">From the task pane → "Report a bug" tab → describe → submit.<br>The report goes straight to us with: tenant context, model used, last 5 turns, NSPB host (anonymised), trace data.</p>
+        <div class="hero-msg" style="margin-top:8px;">
+          <span class="who">user@acme</span>
+          When I run BR_X with Department=Marketing it says "RTP missing" but the form has no RTP field.
+        </div>
+        <div class="hero-msg" style="background:rgba(245,158,11,0.2);border-left:3px solid #f59e0b;">
+          <span class="who">attached automatically</span>
+          model=gemini-2.5-pro · tenant=acme · turn-trace [...]<br>
+          BR catalog state · last grid descriptor
+        </div>
+      </div>
+
+      <p style="font-size:11px;color:var(--ink-soft); margin-top:12px;">Updates within hours → next time ANY client (acme, pharmalogic, …) hits the same edge case, the fix is already live. <strong>The product literally improves itself across the customer base.</strong></p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>SaaS-style update cadence on a B2B vertical add-in · zero client friction</span>
+    <span>Architecture Deck · 07</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 8 — KB & metadata in the prompt ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">08 / 12 — KB & prompt assembly</span>
+  </div>
+
+  <h1>How the AI sees your tenant on every turn.</h1>
+  <h2>The system prompt is built fresh per request — fused KB + tenant + live state.</h2>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+    <div>
+      <h3 style="margin-bottom:8px;">Prompt assembly per turn</h3>
+      <div class="json-block" style="white-space:pre-wrap;"><span class="c">// EXPLAIN MODE (concept questions)</span>
+<span class="k">SYSTEM</span>:
+  STRICT EXPLAIN rules (no tools)
+  + KB.md (~ 175 KB)
+  + TENANT FACTS:
+    - cubes: NSP_NFS, Workforc, Report
+    - scenarios: NSP_Actual, NSP_Forecast, NSP_Budget
+    - vars: NSP_PER_RptCurrMo, …
+    - sample forms: OpEx by Dept., …
+    - "DO NOT invent FY33, Louisiana"
+
+<span class="c">// FULL MODE (action / data questions)</span>
+<span class="k">SYSTEM</span>:
+  routing rules
+  + tools schemas (build_adhoc, open_form, …)
+  + CATALOG (cube → dims)
+  + TENANT INVENTORY:
+    - all 162 forms (with descriptions)
+    - all 89 rules
+    - all 41 vars (with current values)
+    - navigation flows
+  + active sheet (if any)
+  + last grid descriptor
+
+<span class="k">USER</span>: messages history
+</div>
+      <p style="font-size:11px;color:var(--ink-soft); margin-top:8px;">~280 KB total in full mode → with implicit prompt caching, ~75 % discount on subsequent turns within 5 min.</p>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:8px;">Anti-hallucination layers</h3>
+      <ul style="font-size:13px; line-height:1.7; padding-left:18px;">
+        <li><strong>Layer A — Tenant facts always wins.</strong> The prompt explicitly says: "Use ONLY names from TENANT FACTS. Do NOT invent."</li>
+        <li><strong>Layer B — Client intercepts.</strong> Common queries (<code>show me the cubes</code>, <code>show dimensions</code>) bypass the AI entirely. Zero hallucination, zero latency, zero cost.</li>
+        <li><strong>Layer C — Tool dispatch.</strong> Real numbers come from REST tools, not from the AI's memory. The AI narrates what the tool returned, not what it imagined.</li>
+        <li><strong>Layer D — Pro for implementation, Flash for concept.</strong> Implementation questions route to Pro because Pro follows the strict rules better.</li>
+        <li><strong>Layer E — Chip-driven flow.</strong> Follow-up chips are pre-formatted with EXACT names from inventory, so users keep the conversation on real ground.</li>
+      </ul>
+
+      <h3 style="margin-top:16px; margin-bottom:8px;">What we ship to the AI per turn</h3>
+      <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="stat">
+          <p class="stat-value">175 KB</p>
+          <p class="stat-label">KB.md (NSPB knowledge)</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">100 KB</p>
+          <p class="stat-label">tenant-kb.json (per client)</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">~ 5 KB</p>
+          <p class="stat-label">active sheet snapshot</p>
+        </div>
+        <div class="stat">
+          <p class="stat-value">~ 2 KB</p>
+          <p class="stat-label">tools schemas</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Prompt cache hit rate ~ 70 %+ in normal use → cost stays at ~$0.0002–0.003 per turn</span>
+    <span>Architecture Deck · 08</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 9 — Roadmap ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">09 / 12 — Roadmap</span>
+  </div>
+
+  <h1>Where it goes next.</h1>
+  <h2>The platform is built for compounding — every piece adds value to the next.</h2>
+
+  <div class="roadmap-grid">
+    <div class="roadmap-col now">
+      <h3>Now</h3>
+      <p class="when">Live — v0.120</p>
+      <ul>
+        <li>Open / read / submit forms</li>
+        <li>Run business rules + RTPs</li>
+        <li>Set / browse sub variables</li>
+        <li>Discover full tenant metadata</li>
+        <li>Variance / top drivers analysis</li>
+        <li>SmartView-style modify_grid</li>
+        <li>Multi-cube ad-hoc queries</li>
+        <li>EXPLAIN mode (KB-grounded)</li>
+        <li>Multimodal (paste images)</li>
+        <li>4-tier durable storage</li>
+        <li>Auto pre-cache on import</li>
+      </ul>
+    </div>
+    <div class="roadmap-col next">
+      <h3>Next</h3>
+      <p class="when">Q3 2026</p>
+      <ul>
+        <li>Streaming responses (token-by-token UX)</li>
+        <li>Auto bug-report → triage</li>
+        <li>Overnight UAT & auto-fix loop</li>
+        <li>Anomaly detection on schedules</li>
+        <li>Per-client KB customisation</li>
+        <li>Slack / Teams notifications hook</li>
+        <li>OAuth sign-on (no password)</li>
+        <li>Dim member alias rename</li>
+        <li>Form designer assistant</li>
+      </ul>
+    </div>
+    <div class="roadmap-col later">
+      <h3>Later</h3>
+      <p class="when">2027</p>
+      <ul>
+        <li>Voice mode (mic in / TTS out)</li>
+        <li>Multi-tenant exec dashboard for us</li>
+        <li>NSPB → other EPM tools (PBCS, Anaplan)</li>
+        <li>AI rule generator from spec</li>
+        <li>Plain-English data quality monitor</li>
+        <li>Forecast suggestion engine</li>
+        <li>Office Insider / AppSource listing</li>
+        <li>Plugin marketplace for partners</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="closing" style="margin-top:24px;">
+    <p class="closing-title">A year from now this is the default way FP&A teams interact with NSPB.</p>
+    <p class="closing-text">Excel + chat + tenant-aware AI is not "nice to have" anymore. It's how the work gets done — drilling, allocating, reconciling, narrating — without leaving the spreadsheet. Every client we onboard makes the next one faster.</p>
+  </div>
+
+  <div class="footer">
+    <span>NSPB MCP · v0.120 live · weekly cadence on improvements</span>
+    <span>Architecture Deck · 09</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 10 — Knowledge fusion (visual) ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">10 / 12 — Knowledge fusion</span>
+  </div>
+
+  <h1>Three sources, one answer.</h1>
+  <h2>Every reply is a fusion of generic NSPB knowledge, your tenant's metadata, and what's on the screen.</h2>
+
+  <div class="fusion-canvas">
+
+    <!-- 3 input sources on the left -->
+    <div class="fusion-source kb">
+      <span class="badge">LAYER 1 · KB</span>
+      <h4>📚 Generic NSPB knowledge</h4>
+      <p>Concepts · best practices · how things work in NSPB. Same for every tenant. Updated centrally.</p>
+    </div>
+
+    <div class="fusion-source tenant">
+      <span class="badge">LAYER 2 · TENANT</span>
+      <h4>🏢 Your tenant metadata</h4>
+      <p>Cubes · dimensions · forms · rules · variables · scenarios · navigation flows. From your LCM export.</p>
+    </div>
+
+    <div class="fusion-source sheet">
+      <span class="badge">LAYER 3 · LIVE</span>
+      <h4>📊 The active sheet & live REST</h4>
+      <p>What's on screen now · last grid descriptor · live numbers from NSPB on every turn.</p>
+    </div>
+
+    <!-- arrows from sources to brain -->
+    <div class="fusion-arrow" style="left:220px; top:30px; width:240px; transform:rotate(35deg); transform-origin:left center;"></div>
+    <div class="fusion-arrow" style="left:220px; top:265px; width:240px;"></div>
+    <div class="fusion-arrow" style="left:220px; top:380px; width:240px; transform:rotate(-22deg); transform-origin:left center;"></div>
+
+    <!-- the AI brain in the middle -->
+    <div class="fusion-brain">
+      <div class="b-icon">🧠</div>
+      <div class="b-title">Gemini Pro / Flash</div>
+      <div class="b-sub">fuses · routes · narrates</div>
+    </div>
+
+    <!-- arrow from brain to output -->
+    <div class="fusion-out-arrow" style="left:640px; top:265px; width:120px;"></div>
+
+    <!-- output answer with provenance -->
+    <div class="fusion-out">
+      <h4>Grounded answer with provenance</h4>
+      <div class="out-line"><span class="from kb">KB</span>"To copy data between scenarios, use a DATACOPY business rule…"</div>
+      <div class="out-line"><span class="from t">TENANT</span>"In your tenant the source scenario is <code>NSP_Forecast</code> and target is <code>NSP_Budget</code>."</div>
+      <div class="out-line"><span class="from t">TENANT</span>"Use rule <code>NFS_All Accts Forecast</code> attached to the form."</div>
+      <div class="out-line"><span class="from s">LIVE</span>"Last run: yesterday at 22:00, status SUCCEEDED — see NSPB_Jobs."</div>
+      <div class="out-line"><span class="from s">LIVE</span>"Active sheet shows TP3 variance of +$2.3M concentrated in Marketing."</div>
+    </div>
+  </div>
+
+  <p style="font-size:12px; color:var(--ink-soft); text-align:center; margin-top:16px;">
+    The AI <strong>never invents</strong> a name that's not in Layer 2. The KB explains <em>concepts</em>, the tenant supplies <em>names</em>, the live layer supplies <em>numbers</em>.
+  </p>
+
+  <div class="footer">
+    <span>Each layer has its own anti-hallucination guard · names verbatim from tenant facts only</span>
+    <span>Architecture Deck · 10</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 11 — Token cost per company ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">11 / 12 — Cost per company</span>
+  </div>
+
+  <h1>What it actually costs to run, per client per month.</h1>
+  <h2>Mostly Gemini API spend · Cloudflare Workers free tier covers everything else.</h2>
+
+  <div style="display:grid; grid-template-columns: 1.1fr 1fr; gap:24px;">
+
+    <div>
+      <h3 style="margin-bottom:8px;">Per-turn cost breakdown</h3>
+      <div style="background:var(--bg); border-radius:8px; padding:14px;">
+        <div class="usage-row" style="border-bottom:2px solid var(--line); font-weight:700; font-size:11px; text-transform:uppercase; color:var(--ink-soft); letter-spacing:0.05em;">
+          <span>Question type</span><span>Distribution</span><span>Cost / turn</span><span style="text-align:right;">Model</span>
+        </div>
+        <div class="usage-row">
+          <span>EXPLAIN concept (Flash)</span>
+          <span><div class="usage-bar-bg"><div class="usage-bar-fill" style="width:40%; background:var(--gemini);"></div></div></span>
+          <span>$0.0002</span>
+          <span style="text-align:right; font-size:11px; color:var(--ink-soft);">Flash · 5s</span>
+        </div>
+        <div class="usage-row">
+          <span>EXPLAIN implementation (Pro)</span>
+          <span><div class="usage-bar-bg"><div class="usage-bar-fill" style="width:25%; background:var(--accent);"></div></div></span>
+          <span>$0.0030</span>
+          <span style="text-align:right; font-size:11px; color:var(--ink-soft);">Pro · 12s</span>
+        </div>
+        <div class="usage-row">
+          <span>Action / data tool call</span>
+          <span><div class="usage-bar-bg"><div class="usage-bar-fill" style="width:25%; background:var(--good);"></div></div></span>
+          <span>$0.0040</span>
+          <span style="text-align:right; font-size:11px; color:var(--ink-soft);">Pro · 15s</span>
+        </div>
+        <div class="usage-row">
+          <span>Client-side intercept (no AI)</span>
+          <span><div class="usage-bar-bg"><div class="usage-bar-fill" style="width:10%; background:#9ca3af;"></div></div></span>
+          <span>$0.0000</span>
+          <span style="text-align:right; font-size:11px; color:var(--ink-soft);">Local · 0s</span>
+        </div>
+      </div>
+
+      <h3 style="margin:20px 0 8px;">Monthly estimate per company</h3>
+      <table class="cost-table">
+        <thead>
+          <tr><th>Company size</th><th>Users</th><th>Turns / user / day</th><th>Turns / month</th><th>Cost / month</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Small (1 power user)</td><td>1</td><td>30</td><td>660</td><td>~ $1.50</td></tr>
+          <tr><td>Mid (FP&A team)</td><td>5</td><td>20</td><td>2,200</td><td>~ $5.00</td></tr>
+          <tr><td>Large (multi-department)</td><td>20</td><td>15</td><td>6,600</td><td>~ $14.00</td></tr>
+          <tr class="total"><td>Enterprise (heavy use)</td><td>50</td><td>25</td><td>27,500</td><td>~ $58.00</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:10px; color:var(--ink-soft); margin-top:8px;">
+        Assumptions: avg blend 50% concept · 30% implementation · 15% action · 5% intercepts. Implicit prompt cache hit rate ~70 % (Gemini auto-discount). Pricing as of 2026-05.
+      </p>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:8px;">Where the dollars go</h3>
+      <div style="display:flex; align-items:center; gap:20px;">
+        <svg class="donut" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="70" fill="transparent" stroke="#e5e7eb" stroke-width="40"/>
+          <!-- Gemini Pro: 70% -->
+          <circle cx="100" cy="100" r="70" fill="transparent" stroke="#f97316" stroke-width="40"
+                  stroke-dasharray="307.9 439.8" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+          <!-- Gemini Flash: 18% -->
+          <circle cx="100" cy="100" r="70" fill="transparent" stroke="#4285f4" stroke-width="40"
+                  stroke-dasharray="79.2 439.8" stroke-dashoffset="-307.9" transform="rotate(-90 100 100)"/>
+          <!-- Cloudflare: 7% -->
+          <circle cx="100" cy="100" r="70" fill="transparent" stroke="#fbbf24" stroke-width="40"
+                  stroke-dasharray="30.8 439.8" stroke-dashoffset="-387.1" transform="rotate(-90 100 100)"/>
+          <!-- Other: 5% -->
+          <circle cx="100" cy="100" r="70" fill="transparent" stroke="#6b7280" stroke-width="40"
+                  stroke-dasharray="22 439.8" stroke-dashoffset="-417.9" transform="rotate(-90 100 100)"/>
+          <text x="100" y="98" text-anchor="middle" font-size="22" font-weight="800">$14</text>
+          <text x="100" y="118" text-anchor="middle" font-size="9" fill="#6b7280">/ month / mid-tier</text>
+        </svg>
+        <div style="font-size:12px; line-height:1.7;">
+          <div><span style="display:inline-block;width:12px;height:12px;background:#f97316;border-radius:2px;margin-right:6px;vertical-align:middle;"></span><strong>70%</strong> Gemini Pro</div>
+          <div><span style="display:inline-block;width:12px;height:12px;background:#4285f4;border-radius:2px;margin-right:6px;vertical-align:middle;"></span><strong>18%</strong> Gemini Flash</div>
+          <div><span style="display:inline-block;width:12px;height:12px;background:#fbbf24;border-radius:2px;margin-right:6px;vertical-align:middle;"></span><strong>7%</strong> Cloudflare egress</div>
+          <div><span style="display:inline-block;width:12px;height:12px;background:#6b7280;border-radius:2px;margin-right:6px;vertical-align:middle;"></span><strong>5%</strong> NSPB API (free)</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:20px;">Cost levers we control</h3>
+      <ul style="font-size:12px; line-height:1.7; padding-left:18px;">
+        <li><strong>Auto-routing Flash vs Pro</strong> — keeps 50%+ of turns on cheap Flash</li>
+        <li><strong>Client-side intercepts</strong> — common queries are $0 (cubes, dims, set var)</li>
+        <li><strong>Prompt caching</strong> — Gemini implicit cache cuts 70% of tokens within 5 min windows</li>
+        <li><strong>Pre-cache form slices</strong> — reads from IndexedDB, never re-hits the AI</li>
+        <li><strong>Concise EXPLAIN</strong> — capped at 1500 tokens output</li>
+      </ul>
+
+      <div class="closing" style="padding:14px 16px; margin-top:14px;">
+        <p class="closing-title" style="font-size:14px;">Bottom line: ~ $5–15 / mo for mid-size client.</p>
+        <p class="closing-text" style="font-size:11px;">Even at heavy enterprise use (50 users), monthly AI spend stays well under $100. The math is dominated by KB-grounded conversation, not compute.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>Cloudflare Workers free tier · Gemini API @ $0.075/M tokens (Flash) · $1.25/M (Pro)</span>
+    <span>Architecture Deck · 11</span>
+  </div>
+</div>
+
+
+<!-- ─────────────────────── SLIDE 12 — Pricing model ─────────────────────── -->
+<div class="slide">
+  <div class="slide-header">
+    <span class="brand"><span class="accent">●</span> NSPB <span class="accent">Copilot</span></span>
+    <span class="slide-num">12 / 12 — Pricing model</span>
+  </div>
+
+  <h1>Three tiers · gross margin north of 90 % at every level.</h1>
+  <h2>SaaS-style subscription · billed monthly per tenant · We keep client AI key OR uses self-managed.</h2>
+
+  <div class="pricing-grid">
+
+    <div class="price-card">
+      <div class="price-tier">Base</div>
+      <div class="price-name">Single tenant</div>
+      <div><span class="price-amount">$800</span><span class="price-per">/ month / tenant</span></div>
+      <p style="font-size:11px; color:var(--ink-soft); margin:8px 0 0;">Entry tier — one NSPB tenant, up to 3 named users. Ideal for finance lead + 2 analysts.</p>
+      <ul class="price-features">
+        <li>Up to 3 named users</li>
+        <li>Full chat + form open + run rules</li>
+        <li>Tenant KB import + auto pre-cache</li>
+        <li>Variance / top drivers analysis</li>
+        <li>EXPLAIN mode (Flash + Pro)</li>
+        <li>self-managed AI key included</li>
+        <li>Email support (48 h response)</li>
+        <li class="x">No multi-user dashboard</li>
+        <li class="x">No SLA</li>
+      </ul>
+    </div>
+
+    <div class="price-card featured">
+      <div class="price-tier">Team</div>
+      <div class="price-name">FP&A team</div>
+      <div><span class="price-amount">$1,800</span><span class="price-per">/ month / tenant</span></div>
+      <p style="font-size:11px; color:var(--ink-soft); margin:8px 0 0;">Mid-size FP&A team — typically 5–15 users sharing one NSPB tenant.</p>
+      <ul class="price-features">
+        <li>Up to 15 named users</li>
+        <li>Everything in Base</li>
+        <li>Multi-user usage telemetry (per user)</li>
+        <li>Priority bug response (24 h)</li>
+        <li>Monthly KB refresh</li>
+        <li>Slack / Teams notifications hook</li>
+        <li>Quarterly tenant-kb refresh by us</li>
+        <li>Onboarding workshop included</li>
+      </ul>
+    </div>
+
+    <div class="price-card">
+      <div class="price-tier">Enterprise</div>
+      <div class="price-name">Multi-tenant</div>
+      <div><span class="price-amount">$4,500+</span><span class="price-per">/ month — custom</span></div>
+      <p style="font-size:11px; color:var(--ink-soft); margin:8px 0 0;">Multi-department or multi-tenant deployments. Compliance-heavy clients.</p>
+      <ul class="price-features">
+        <li>Unlimited users / multiple tenants</li>
+        <li>Everything in Team</li>
+        <li>Dedicated edge (custom Cloudflare worker)</li>
+        <li>SLA 99.9 % · 4-hour response</li>
+        <li>SSO / OAuth (custom IdP)</li>
+        <li>Audit log export</li>
+        <li>DPA + GDPR addenda</li>
+        <li>Quarterly review + roadmap input</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div style="display:grid; grid-template-columns: 2fr 1fr; gap:16px; margin-top:20px;">
+    <div>
+      <h3 style="margin-bottom:8px;">Margin per tier (illustrative)</h3>
+      <table class="cost-table" style="font-size:11px;">
+        <thead>
+          <tr><th>Tier</th><th>Price/mo</th><th>AI cost</th><th>support</th><th>Gross margin</th><th>%</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Base (3 users)</td><td>$800</td><td>~ $5</td><td>~ $20</td><td>$775</td><td>97 %</td></tr>
+          <tr><td>Team (5–15 users)</td><td>$1,800</td><td>~ $25</td><td>~ $50</td><td>$1,725</td><td>96 %</td></tr>
+          <tr class="total"><td>Enterprise (50+)</td><td>$4,500+</td><td>~ $80</td><td>~ $200</td><td>$4,220+</td><td>94 %</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:10px; color:var(--ink-soft); margin-top:6px;">
+        Incremental cost per added client ≈ $5–80/mo AI spend + ~30 min of onboarding. Same codebase serves all tenants. Margins stay in the 94–97 % band at every tier.
+      </p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px;">Why this works</h3>
+      <ul style="font-size:11px; line-height:1.7; padding-left:16px;">
+        <li><strong>Marginal cost ≈ AI spend</strong> — the worker itself is free at this scale</li>
+        <li><strong>One codebase</strong> — fix once, ship to all clients instantly</li>
+        <li><strong>Per-tenant value</strong> — saves hours/week per FP&A user, easily justifies $800–$1,800/mo</li>
+        <li><strong>Sticky</strong> — once tenant-kb is loaded + users have habits, switching cost is real</li>
+        <li><strong>Land & expand</strong> — start at Base, grow into Team or Enterprise as adoption spreads</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Pricing illustrative — final tiers TBD with first 3 paying clients · all numbers in USD</span>
+    <span>Architecture Deck · 12</span>
+  </div>
+</div>
+
+</body>
+</html>
