@@ -1,0 +1,20 @@
+{
+  "name": "nspb-adhoc-worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker backend for the NSPB Excel add-in.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "templates": "node inline-templates.js",
+    "check": "node --check worker.js && node --check ../add-in/src/taskpane.js && echo syntax OK",
+    "build": "node inline-templates.js && node build.js",
+    "deploy": "npm run build && wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^1.1.0"
+  }
+}

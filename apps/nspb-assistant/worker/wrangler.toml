@@ -1,0 +1,17 @@
+name = "gentle-moon-046f"
+main = "bundle.js"
+account_id = "0e4419a9d70c7197310b1ae92dbe2239"
+compatibility_date = "2025-04-01"
+# nodejs_compat lets us import @cloudflare/puppeteer (uses node:buffer internally)
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# Cloudflare Browser Rendering — /api/render-pdf converts the HTML report
+# into a native PDF using headless Chromium. Same CSS/fonts as the HTML.
+# Requires Workers Paid plan ($5/mo). Until enabled in the Cloudflare
+# dashboard, the endpoint returns 501 and the UI keeps the HTML download
+# chip working.
+[browser]
+binding = "BROWSER"

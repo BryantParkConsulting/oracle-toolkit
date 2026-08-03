@@ -1,0 +1,237 @@
+﻿
+
+========================================================================
+  1. LOGIN
+========================================================================
+Command: epmautomate login demoadmin C:\ProgramData\Oracle\EPM Automate\creds.epw https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+Exit: 0
+--- stdout ---
+Login successful
+
+
+========================================================================
+  2. SET SUBST VARS (no-op set NSP_SYS_LogLevel=2)
+========================================================================
+Command: epmautomate setSubstVars NetSuite NSP_SYS_LogLevel=2
+Exit: 1
+--- stdout ---
+Processing...
+EPMAT-1:Invalid cube was specified: NetSuite
+
+
+========================================================================
+  3. LOGOUT
+========================================================================
+Command: epmautomate logout
+Exit: 0
+--- stdout ---
+logout completed successfully
+
+
+========================================================================
+  ALL LOG FILES
+========================================================================
+
+------- FILE: setSubstVars_05_05_2026_05_30_37_526.log -------
+EPMAutomate version is 26.04.49
+jarPath: /C:/Program%20Files/Oracle/EPM%20Automate/lib/epmautomate.jar
+jarPath: /C:/Program Files/Oracle/EPM Automate/lib/epmautomate.jar
+Enter Method checkForPrefs of class com.hyperion.epmctl.client.util.PreferencesUtil
+Enter Method loadPrefs of class com.hyperion.epmctl.client.util.PreferencesUtil
+Service Type before Setting in load Prefs:PBCS
+Service Type after Setting in load Prefs:PBCS
+Exit Method loadPrefs of class com.hyperion.epmctl.client.util.PreferencesUtil
+Inactivity connection validity: 500
+Enter Method processRequest of class com.hyperion.epmctl.client.processaction.actions.PlanningSubstitutionVar
+Processing...
+Enter Method getApplication of class com.hyperion.epmctl.client.processaction.util.CommandUtil
+RequestManager.generateGetMethod() URL - https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com/HyperionPlanning/rest/v3/applications?q=%7Boptions%3A3%7D
+SessionID
+2026/05/05 17:30:38:974 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2026/05/05 17:30:38:983 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2026/05/05 17:30:38:983 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 0; route allocated: 0 of 50; total allocated: 0 of 20]
+2026/05/05 17:30:38:991 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 0; route allocated: 1 of 50; total allocated: 1 of 20]
+2026/05/05 17:30:38:991 ART [DEBUG] MainClientExec - Opening connection {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443
+2026/05/05 17:30:38:996 ART [DEBUG] DefaultHttpClientConnectionOperator - Connecting to epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com/136.248.134.47:443
+2026/05/05 17:30:38:996 ART [DEBUG] SSLConnectionSocketFactory - Connecting socket to epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com/136.248.134.47:443 with timeout 300000
+2026/05/05 17:30:39:217 ART [DEBUG] SSLConnectionSocketFactory - Enabled protocols: [TLSv1.3, TLSv1.2]
+2026/05/05 17:30:39:217 ART [DEBUG] SSLConnectionSocketFactory - Enabled cipher suites:[TLS_AES_256_GCM_SHA384, TLS_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, TLS_DHE_DSS_WITH_AES_256_GCM_SHA384, TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, TLS_DHE_DSS_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, TLS_DHE_RSA_WITH_AES_256_CBC_SHA256, TLS_DHE_DSS_WITH_AES_256_CBC_SHA256, TLS_DHE_RSA_WITH_AES_128_CBC_SHA256, TLS_DHE_DSS_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_RSA_WITH_AES_256_CBC_SHA, TLS_DHE_DSS_WITH_AES_256_CBC_SHA, TLS_DHE_RSA_WITH_AES_128_CBC_SHA, TLS_DHE_DSS_WITH_AES_128_CBC_SHA, TLS_EMPTY_RENEGOTIATION_INFO_SCSV]
+2026/05/05 17:30:39:217 ART [DEBUG] SSLConnectionSocketFactory - Starting handshake
+2026/05/05 17:30:39:528 ART [DEBUG] SSLConnectionSocketFactory - Secure session established
+2026/05/05 17:30:39:529 ART [DEBUG] SSLConnectionSocketFactory -  negotiated protocol: TLSv1.3
+2026/05/05 17:30:39:529 ART [DEBUG] SSLConnectionSocketFactory -  negotiated cipher suite: TLS_AES_128_GCM_SHA256
+2026/05/05 17:30:39:529 ART [DEBUG] SSLConnectionSocketFactory -  peer principal: CN=*.epm.us-phoenix-1.ocs.oraclecloud.com, O=Oracle Corporation, L=Redwood City, ST=California, C=US
+2026/05/05 17:30:39:529 ART [DEBUG] SSLConnectionSocketFactory -  peer alternative names: [*.epm.us-phoenix-1.ocs.oraclecloud.com]
+2026/05/05 17:30:39:529 ART [DEBUG] SSLConnectionSocketFactory -  issuer principal: CN=DigiCert Global G2 TLS RSA SHA256 2020 CA1, O=DigiCert Inc, C=US
+2026/05/05 17:30:39:531 ART [DEBUG] DefaultHttpClientConnectionOperator - Connection established 192.168.183.70:61445<->136.248.134.47:443
+2026/05/05 17:30:39:531 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: set socket timeout to 60000
+2026/05/05 17:30:39:531 ART [DEBUG] MainClientExec - Executing request GET /HyperionPlanning/rest2/v3/applications?q=%7Boptions%3A3%7D HTTP/1.1
+2026/05/05 17:30:39:531 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> GET /HyperionPlanning/rest2/v3/applications?q=%7Boptions%3A3%7D HTTP/1.1
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Authorization: Basic ***********************
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Accept-Language: en-US
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_FUNCTION: EPM Automate
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_ACTION: Application Retrieve
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_OBJECT: options=3
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEAA-tGe9e7mSUbjHPMlJV-sic0gmj4DXDhrWzBJp6_17cM_5moJJc7CsBEPtS7zSYsr-QUG8YNNtBmvZ2alCFr73muwjFpTDPW3zMu4s8RVYo01JgdrSpSP8XptAV3-MG-BM9xUih1mWT-4MqZR4T0jyG1xIbuujfli_eqFtMT8b6RsdvvNCGrYthvJUk75Og2jKQd5J9A5weKsXudmWWSPCNZjq4A-HSdxNGn_gzMTm4Ond_46AcHjamaDiyNyoo3rC1ZzqaoXQolTtOfNUEgNEb1Wx1-2jnq3JyLWIF-uqitLedzIgHdy8knjtMvrhwKBqk8xJygUfRs3Y_4DwGmpVdHaAQMgV3uMPhuXQPI7vFkvxtRZleU9hehPrVzQ9ZNPp5Bhkmnn7KbVXb8-I9okQPrVliqy54wEUcpxYtcIkhIajfQ1ooj_qtMnHnRqr3EJOnQF2ZU_m7BB_Ga4rI19o1AXznMVO2xAyNLyaioPU3ZmyPG7zJsyIIX0hR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Host: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_481)
+2026/05/05 17:30:39:533 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "GET /HyperionPlanning/rest2/v3/applications?q=%7Boptions%3A3%7D HTTP/1.1[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> Authorization: Basic ***********************
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Language: en-US[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_FUNCTION: EPM Automate[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_ACTION: Application Retrieve[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_OBJECT: options=3[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEAA-tGe9e7mSUbjHPMlJV-sic0gmj4DXDhrWzBJp6_17cM_5moJJc7CsBEPtS7zSYsr-QUG8YNNtBmvZ2alCFr73muwjFpTDPW3zMu4s8RVYo01JgdrSpSP8XptAV3-MG-BM9xUih1mWT-4MqZR4T0jyG1xIbuujfli_eqFtMT8b6RsdvvNCGrYthvJUk75Og2jKQd5J9A5weKsXudmWWSPCNZjq4A-HSdxNGn_gzMTm4Ond_46AcHjamaDiyNyoo3rC1ZzqaoXQolTtOfNUEgNEb1Wx1-2jnq3JyLWIF-uqitLedzIgHdy8knjtMvrhwKBqk8xJygUfRs3Y_4DwGmpVdHaAQMgV3uMPhuXQPI7vFkvxtRZleU9hehPrVzQ9ZNPp5Bhkmnn7KbVXb8-I9okQPrVliqy54wEUcpxYtcIkhIajfQ1ooj_qtMnHnRqr3EJOnQF2ZU_m7BB_Ga4rI19o1AXznMVO2xAyNLyaioPU3ZmyPG7zJsyIIX0hR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "Host: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2026/05/05 17:30:39:533 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_481)[\r][\n]"
+2026/05/05 17:30:39:536 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2026/05/05 17:30:39:536 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+2026/05/05 17:30:39:844 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2026/05/05 17:30:39:844 ART [DEBUG] wire - http-outgoing-0 << "Date: Tue, 05 May 2026 20:30:39 GMT[\r][\n]"
+2026/05/05 17:30:39:844 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: application/json; charset=UTF-8[\r][\n]"
+2026/05/05 17:30:39:844 ART [DEBUG] wire - http-outgoing-0 << "Transfer-Encoding: chunked[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Connection: keep-alive[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "set-cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj1WjYTqfqga4TBc12QJtujNPKjxlGeY9sqj90ZFnTBShspZKJiceYMBTkz-pwlQVoQrV5zkLwgvVM_uZZuEM6R1cD98v1hnddEiwU8HbkJ9pqiLraaPMgEKrsEGp7VZhSkES_OjH3GwZ-HGGiOQdHNjXtphByp01guyxLmR-8DjHZ1OrY_6L0tegyWWg_ysoIZH7V20UriG5vVzA0AOntlCTnTI1xV5ThbPKplz89-GmrLOun5U-lXdfcFpevHT_ex3OqXK2DYgUBooLvS9CnV_YFDB_J7IA8IAT7fHTvlKbwYB9oAPMtUAyKRStEyZC7zCslhhQ5utzFgAA7eqCEG49oYhxFJrCikbrJ8aCXtLnaQmZ81J037-Xk3PqDl-ydBY6bU5L_6cX7uiqrkczt-9z_3FA6KUKb_uVUgRgwOKD5YFMhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; path=/; HttpOnly; SameSite=None; secure; domain=epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Cache-Control: no-store, no-cache, must-revalidate[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Pragma: no-cache[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Expires: 0[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "P3P: X-CONTENT-TYPE-OPTIONS:nosniff[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "X-ORACLE-DMS-RID: 0:1[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "X-EPM_FUNCTION: Planning[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "X-EPM_ACTION: Application Retrieve[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "X-ORACLE-DMS-ECID: 8c9d8be7ae2f3eadc7a5eb59efc7d891[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Set-Cookie: JSESSIONID=RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646; path=/; HttpOnly; Secure; SameSite=None[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Set-Cookie: _WL_AUTHCOOKIE_JSESSIONID=yZfrHmq.htkCsQEQPU8c; path=/; secure; HttpOnly; SameSite=None[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "vary: origin[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "X-Content-Type-Options: nosniff[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Content-Encoding: gzip[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "Strict-Transport-Security: max-age=31536000; includeSubdomains[\r][\n]"
+2026/05/05 17:30:39:846 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Date: Tue, 05 May 2026 20:30:39 GMT
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Content-Type: application/json; charset=UTF-8
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Transfer-Encoding: chunked
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Connection: keep-alive
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << set-cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj1WjYTqfqga4TBc12QJtujNPKjxlGeY9sqj90ZFnTBShspZKJiceYMBTkz-pwlQVoQrV5zkLwgvVM_uZZuEM6R1cD98v1hnddEiwU8HbkJ9pqiLraaPMgEKrsEGp7VZhSkES_OjH3GwZ-HGGiOQdHNjXtphByp01guyxLmR-8DjHZ1OrY_6L0tegyWWg_ysoIZH7V20UriG5vVzA0AOntlCTnTI1xV5ThbPKplz89-GmrLOun5U-lXdfcFpevHT_ex3OqXK2DYgUBooLvS9CnV_YFDB_J7IA8IAT7fHTvlKbwYB9oAPMtUAyKRStEyZC7zCslhhQ5utzFgAA7eqCEG49oYhxFJrCikbrJ8aCXtLnaQmZ81J037-Xk3PqDl-ydBY6bU5L_6cX7uiqrkczt-9z_3FA6KUKb_uVUgRgwOKD5YFMhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; path=/; HttpOnly; SameSite=None; secure; domain=epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Cache-Control: no-store, no-cache, must-revalidate
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Pragma: no-cache
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Expires: 0
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << P3P: X-CONTENT-TYPE-OPTIONS:nosniff
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << X-ORACLE-DMS-RID: 0:1
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << X-EPM_FUNCTION: Planning
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << X-EPM_ACTION: Application Retrieve
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << X-ORACLE-DMS-ECID: 8c9d8be7ae2f3eadc7a5eb59efc7d891
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Set-Cookie: JSESSIONID=RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646; path=/; HttpOnly; Secure; SameSite=None
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Set-Cookie: _WL_AUTHCOOKIE_JSESSIONID=yZfrHmq.htkCsQEQPU8c; path=/; secure; HttpOnly; SameSite=None
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << vary: origin
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << X-Content-Type-Options: nosniff
+2026/05/05 17:30:39:849 ART [DEBUG] headers - http-outgoing-0 << Content-Encoding: gzip
+2026/05/05 17:30:39:850 ART [DEBUG] headers - http-outgoing-0 << Strict-Transport-Security: max-age=31536000; includeSubdomains
+2026/05/05 17:30:39:853 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2026/05/05 17:30:39:858 ART [DEBUG] ResponseProcessCookies - Cookie accepted [ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com="rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj...", version:0, domain:epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com, path:/, expiry:null]
+2026/05/05 17:30:39:858 ART [DEBUG] ResponseProcessCookies - Cookie accepted [JSESSIONID="RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646", version:0, domain:epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com, path:/, expiry:null]
+2026/05/05 17:30:39:858 ART [DEBUG] ResponseProcessCookies - Cookie accepted [_WL_AUTHCOOKIE_JSESSIONID="yZfrHmq.htkCsQEQPU8c", version:0, domain:epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com, path:/, expiry:null]
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "178[\r][\n]"
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "[0x1f][0x8b][0x8][0x0][0x0][0x0][0x0][0x0][0x0][0x3][0xad]RMK[0x3]1[0x10][0xfd]/[0x3][0xbd][0xb5][0xbb][0xac][0x15][0x8a][0xb]"-[T[0xa4]ZZ[0xc5][0x83]+%M[0xa6][0xdd]`6[0x89]I[0xd6]UJ[0xff][0xbb][0x93][0xb5]b[0xf]=z[0xca][0xcc][0x9b][0xaf]7o[0xb2][0x3][0x19][0xb0][0xf6][0x90][0xbf][0xec]@[0xb3][0x1a]![0x87]{[0xc][0xcb][0x86]P[0xe8]C[0xf8][0xb2][0x11][0xb9][0x99][0x93]-[0xec]T[0xb3][0xb5]B[0x1][0xf9][0x86])[0x8f]}h[0xb4][0xe4]FPBp[\r][0xb9][0xcc][0xda]e0[0x8e]mc[0xc9][0xac]QA[\n]"
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "YC[0x87]?[0xfe][0xf4][0xb9]_[0xce]'[0x4][0xb4][0xb8][0x9e][0x98]P``R[0xd1]d[0xd8][0x95][0xc0]+[0xa6]5[0xaa][QB^B[0x9][0xfd][0x12]<[0xba][0xf][0xc9][0xf1][0xc9][0xc9][0x3][0xb6][0xa7][0xd2][\n]"
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "[0x95]]R[0x0][0xdd][0x93]STZ[0x85]`}[0x9e][0xa6]m[0xdb]&4[0x9a]+L[0xb8][0x89]C[[0xe3][0xde],[0xe3]x*[0x19]m[0x9d][0x9d]e[0xd9][0xc5]@`m[0xc8][0x89]vBo[0xd2][0xf8][0x81][0xad][0xc]j[0xf9]9[0xc8][0x12][0xc3][0xfd][0xa1]%W[0xa6][0x11][0xb1]o~~>[0x8c][0xaa]T[0xd8][0x9][0xb5][0x98][0x16][0xcf][0xf][0xf][0xc5][0xaa][0x18]/[0xee]V[0x8b],[0x86][0x98][0xa8][0xa5][0x9e][0x1d][0x89]R}[0xad][0x9d][0x14][0xbf][0x9e][0xd9][0xaa][0xb1][0xb5]Jr[0x16][0xa4][0xd1][0xb7][0x84][0x3]t[0xe8])[0x9a][0xdb]F[\n]"
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "[0x14][\n]"
+2026/05/05 17:30:39:860 ART [DEBUG] wire - http-outgoing-0 << "[0x99][0xd3]Ro[0x8f][0xd7][0xdb][0xbf][0xf6]AI[0xfd][0xf6]s6[0x87][0xb1][0xca][0xa3][0xda]D[0x81][0x1c]n[0xfe]k[0xd5][0xf4][0x86][0xce][0xe6][0x88][0xe8]\[0xd1]u[0x88]C[0xea][0xd0][0x87][0xf4]c[0x98][0xb2][0xbf]%[0xfc][0xd5][0xfb]eo41[0xb6]sz[0xc3][0xf1][0xb0]7*[0xa2][0x12]<[0x2]D[0xe5]z[0xfa][0xd8][0x11][0xfe][0xfb]K[0xfb]o[0xac][0xeb]4$u[0x2][0x0][0x0][\r][\n]"
+2026/05/05 17:30:39:862 ART [DEBUG] wire - http-outgoing-0 << "0[\r][\n]"
+2026/05/05 17:30:39:862 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2026/05/05 17:30:39:863 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443] can be kept alive indefinitely
+2026/05/05 17:30:39:863 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: set socket timeout to 0
+2026/05/05 17:30:39:863 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 1; route allocated: 1 of 50; total allocated: 1 of 20]
+Status Code: 200 and response: {"items":[{"name":"NetSuite","type":"HP","dpEnabled":false,"unicode":true,"appStorage":"Multidim","appType":"NSPB","webBotDetails":"{\"channelId\":\"\",\"serviceUri\":\"\"}","helpServerUrl":"https://www.oracle.com","workpaceServerUrl":"https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443","theme":"REDWOOD_DARK_R13","adminMode":true,"hybrid":true,"oglApplicationId":"","oglServerUrl":"https://guidedlearning.oracle.com"}],"links":[{"rel":"self","href":"https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443/HyperionPlanning/rest/v3/applications?q=%7Boptions%3A3%7D","action":"GET"}],"type":"HP"}
+AppName fetched from response in getApplication of com.hyperion.epmctl.client.processaction.util.CommandUtil:NetSuite
+2026/05/05 17:30:39:865 ART [DEBUG] MainClientExec - Cancelling request execution
+Exit Method getApplication of class com.hyperion.epmctl.client.processaction.util.CommandUtil
+Enter Method launchSubstitutionVar of class com.hyperion.epmctl.client.processaction.actions.PlanningSubstitutionVar
+RequestManager.generatePostMethod() URL - https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com/HyperionPlanning/rest/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables
+Session cookie
+2026/05/05 17:30:39:870 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2026/05/05 17:30:39:870 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: JSESSIONID][value: RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646][domain: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com][path: /][expiry: null] match [(secure)epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443/HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables]
+2026/05/05 17:30:39:870 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com][value: rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj1WjYTqfqga4TBc12QJtujNPKjxlGeY9sqj90ZFnTBShspZKJiceYMBTkz-pwlQVoQrV5zkLwgvVM_uZZuEM6R1cD98v1hnddEiwU8HbkJ9pqiLraaPMgEKrsEGp7VZhSkES_OjH3GwZ-HGGiOQdHNjXtphByp01guyxLmR-8DjHZ1OrY_6L0tegyWWg_ysoIZH7V20UriG5vVzA0AOntlCTnTI1xV5ThbPKplz89-GmrLOun5U-lXdfcFpevHT_ex3OqXK2DYgUBooLvS9CnV_YFDB_J7IA8IAT7fHTvlKbwYB9oAPMtUAyKRStEyZC7zCslhhQ5utzFgAA7eqCEG49oYhxFJrCikbrJ8aCXtLnaQmZ81J037-Xk3PqDl-ydBY6bU5L_6cX7uiqrkczt-9z_3FA6KUKb_uVUgRgwOKD5YFMhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg][domain: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com][path: /][expiry: null] match [(secure)epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443/HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables]
+2026/05/05 17:30:39:871 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: _WL_AUTHCOOKIE_JSESSIONID][value: yZfrHmq.htkCsQEQPU8c][domain: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com][path: /][expiry: null] match [(secure)epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443/HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables]
+2026/05/05 17:30:39:871 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2026/05/05 17:30:39:872 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 1; route allocated: 1 of 50; total allocated: 1 of 20]
+2026/05/05 17:30:39:872 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 0; route allocated: 1 of 50; total allocated: 1 of 20]
+2026/05/05 17:30:39:872 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: set socket timeout to 60000
+2026/05/05 17:30:39:872 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: set socket timeout to 60000
+2026/05/05 17:30:39:872 ART [DEBUG] MainClientExec - Executing request POST /HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables HTTP/1.1
+2026/05/05 17:30:39:873 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2026/05/05 17:30:39:873 ART [DEBUG] headers - http-outgoing-0 >> POST /HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables HTTP/1.1
+2026/05/05 17:30:39:876 ART [DEBUG] headers - http-outgoing-0 >> Authorization: Basic ***********************
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Accept-Language: en-US
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> content-type: application/json
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_FUNCTION: EPM Automate
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_ACTION: Set Substitution Variables
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> X-EPM_OBJECT: items=[{planType=NetSuite, name=NSP_SYS_LogLevel, value=2}]
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Content-Length: 73
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Host: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_481)
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Cookie: JSESSIONID=RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646; ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj1WjYTqfqga4TBc12QJtujNPKjxlGeY9sqj90ZFnTBShspZKJiceYMBTkz-pwlQVoQrV5zkLwgvVM_uZZuEM6R1cD98v1hnddEiwU8HbkJ9pqiLraaPMgEKrsEGp7VZhSkES_OjH3GwZ-HGGiOQdHNjXtphByp01guyxLmR-8DjHZ1OrY_6L0tegyWWg_ysoIZH7V20UriG5vVzA0AOntlCTnTI1xV5ThbPKplz89-GmrLOun5U-lXdfcFpevHT_ex3OqXK2DYgUBooLvS9CnV_YFDB_J7IA8IAT7fHTvlKbwYB9oAPMtUAyKRStEyZC7zCslhhQ5utzFgAA7eqCEG49oYhxFJrCikbrJ8aCXtLnaQmZ81J037-Xk3PqDl-ydBY6bU5L_6cX7uiqrkczt-9z_3FA6KUKb_uVUgRgwOKD5YFMhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; _WL_AUTHCOOKIE_JSESSIONID=yZfrHmq.htkCsQEQPU8c
+2026/05/05 17:30:39:877 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2026/05/05 17:30:39:877 ART [DEBUG] wire - http-outgoing-0 >> "POST /HyperionPlanning/rest2/v3/applications/NetSuite/plantypes/NetSuite/substitutionvariables HTTP/1.1[\r][\n]"
+2026/05/05 17:30:39:877 ART [DEBUG] wire - http-outgoing-0 >> Authorization: Basic ***********************
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Language: en-US[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "content-type: application/json[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_FUNCTION: EPM Automate[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_ACTION: Set Substitution Variables[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "X-EPM_OBJECT: items=[{planType=NetSuite, name=NSP_SYS_LogLevel, value=2}][\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "Content-Length: 73[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "Host: epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com[\r][\n]"
+2026/05/05 17:30:39:878 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2026/05/05 17:30:39:879 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_481)[\r][\n]"
+2026/05/05 17:30:39:879 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: JSESSIONID=RUr51eo2h5MvDC_No2-AxFhMgcYiAecfWW-I5wjUs6CRmmcXCPf0!-846571646; ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEACirOV00qi0NbJ_rSGm9LEyE_RQb0fOvoVus3kUv27hJt_oyRMIT4RWCqITH6SJ4BI_IjWUerXj1WjYTqfqga4TBc12QJtujNPKjxlGeY9sqj90ZFnTBShspZKJiceYMBTkz-pwlQVoQrV5zkLwgvVM_uZZuEM6R1cD98v1hnddEiwU8HbkJ9pqiLraaPMgEKrsEGp7VZhSkES_OjH3GwZ-HGGiOQdHNjXtphByp01guyxLmR-8DjHZ1OrY_6L0tegyWWg_ysoIZH7V20UriG5vVzA0AOntlCTnTI1xV5ThbPKplz89-GmrLOun5U-lXdfcFpevHT_ex3OqXK2DYgUBooLvS9CnV_YFDB_J7IA8IAT7fHTvlKbwYB9oAPMtUAyKRStEyZC7zCslhhQ5utzFgAA7eqCEG49oYhxFJrCikbrJ8aCXtLnaQmZ81J037-Xk3PqDl-ydBY6bU5L_6cX7uiqrkczt-9z_3FA6KUKb_uVUgRgwOKD5YFMhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; _WL_AUTHCOOKIE_JSESSIONID=yZfrHmq.htkCsQEQPU8c[\r][\n]"
+2026/05/05 17:30:39:880 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2026/05/05 17:30:39:880 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+2026/05/05 17:30:39:880 ART [DEBUG] wire - http-outgoing-0 >> "{"items":[{"name":"NSP_SYS_LogLevel","value":"2","planType":"NetSuite"}]}"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 400 Bad Request[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "Date: Tue, 05 May 2026 20:30:39 GMT[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: application/json; charset=UTF-8[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 169[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "Connection: keep-alive[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "set-cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEADhZOydBNYBsi_32qzPRQnFngGIh8YOzbZ7dEyGY9h0Tjs87zOOkKjU08scRWMsvIUWxmqZQdeGRAYbs6Jc9UoDCIeTy_OuHeIiJClj4V2R0g9LLSYILUAT9ZrDixa9e2o5-IiELQZJ3MAyvkahrI_Qpg742eY7Ii1bjpbsWkrqC4LprrwOhr9l_3x7Q9C_GvTcFh56Wm8FZDYXzhJm0815RVf2XFAbRS2Bs19n3lJro8FFO8UyM7xt9TYhlNgGWDhOcwUBtJ5V77Pj5weeF7guwvhd5KbVC2prrBU0_muYnMOE_mY18DxtKijsuEkDb07Ih299OR4YtenNz7HVCnnUhJLgbdmqH-pp2iAk4Rc68tYMOeVhUwTPHGnH24ylh90npLOkciRpKau2InXdS1yNJByuomUhnkTqJcR6yioAbdz-0D8GJ3rU5edJuT0P-Qi4Q4SrUNV4zlMR6aVyxZ8pwuFOEQQsgFM_Gg7naQ5Ce44HtwVfigppxzkhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; path=/; HttpOnly; SameSite=None; secure; domain=epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "P3P: X-CONTENT-TYPE-OPTIONS:nosniff[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "X-ORACLE-DMS-RID: 0:1[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "X-EPM_FUNCTION: Planning[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "X-EPM_ACTION: Substitution Variable Create or Update[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "X-ORACLE-DMS-ECID: 60607d60e66b2cbea36a2a1b119eefca[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "vary: origin[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "X-Content-Type-Options: nosniff[\r][\n]"
+2026/05/05 17:30:40:124 ART [DEBUG] wire - http-outgoing-0 << "Strict-Transport-Security: max-age=31536000; includeSubdomains[\r][\n]"
+2026/05/05 17:30:40:125 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2026/05/05 17:30:40:125 ART [DEBUG] wire - http-outgoing-0 << "{"status":400,"detail":"Invalid cube was specified: NetSuite","message":"Invalid cube was specified: NetSuite","localizedMessage":"Invalid cube was specified: NetSuite"}"
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 400 Bad Request
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << Date: Tue, 05 May 2026 20:30:39 GMT
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << Content-Type: application/json; charset=UTF-8
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 169
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << Connection: keep-alive
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << set-cookie: ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com=rgEAAHQBAAAQIHQBAABaAQAAEADhZOydBNYBsi_32qzPRQnFngGIh8YOzbZ7dEyGY9h0Tjs87zOOkKjU08scRWMsvIUWxmqZQdeGRAYbs6Jc9UoDCIeTy_OuHeIiJClj4V2R0g9LLSYILUAT9ZrDixa9e2o5-IiELQZJ3MAyvkahrI_Qpg742eY7Ii1bjpbsWkrqC4LprrwOhr9l_3x7Q9C_GvTcFh56Wm8FZDYXzhJm0815RVf2XFAbRS2Bs19n3lJro8FFO8UyM7xt9TYhlNgGWDhOcwUBtJ5V77Pj5weeF7guwvhd5KbVC2prrBU0_muYnMOE_mY18DxtKijsuEkDb07Ih299OR4YtenNz7HVCnnUhJLgbdmqH-pp2iAk4Rc68tYMOeVhUwTPHGnH24ylh90npLOkciRpKau2InXdS1yNJByuomUhnkTqJcR6yioAbdz-0D8GJ3rU5edJuT0P-Qi4Q4SrUNV4zlMR6aVyxZ8pwuFOEQQsgFM_Gg7naQ5Ce44HtwVfigppxzkhR7f4ZheiHDza2JinjTo1veCdSU4Xp-xtftKva9CyKg; path=/; HttpOnly; SameSite=None; secure; domain=epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << P3P: X-CONTENT-TYPE-OPTIONS:nosniff
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << X-ORACLE-DMS-RID: 0:1
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << X-EPM_FUNCTION: Planning
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << X-EPM_ACTION: Substitution Variable Create or Update
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << X-ORACLE-DMS-ECID: 60607d60e66b2cbea36a2a1b119eefca
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << vary: origin
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << X-Content-Type-Options: nosniff
+2026/05/05 17:30:40:125 ART [DEBUG] headers - http-outgoing-0 << Strict-Transport-Security: max-age=31536000; includeSubdomains
+2026/05/05 17:30:40:125 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2026/05/05 17:30:40:127 ART [DEBUG] ResponseProcessCookies - Cookie accepted [ORA_OCIS_CG_BA_SESSION_idcs-e5e8b20f954e49c49f6636603a2bba0d_epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com="rgEAAHQBAAAQIHQBAABaAQAAEADhZOydBNYBsi_32qzPRQnFngGIh8YOzbZ7dEyGY9h0Tjs87zOOkKjU08scRWMsvIUWxmqZQdeG...", version:0, domain:epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com, path:/, expiry:null]
+2026/05/05 17:30:40:127 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443] can be kept alive indefinitely
+2026/05/05 17:30:40:127 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: set socket timeout to 0
+2026/05/05 17:30:40:127 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {s}->https://epm12119-demoepm2119.epm.us-phoenix-1.ocs.oraclecloud.com:443][total kept alive: 1; route allocated: 1 of 50; total allocated: 1 of 20]
+Status Code: 400 and response: {"status":400,"detail":"Invalid cube was specified: NetSuite","message":"Invalid cube was specified: NetSuite","localizedMessage":"Invalid cube was specified: NetSuite"}
+2026/05/05 17:30:40:128 ART [DEBUG] MainClientExec - Cancelling request execution
+Exit Method launchExportData of class com.hyperion.epmctl.client.processaction.actions.PlanningSubstitutionVar
+Exit Method processRequest of class com.hyperion.epmctl.client.processaction.actions.PlanningSubstitutionVar
+EPMAT-1:Invalid cube was specified: NetSuite
+2026/05/05 17:30:40:130 ART [DEBUG] PoolingHttpClientConnectionManager - Connection manager is shutting down
+2026/05/05 17:30:40:130 ART [DEBUG] DefaultManagedHttpClientConnection - http-outgoing-0: Close connection
+2026/05/05 17:30:40:132 ART [DEBUG] PoolingHttpClientConnectionManager - Connection manager shut down

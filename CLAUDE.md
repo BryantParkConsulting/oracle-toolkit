@@ -161,3 +161,20 @@ unificar a la fuerza.
   `netsuite-export.js` como una quinta fase.
 - Primer cliente corrido end-to-end: **PRA** (`clients/pra/`), agencia de eventos/DMC. No
   tenemos su LCM de Planning, así que ese lado está sin evaluar.
+
+
+---
+
+## apps/ — el producto
+
+`apps/nspb-assistant/` es el **NSPB Assistant**: add-in de Excel (Office.js) + Cloudflare Worker que responde preguntas sobre Planning en lenguaje natural, mas su docs-site en Firebase y la extension de Chrome.
+
+Es producto desplegado, no toolkit: se shippea a clientes y tiene su propio ciclo de deploy.
+
+```bash
+cd apps/nspb-assistant/worker && npm run deploy
+```
+
+Su guia tecnica propia esta en `apps/nspb-assistant/CLAUDE-nspb-assistant.md`.
+
+**Cuidado:** el build del worker embebe `clients/<name>/tenant-kb.json` resolviendo rutas relativas a SU carpeta, no a la raiz del toolkit. Si movés algo, verificá esa resolucion.
