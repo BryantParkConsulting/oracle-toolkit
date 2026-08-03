@@ -256,6 +256,48 @@ function dimensionTable() {
   ${subs.length ? `<p class="small"><b>Subsidiaries:</b> ${subs.join(' · ')}.${cls.length ? ` <b>Classes:</b> ${cls.slice(0, 12).join(' · ')}.` : ''}</p>` : ''}`;
 }
 
+/**
+ * Las saved searches que el connector de NSPB necesitaría, derivadas de lo medido.
+ * No es un template: qué segmentos entran en el corte lo decide la cobertura de
+ * tagueo, y de dónde sale el revenue lo decide dónde vive el entity.
+ */
+function savedSearchSpec() {
+  const cov = (rd('netsuite/dimension_coverage.json') || [])[0];
+  if (!cov || !fin) return '';
+  const total = Number(cov.total_lines || 0);
+  const p = k => total ? (100 * Number(cov[k] || 0) / total) : 0;
+  const usable = [['Subsidiary', p('subsidiary')], ['Location', p('location')], ['Class', p('class')], ['Department', p('department')]]
+    .filter(([, v]) => v >= 70).map(([k]) => k);
+  const dropped = [['Class', p('class')], ['Department', p('department')]].filter(([, v]) => v < 70);
+
+  const rows = [
+    { n: 'GL Actuals', t: 'Transaction (accounting lines)',
+      cols: `Account, Period, Amount, ${usable.join(', ')}`,
+      crit: `Posting = true, period within the plan horizon`,
+      note: `The backbone of the actuals load. Segment columns limited to the dimensions the data actually carries.` },
+    { n: 'Revenue by Customer', t: 'Invoice / Revenue Arrangement',
+      cols: 'Customer, Item, Amount, Date',
+      crit: 'Main line only, invoice types',
+      note: `Has to come from the billing layer: revenue is recognized through journals that carry no entity, so the GL cannot answer "revenue by customer".` },
+    { n: 'Cost of Sales by Service Line', t: 'Transaction (accounting lines)',
+      cols: 'Account, Period, Amount, Vendor',
+      crit: `Account type = Cost of Goods Sold`,
+      note: `Cost of sales is already split by service line in the chart of accounts — this is what makes a margin plan possible without redesigning anything.` },
+  ];
+  if (n('job') > 500)
+    rows.push({ n: 'Project / Event Actuals', t: 'Transaction (accounting lines)', cols: 'Project, Account, Period, Amount',
+      crit: 'Project is not empty',
+      note: n('projecttask') === 0 ? `⚠ Only viable once cost is attributed to projects — today ${fmt(n('job'))} projects carry revenue but no cost.` : 'Feeds project-level planning.' });
+
+  return `<h3>Saved searches the Planning integration would need</h3>
+  <table><tr><th>Saved search</th><th>Record type</th><th>Columns</th><th>Why</th></tr>
+  ${rows.map(r => `<tr><td><b>${esc(r.n)}</b></td><td>${esc(r.t)}</td><td>${esc(r.cols)}</td><td>${esc(r.note)}</td></tr>`).join('')}
+  </table>
+  ${dropped.length ? `<p class="small"><b>Deliberately left out of the actuals search:</b> ${dropped.map(([k, v]) => `${k} (${v.toFixed(0)}% tagged)`).join(', ')}. Including a segment the data does not carry produces a load that appears to work and then fails to reconcile.</p>` : ''}
+  ${!acctStat() ? `<p class="small"><b>No driver data available.</b> There are no statistical accounts in the chart of accounts, and employee records do not look like a reliable headcount source — so volume and workforce drivers would have to come from outside NetSuite, or be built.</p>` : ''}`;
+}
+const acctStat = () => (shape.accounts_by_type || []).some(r => /stat/i.test(String(r.tipo)) && Number(r.n) > 0);
+
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
@@ -299,7 +341,7 @@ code{background:#f1f3f4;padding:1px 3px;border-radius:2px;font-size:8.1pt}
   <div>
     <div class="badge">PREPARED BY BPC</div>
     <h1 style="margin-top:16px">${esc(NAME)}</h1>
-    <div class="sub">NetSuite Account Business Review &amp; Recommendations</div>
+    <div class="sub">NetSuite Account Analysis</div>
     <div style="margin-top:20px;font-size:10pt;opacity:.85;max-width:122mm">
       ${V ? esc(V.name) : ''} · account <b>${esc(probe.account)}</b><br>
       ${fmt(n('transaction'))} transactions · ${fmt(n('transactionline'))} lines · ${fmt(n('account'))} accounts · ${fmt(customers.length)} billed customers
@@ -313,6 +355,7 @@ code{background:#f1f3f4;padding:1px 3px;border-radius:2px;font-size:8.1pt}
 
 <div class="page-break"></div>
 <h2>1. Executive summary</h2>
+<div class="note"><b>What this document is.</b> A structured analysis of the NetSuite account, built entirely from data read out of the system itself. It is meant to be used in whatever conversation it is useful for — an account business review, a discovery session, scoping a Planning or analytics implementation, or simply as a shared picture of how the system is being used today. Nothing here is a proposal; the recommendations in section 5 are starting points to validate together.</div>
 <div class="kpi">
   <div><div class="v">${money(D.rev)}</div><div class="l">Revenue ${lastFull}</div></div>
   <div><div class="v">${(100 * (D.rev - D.cogs) / (D.rev || 1)).toFixed(0)}%</div><div class="l">Gross margin</div></div>
@@ -386,7 +429,8 @@ ${fin ? `<div class="kpi">
   <div><div class="v">${fin.coa.maxDepth}</div><div class="l">Hierarchy levels</div></div>
   <div><div class="v">${fmt(fin.coa.leavesWithoutActivity)}</div><div class="l">Leaves with no activity</div></div>
 </div>
-${dimensionTable()}` : ''}
+${dimensionTable()}
+${savedSearchSpec()}` : ''}
 
 <div class="flag"><b>One structural constraint worth knowing early.</b> Revenue is recognized through journal entries that carry no entity, so at general-ledger level revenue has no customer attached. Customer-level actuals have to come from the billing layer, not the GL. Assumptions to the contrary tend to surface late in an implementation, once the model is already built.</div>
 
