@@ -319,7 +319,8 @@ function businessProfile() {
   if (!T['inventoryitem']?.exists) bits.push('no inventory');
   if (capex && Math.abs(capex) < 1e6) bits.push('effectively no capital expenditure');
 
-  return `<div class="note"><b>${esc(V.name)}</b> — confidence: ${esc(V.confidence)}.<br>
+  return `<h3 style="margin-top:14px">Micro-vertical: ${esc(V.name)}</h3>
+  <div class="note"><span class="small">Detection confidence: ${esc(V.confidence)}.</span><br>
   ${esc(V.note)}
   ${bits.length ? `<br><br>What the data shows: ${esc(bits.join(', '))}.` : ''}
   ${ratio > 2 ? ` That ratio is the signature of a pass-through operation — the company assembles and coordinates an event by buying from many suppliers and billing the client once.` : ''}
@@ -382,7 +383,8 @@ function verticalGaps() {
   const gaps = vert?.gapsForVertical || [];
   const apps = B?.missingSuiteApps || [];
   if (!gaps.length && !apps.length) return '';
-  return `<h3>Capabilities common in ${esc(V?.name || 'this niche')} that are not in place here</h3>
+  return `<h3>What businesses like yours typically run, that is not in place here</h3>
+  <p class="small">Based on the micro-vertical identified in section 1 — <b>${esc(V?.name || "")}</b> — compared against what mature organizations in that niche usually have configured.</p>
   ${gaps.length ? `<table><tr><th>Capability</th><th>Current status</th><th>What we found</th></tr>
   ${gaps.map(g => `<tr><td><b>${esc(g.name)}</b></td><td>${esc(SL[g.state] || g.state)}</td><td>${esc(String(g.evidence).slice(0, 90))}</td></tr>`).join('')}
   </table>` : ''}
@@ -399,7 +401,9 @@ const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
  * una — y son equipos y presupuestos distintos.
  */
 const TRACKS = [
-  { id: 'ns', title: 'A. Within NetSuite', sub: 'Changes to the ERP itself — they stand on their own and also unblock everything downstream.',
+  { id: 'ns', title: `A. Within NetSuite${V ? ` — for a ${V.name.toLowerCase()} business` : ''}`,
+    sub: V ? `These follow from how a ${V.name.toLowerCase()} operation runs, not from a generic checklist. They stand on their own and also unblock everything downstream.`
+           : 'Changes to the ERP itself — they stand on their own and also unblock everything downstream.',
     match: t => /profit on each event|chart of accounts|configuration nobody uses/i.test(t) },
   { id: 'epm', title: 'B. For an Oracle EPM implementation (NSPB)', sub: 'What a Planning implementation would have to account for, whether it is a new build or a rescue of the one already licensed.',
     match: t => /Planning system you already own|revenue engines|seasonality|operating performance separately|customer revenue from the right place/i.test(t) },
@@ -539,7 +543,6 @@ ${fin ? `<div class="kpi">
 ${planningReadiness()}
 ${dimensionTable()}
 ${savedSearchSpec()}` : ''}
-${verticalGaps()}
 
 <div class="flag"><b>One structural constraint worth knowing early.</b> Revenue is recognized through journal entries that carry no entity, so at general-ledger level revenue has no customer attached. Customer-level actuals have to come from the billing layer, not the GL. Assumptions to the contrary tend to surface late in an implementation, once the model is already built.</div>
 
@@ -556,6 +559,7 @@ ${verticalGaps()}
 <p>Each recommendation below is grounded in a figure measured in the account. They are <b>suggestions to validate together</b> — the data tells us what is happening, not why, and the why usually changes the priority.</p>
 ${grouped.map(k => `<h3 style="border-bottom:1px solid ${SAGE};padding-bottom:3px;margin-top:18px">${esc(k.title)}</h3>
 <p class="small" style="margin-top:-2px">${esc(k.sub)}</p>
+${k.id === 'ns' ? verticalGaps() : ''}
 ${k.items.map((r, i) => `<div class="rec">
 <h3><span class="pill" style="background:${P[r.pri]}">${r.pri}</span> &nbsp;${k.id.toUpperCase()}${i + 1}. ${esc(r.t)}</h3>
 <div class="lbl">What we found in your account</div><p>${esc(r.ev)}</p>
