@@ -12,8 +12,8 @@ and require Chrome with `--remote-debugging-port=9222`.
 | --- | --- | --- | --- |
 | **Executive Brief** | CFO, sponsor | ~2 pages | `netsuite-exec-brief.js` |
 | **Account Analysis** | GSA, account team, discovery | ~15 pages | `netsuite-abr-full.js` |
-| **NSPB Integration Discovery** | Planning delivery team | ~6 pages | `nspb-integration-pdf.js` |
 | **Optimization Review** | client's admin / technical team | ~4 pages | `netsuite-optimization-pdf.js` |
+| **NSPB Integration Discovery** | Planning delivery team | ~6 pages | `nspb-integration-pdf.js` |
 | **Complete pack** | all four in one, with full-page dividers | ~27 pages | `netsuite-full-pack.js` |
 
 ```bash

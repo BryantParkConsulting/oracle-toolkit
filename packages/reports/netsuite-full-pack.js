@@ -31,12 +31,12 @@ const SECTIONS = [
   { file: `${CLIENT}-netsuite-abr-full.html`, num: '2', t: 'Account Analysis',
     sys: 'NETSUITE · FULL ANALYSIS',
     d: 'How the business runs according to the system, which NetSuite modules are configured and actually used, the connected ecosystem, and our recommendations.' },
-  { file: `${CLIENT}-nspb-integration.html`, num: '3', t: 'Planning Integration Discovery',
-    sys: 'NETSUITE → ORACLE EPM PLANNING · FOR THE IMPLEMENTATION TEAM',
-    d: 'What the NetSuite side offers a Planning implementation: dimensions, tagging coverage, reconciliation feasibility and the saved searches the integration would need.' },
-  { file: `${CLIENT}-optimization-review.html`, num: '4', t: 'Optimization Review',
+  { file: `${CLIENT}-optimization-review.html`, num: '3', t: 'Optimization Review',
     sys: 'NETSUITE · FOR THE SYSTEM ADMINISTRATORS',
     d: 'NetSuite configuration that appears unused — fields, accounts, script deployments — each with the caveat that would make it a false positive.' },
+  { file: `${CLIENT}-nspb-integration.html`, num: '4', t: 'Planning Integration Discovery',
+    sys: 'NETSUITE → ORACLE EPM PLANNING · FOR THE IMPLEMENTATION TEAM',
+    d: 'What the NetSuite side offers a Planning implementation: dimensions, tagging coverage, reconciliation feasibility and the saved searches the integration would need.' },
 ];
 
 /** Saca la portada y el wrapper, deja solo el contenido de la sección. */
