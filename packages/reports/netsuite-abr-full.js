@@ -214,6 +214,48 @@ function deploymentSection() {
   ${idle ? `<div class="flag"><b>${fmt(idle)} of ${fmt(tot)} script deployments never run.</b> They sit at <code>NOTSCHEDULED</code> — deployed but not scheduled. Only ${fmt(running)} scheduled and map/reduce scripts actually consume SuiteCloud Processor capacity. That is worth reading two ways: the processor is far less loaded than the script count suggests, and there is a large body of automation that was built and then left dormant.</div>` : ''}`;
 }
 
+/**
+ * La tabla que un implementador de Planning necesita antes de diseñar nada:
+ * cada dimensión candidata con sus miembros Y su cobertura de tagueo. Los
+ * miembros dicen qué existe; la cobertura dice qué se puede sostener.
+ */
+function dimensionTable() {
+  const cov = (rd('netsuite/dimension_coverage.json') || [])[0] || null;
+  const totalLines = Number(cov?.total_lines || 0);
+  const pct = k => (cov && totalLines ? (100 * Number(cov[k] || 0) / totalLines) : null);
+  const verdict = p => p === null ? '—'
+    : p >= 95 ? 'Reliable'
+    : p >= 70 ? 'Usable — confirm the gap'
+    : p >= 30 ? '⚠ Partial — not safe for reporting at this level'
+    : '⚠ Effectively untagged';
+  const cell = p => p === null ? '—' : `${p.toFixed(0)}%`;
+  const names = (k, key = 'name') => (shape[k] || []).map(r => esc(String(r[key] || ''))).filter(Boolean);
+
+  const rows = [
+    ['Entity', 'Subsidiary', n('subsidiary'), pct('subsidiary')],
+    ['Account', 'Chart of accounts (leaf level)', fin.coa.leaves, null],
+    ['Period', 'Accounting periods', n('accountingperiod'), null],
+    ['Currency', 'Currencies', n('currency'), null],
+    ['Cost centre', 'Department', n('department'), pct('department')],
+    ['Custom', 'Class', n('classification'), pct('class')],
+    ['Custom', 'Location', n('location'), pct('location')],
+    ['Custom', 'Custom segment', n('customsegment'), null],
+    ['Project', 'Jobs', n('job'), null],
+  ].filter(r => r[2] > 0);
+
+  const weak = rows.filter(r => r[3] !== null && r[3] < 70);
+  const subs = names('subsidiaries'), cls = names('classes');
+
+  return `<table><tr><th>Planning dimension</th><th>NetSuite source</th><th class="num">Members</th><th class="num">Tagged</th><th>Usable for planning?</th></tr>
+  ${rows.map(([d, s, m, p]) => `<tr><td><b>${d}</b></td><td>${s}</td><td class="num">${fmt(m)}</td><td class="num">${cell(p)}</td><td>${verdict(p)}</td></tr>`).join('')}
+  </table>
+  <p class="small">Member counts are what exists in the account. <b>"Tagged" is the share of transaction lines that actually carry a value</b> for that dimension over the last twelve months${totalLines ? ` (${fmt(totalLines)} lines)` : ''} — a plan can only ever be as granular as the tagged actuals underneath it.</p>
+  ${weak.length ? `<div class="flag"><b>${weak.length === 1 ? 'One dimension is' : `${weak.length} dimensions are`} not tagged consistently enough to plan against.</b>
+  ${weak.map(([d, s, , p]) => `<b>${s}</b> carries a value on only ${p.toFixed(0)}% of transaction lines`).join('; ')}.
+  Planning at that level would produce a model that cannot be reconciled to the general ledger, because most of the actuals have nowhere to land. Either the tagging is corrected upstream, or the model is designed at a level the data can support — that is a decision worth taking before any build starts, not during it.</div>` : ''}
+  ${subs.length ? `<p class="small"><b>Subsidiaries:</b> ${subs.join(' · ')}.${cls.length ? ` <b>Classes:</b> ${cls.slice(0, 12).join(' · ')}.` : ''}</p>` : ''}`;
+}
+
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
@@ -344,16 +386,7 @@ ${fin ? `<div class="kpi">
   <div><div class="v">${fin.coa.maxDepth}</div><div class="l">Hierarchy levels</div></div>
   <div><div class="v">${fmt(fin.coa.leavesWithoutActivity)}</div><div class="l">Leaves with no activity</div></div>
 </div>
-<table><tr><th>Planning dimension</th><th>NetSuite source</th><th class="num">Members</th></tr>
-<tr><td>Entity</td><td>Subsidiary</td><td class="num">${fmt(n('subsidiary'))}</td></tr>
-<tr><td>Account</td><td>Chart of accounts (leaves)</td><td class="num">${fmt(fin.coa.leaves)}</td></tr>
-<tr><td>Period</td><td>Accounting periods</td><td class="num">${fmt(n('accountingperiod'))}</td></tr>
-<tr><td>Currency</td><td>Currencies</td><td class="num">${fmt(n('currency'))}</td></tr>
-<tr><td>Cost centre</td><td>Department</td><td class="num">${fmt(n('department'))}</td></tr>
-<tr><td>Custom</td><td>Class · Location · Custom segment</td><td class="num">${fmt(n('classification'))} · ${fmt(n('location'))} · ${fmt(n('customsegment'))}</td></tr>
-<tr><td>Project</td><td>Jobs</td><td class="num">${fmt(n('job'))}</td></tr>
-</table>
-<p class="small">Member counts are measured. How consistently transactions are <i>tagged</i> against each dimension is not, and it is the single biggest constraint on the granularity a plan can support — it should be measured before the model is designed.</p>` : ''}
+${dimensionTable()}` : ''}
 
 <div class="flag"><b>One structural constraint worth knowing early.</b> Revenue is recognized through journal entries that carry no entity, so at general-ledger level revenue has no customer attached. Customer-level actuals have to come from the billing layer, not the GL. Assumptions to the contrary tend to surface late in an implementation, once the model is already built.</div>
 

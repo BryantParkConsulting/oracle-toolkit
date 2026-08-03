@@ -214,6 +214,14 @@ const BREAKDOWNS = [
   // `integrationapp` es lo unico que lista las integraciones registradas — incluidas
   // las que no usan TBA y por lo tanto no aparecen en oauthtoken.
   ["integration_apps", `SELECT id, name, state, createddate FROM integrationapp ORDER BY createddate`],
+  // Cobertura de tagueo: lo que decide la granularidad que un modelo de Planning
+  // puede sostener. Una dimensión con miembros pero sin tagueo en las líneas
+  // produce un plan que no cuadra contra el GL.
+  ["dimension_coverage", `SELECT COUNT(*) AS total_lines,
+                                 COUNT(tl.subsidiary) AS subsidiary, COUNT(tl.department) AS department,
+                                 COUNT(tl.class) AS class, COUNT(tl.location) AS location
+                          FROM transactionline tl JOIN transaction t ON t.id = tl.transaction
+                          WHERE t.trandate >= ADD_MONTHS(SYSDATE, -12)`],
   ["login_activity", `SELECT TO_CHAR(date,'YYYY-MM') AS mes, COUNT(*) AS n, COUNT(DISTINCT emailaddress) AS usuarios
                       FROM loginaudit GROUP BY TO_CHAR(date,'YYYY-MM') ORDER BY 1`],
 ];
