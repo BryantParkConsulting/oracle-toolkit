@@ -71,7 +71,7 @@ Guialo por la receta de `docs/NS-ERP-README.md` §3, en este orden y de a un pas
 **Pedile que los pegue él en `.env`.** No los recibas por chat: quedan en el transcript.
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/netsuite-export.js              # 4 fases
+CLIENT=<cliente> node packages/netsuite/netsuite-export.js              # 5 fases, ~10-15 min
 CLIENT=<cliente> node packages/netsuite/ns-erp-assess.js                # → erp/modules.json
 CLIENT=<cliente> node packages/netsuite/ns-connector-map.js             # → erp/CONNECTORS.md
 CLIENT=<cliente> node packages/netsuite/ns-vertical.js                  # → erp/vertical.json
@@ -79,9 +79,8 @@ CLIENT=<cliente> node packages/netsuite/ns-financials.js                # → er
 CLIENT=<cliente> node packages/netsuite/netsuite-assessment-report.js   # → ASSESSMENT.md
 ```
 
-`ns-financials.js` necesita dos consultas que todavía no están dentro de `netsuite-export.js`
-— el COA y los saldos por cuenta. Se sacan con `ns-sql.js`; las consultas están en
-`docs/NETSUITE-DISCOVERY-LEARNINGS.md` §6.
+Las cinco fases dejan todo lo que necesitan los scripts de análisis — incluidos COA,
+balances, P&L, estacionalidad y clientes. No hay pasos manuales.
 
 **El entregable**, con Chrome abierto en `--remote-debugging-port=9222`:
 

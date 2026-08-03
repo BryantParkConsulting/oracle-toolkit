@@ -37,7 +37,7 @@ tenga que hacerlo. Podés cortar y retomar en cualquier fase.
 ### NetSuite — arranca con un token TBA del cliente
 
 ```bash
-CLIENT=<c> node packages/netsuite/netsuite-export.js        # 4 fases: probe, shape, metadata, fields
+CLIENT=<c> node packages/netsuite/netsuite-export.js        # 5 fases
 CLIENT=<c> node packages/netsuite/ns-erp-assess.js          # → erp/modules.json (37 módulos, 5 estados)
 CLIENT=<c> node packages/netsuite/ns-connector-map.js       # → erp/CONNECTORS.md (bundles + integraciones)
 CLIENT=<c> node packages/netsuite/ns-vertical.js            # → erp/vertical.json (micro-vertical + benchmark)
@@ -45,8 +45,8 @@ CLIENT=<c> node packages/netsuite/ns-financials.js          # → erp/FINANCIALS
 CLIENT=<c> CLIENT_NAME=<Nombre> node packages/reports/netsuite-abr-full.js   # → el entregable grande
 ```
 
-`ns-financials.js` necesita dos consultas que hoy no están automatizadas —
-`netsuite/coa.json` y `netsuite/balances.json`. Se sacan con `ns-sql.js` (ver §Consultas).
+La fase `financials` de `netsuite-export.js` deja COA, balances, P&L, estacionalidad,
+detalle de costos y clientes. No hay pasos manuales.
 
 **Corré `ns-connector-map.js` temprano.** Es lo que evita proponer algo que el cliente ya
 compró: si aparece FloQast o BlackLine el caso de conciliación cambia; si aparece el bundle
@@ -161,8 +161,6 @@ unificar a la fuerza.
   está escrito**. Es el próximo bloque.
 - El benchmark por micro-vertical (`ns-benchmarks.json`) tiene 12 verticales con profundidad
   despareja: `events-dmc` está desarrollado, otros tienen dos líneas.
-- `ns-financials.js` depende de dos consultas manuales que convendría plegar dentro de
-  `netsuite-export.js` como una quinta fase.
 - Primer cliente corrido end-to-end: **PRA** (`clients/pra/`), agencia de eventos/DMC. No
   tenemos su LCM de Planning, así que ese lado está sin evaluar.
 
