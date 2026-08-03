@@ -1,1 +1,0 @@
-- [NSPB Excel add-in project overview](project_overview.md) — Task-pane add-in + Cloudflare worker for Essbase MPC4 NSPB ad-hoc queries

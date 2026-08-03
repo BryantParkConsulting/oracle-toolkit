@@ -1,4 +1,0 @@
-# intermedios del pipeline de video (tools/make-welcome-video.js)
-.work/
-# outputs generados (reproducibles con un comando; el publicado vive en nspbhub)
-*.mp4
