@@ -303,7 +303,7 @@ function gaps() {
   if (byId['projects']?.state === 'partial' && n('projecttask') === 0)
     g.push({ t: 'Enable PSA on the existing projects', d: `There are ${fmt(n('job'))} projects but project tasks and time-to-charge are at zero. Without them there is no per-project margin — and in a pass-through model that is the metric that matters most. This is the highest-return change we see in the analysis.` });
   if (byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active')
-    g.push({ t: 'Revisit the Planning (NSPB) rollout', d: 'The connector is installed while budgets are still loaded natively. Before considering any new scope, it is worth understanding what stalled adoption — in our experience that is usually model sizing or ownership rather than the product itself.' });
+    g.push({ t: 'Confirm how Planning and NetSuite budgeting fit together', d: 'Planning is implemented and the connector is in place, while budgets are also still loaded natively. Worth confirming which path is intended to be authoritative going forward, and whether the native one is legacy.' });
   for (const x of (vert?.gapsForVertical || []))
     if (x.id !== 'projects') g.push({ t: `Review ${x.name}`, d: `Current status: ${STATE_ES[x.state] || x.state}. ${x.evidence}. This is typically running at mature organizations in this niche.` });
   if (competing.length)

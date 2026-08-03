@@ -54,12 +54,12 @@ if (covPct('department') !== null && covPct('department') < 30)
   findings.push({ t: 'Departmental reporting is not currently possible from the data',
     d: `Only ${covPct('department').toFixed(0)}% of transaction lines carry a department, and ${covPct('class').toFixed(0)}% carry a class. Any report or plan built at that level would leave most of the actual spend unattributed.` });
 if (byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active')
-  findings.push({ t: 'Two systems are holding the same budget',
-    d: `The Oracle Planning connector is installed, and budgets continue to be loaded natively into NetSuite alongside it. Running both costs reconciliation effort every cycle and makes it harder to trust either.` });
+  findings.push({ t: 'Planning and NetSuite are both handling budget data',
+    d: `Oracle Planning is implemented and connected, and NetSuite also continues to receive budget loads directly. That is a normal state after a Planning rollout, but it is worth confirming which one is meant to be the reference going forward.` });
 
 const priorities = [
   { t: 'Make event profitability measurable', d: 'Attribute cost to the event that incurred it. Your cost accounts are already split by service line, so this is a configuration and process change rather than a redesign.' },
-  { t: 'Decide which system owns the budget', d: 'Before any new planning scope, settle whether Oracle Planning or NetSuite is authoritative, and understand what stalled adoption of the one already licensed.' },
+  { t: 'Confirm how Planning and NetSuite budgeting fit together', d: 'Confirm which system is intended to own the budget going forward, and whether the native loads are deliberate or a remnant of the previous process.' },
   { t: 'Fix what the plan will inherit', d: 'Departmental tagging and unused accounts both limit how granular any future reporting can be. Cheaper to address before a model is built on top of them.' },
 ];
 

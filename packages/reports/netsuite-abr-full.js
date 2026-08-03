@@ -142,11 +142,11 @@ function recommendations() {
 
   if (byId['nspb-connector']?.state === 'active' && byId['native-budgets']?.state === 'active') {
     const since = (conn?.integrations || []).filter(i => /pbcs|nspb/i.test(i.app)).map(i => i.desde).sort()[0];
-    R.push({ pri: 'High', t: 'Put the Planning system you already own to work',
-      ev: `The NSPB connector bundle is installed and Planning integrations date back to ${since || 'several years ago'}. In parallel, ${byId['native-budgets'].evidence}.`,
-      sug: 'We recommend you settle which system owns the budget before adding any new scope, and look at what stalled adoption of the one you already pay for.',
-      why: 'Two sources of truth for the same budget cost reconciliation effort every cycle and undermine confidence in both. In our experience the cause is rarely the product — it is usually a model that was sized for a different business than the one that has to use it, or the absence of a clear owner.',
-      bpc: 'Review the existing Planning model against how the business actually plans today, identify the specific gaps that pushed users back to spreadsheets, and propose a remediation path rather than a rebuild.' });
+    R.push({ pri: 'High', t: 'Confirm how Planning and NetSuite budgeting fit together',
+      ev: `Planning is implemented: the NSPB connector bundle is in place and the integrations date back to ${since || 'several years ago'}. In parallel, ${byId['native-budgets'].evidence}.`,
+      sug: 'We recommend confirming which system is intended to own the budget going forward, and whether the native loading is a deliberate parallel process or a leftover from before Planning.',
+      why: 'Where both paths stay live, teams tend to spend time each cycle reconciling them. It is worth knowing whether that is happening here, or whether the native loads serve a purpose Planning was never meant to cover.',
+      bpc: 'Review the current Planning model against how the business plans today and identify where the two paths overlap, so the split between them becomes deliberate rather than incidental.' });
   }
 
   if (customers.length > 50 && cum(10) > 25)
