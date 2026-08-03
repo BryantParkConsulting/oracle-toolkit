@@ -298,6 +298,36 @@ function savedSearchSpec() {
 }
 const acctStat = () => (shape.accounts_by_type || []).some(r => /stat/i.test(String(r.tipo)) && Number(r.n) > 0);
 
+/**
+ * Qué hace la empresa, descrito con lo que dicen los datos y no con lo que
+ * asumimos. El ratio bills/invoices es lo que delata el modelo pass-through; los
+ * nombres de las cuentas de COGS son literalmente el catálogo de servicios.
+ */
+function businessProfile() {
+  if (!V) return '';
+  const txn = {};
+  for (const r of (shape.txn_by_type_year || [])) txn[r.tipo] = (txn[r.tipo] || 0) + Number(r.n || 0);
+  const bills = Number(txn['Bill'] || 0), inv = Number(txn['Invoice'] || 0);
+  const ratio = inv ? (bills / inv) : 0;
+  const lines = costRows.filter(r => r.tipo === 'COGS').slice(0, 6)
+    .map(r => String(r.name).replace(/^\d+\s+/, '').replace(/^Cost of [Ss]ales?\s*[-–]\s*/i, '').trim())
+    .filter(Boolean);
+
+  const bits = [];
+  if (n('job') > 500) bits.push(`${fmt(n('job'))} projects on the books`);
+  if (ratio > 2) bits.push(`${ratio.toFixed(0)} vendor bills for every customer invoice`);
+  if (!T['inventoryitem']?.exists) bits.push('no inventory');
+  if (capex && Math.abs(capex) < 1e6) bits.push('effectively no capital expenditure');
+
+  return `<div class="note"><b>${esc(V.name)}</b> — confidence: ${esc(V.confidence)}.<br>
+  ${esc(V.note)}
+  ${bits.length ? `<br><br>What the data shows: ${esc(bits.join(', '))}.` : ''}
+  ${ratio > 2 ? ` That ratio is the signature of a pass-through operation — the company assembles and coordinates an event by buying from many suppliers and billing the client once.` : ''}
+  ${lines.length ? ` The cost-of-sales accounts are effectively the service catalogue: ${lines.map(l => esc(l)).join(', ')}.` : ''}
+  ${agencyRev && custTotal ? ` Roughly ${(100 * agencyRev / custTotal).toFixed(0)}% of billings come from accounts that are themselves event or incentive agencies, so a meaningful share of the work arrives through a channel rather than direct from the end client.` : ''}
+  <br><span class="small">Identified from the account's own vocabulary — ${V.evidence.slice(0, 5).map(e => esc(e.replace(/`/g, ''))).join(', ')}. Worth confirming with the client before it is used in any recommendation.</span></div>`;
+}
+
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
@@ -365,8 +395,7 @@ code{background:#f1f3f4;padding:1px 3px;border-radius:2px;font-size:8.1pt}
 </div>
 <p class="small">* Net result before goodwill amortization and interest — see §3.</p>
 
-${V ? `<div class="note"><b>${esc(V.name)}</b> (confidence: ${esc(V.confidence)}). ${esc(V.note)}<br>
-<span class="small">Identified from the vocabulary in the account itself — ${V.evidence.slice(0, 5).map(e => esc(e.replace(/`/g, ''))).join(', ')}. Worth confirming.</span></div>` : ''}
+${businessProfile()}
 
 <h3>What this review found</h3>
 <ul>
