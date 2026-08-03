@@ -1,0 +1,10 @@
+{
+  "name": "@bpc/mcp-netsuite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server exposing a NetSuite account to Claude over SuiteQL — schema discovery, financials and ad-hoc queries, read-only.",
+  "type": "commonjs",
+  "bin": { "mcp-netsuite": "./src/index.js" },
+  "scripts": { "check": "node --check src/index.js" },
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0" }
+}

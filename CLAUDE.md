@@ -131,6 +131,7 @@ actually behave, it goes there — that's what stops the next person rediscoveri
 | `analysis/` | cube-optimize, level-0, IPM, architecture/optimization reports |
 | `reports/` | md/JSON → PDF with the BPC shell (CDP `:9222`) |
 | `mcp-planning/` | the Planning MCP server (ESM) — LCM + REST from Claude |
+| `mcp-netsuite/` | the NetSuite MCP server — SuiteQL from Claude, read-only |
 | `forge/` | generates dimensions and forms (ESM) |
 | `engagement/` | engagement hours reporting |
 | `recon/` | NetSuite ↔ NSPB — seed only, **comparator not written** |

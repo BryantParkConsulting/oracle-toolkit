@@ -55,6 +55,20 @@ To make the skill available in every project, not just this one:
 cp -r skills/epm-assessment ~/.claude/skills/
 ```
 
+### Querying NetSuite live from Claude
+
+`packages/mcp-netsuite/` is an MCP server that exposes the connected NetSuite account. Register it:
+
+```bash
+claude mcp add netsuite -- node /absolute/path/to/oracle-toolkit/packages/mcp-netsuite/src/index.js
+```
+
+Then ask in plain language — *"what did we bill in 2025?"*, *"which of our top customers are agencies?"*, *"can we report by department?"* — and it answers from the live account.
+
+Six tools: ad-hoc SuiteQL, record-type probing, P&L by year, revenue by customer, chart of accounts, and dimension tagging coverage. Read-only: anything that is not a SELECT is rejected.
+
+The traps are built into the tools rather than left to the prompt — GL signs are corrected, invoice amounts read from the main line, and customer revenue comes from the billing layer because the ledger carries no entity on revenue.
+
 ### Querying Planning live from Claude
 
 `packages/mcp-planning/` is an MCP server that exposes an NSPB environment to Claude — it can
@@ -80,6 +94,7 @@ oracle-toolkit/
 │   ├── analysis/       cube optimization, level-0, IPM, current-state reports
 │   ├── reports/        md/JSON → BPC-branded PDF (Chrome CDP :9222)
 │   ├── mcp-planning/   MCP server for Planning (ESM)
+│   ├── mcp-netsuite/   MCP server for NetSuite over SuiteQL
 │   ├── forge/          generates dimensions and forms (ESM)
 │   ├── engagement/     engagement hours reporting
 │   └── recon/          NetSuite ↔ NSPB (seed; comparator not written yet)
