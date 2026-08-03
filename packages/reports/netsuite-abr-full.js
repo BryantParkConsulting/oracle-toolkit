@@ -193,6 +193,27 @@ function recommendations() {
   const skip = (conn?.competingTooling || []).filter(c => /floqast|blackline|adaptive|anaplan|vena/i.test(c.app));
   return { list: R, skip };
 }
+/**
+ * Carga real del SuiteCloud Processor. Un deployment en NOTSCHEDULED existe pero
+ * nunca corre: separar lo desplegado de lo que se ejecuta es lo que convierte un
+ * conteo de scripts en un dato de capacidad.
+ */
+function deploymentSection() {
+  const dep = shape.deployments_by_type || [];
+  if (!dep.length) return '';
+  const tot = dep.reduce((s, r) => s + Number(r.n || 0), 0);
+  const idle = dep.filter(r => /NOTSCHEDULED/i.test(String(r.status))).reduce((s, r) => s + Number(r.n || 0), 0);
+  const running = dep.filter(r => /^SCHEDULED$/i.test(String(r.status))).reduce((s, r) => s + Number(r.n || 0), 0);
+  const wf = (rd('netsuite/workflows.json') || []);
+  const apps = (rd('netsuite/integration_apps.json') || []);
+  return `<h3>Automation and SuiteCloud Processor load</h3>
+  <table><tr><th>Script type</th><th>Deployment status</th><th class="num">Count</th></tr>
+  ${dep.slice(0, 10).map(r => `<tr><td>${esc(r.scripttype)}</td><td>${esc(r.status)}</td><td class="num">${fmt(r.n)}</td></tr>`).join('')}
+  </table>
+  <p class="small">${fmt(tot)} script deployments in total${wf.length ? ` · ${fmt(wf.length)} workflows${wf.filter(w => w.isinactive === 'T').length ? ` (${fmt(wf.filter(w => w.isinactive === 'T').length)} inactive)` : ''}` : ''}${apps.length ? ` · ${fmt(apps.length)} registered integration applications` : ''}.</p>
+  ${idle ? `<div class="flag"><b>${fmt(idle)} of ${fmt(tot)} script deployments never run.</b> They sit at <code>NOTSCHEDULED</code> — deployed but not scheduled. Only ${fmt(running)} scheduled and map/reduce scripts actually consume SuiteCloud Processor capacity. That is worth reading two ways: the processor is far less loaded than the script count suggests, and there is a large body of automation that was built and then left dormant.</div>` : ''}`;
+}
+
 const REC = recommendations();
 const P = { High: DANGER, Medium: ORANGE, Low: SAGE };
 
@@ -311,6 +332,7 @@ ${[...mods.modules].sort((a, b) => ['active', 'partial', 'dormant', 'absent', 'u
 <table><tr><th>Application</th><th class="num">Tokens</th><th class="num">Active</th><th>Since</th></tr>
 ${(conn?.integrations || []).slice(0, 12).map(i => `<tr><td>${esc(i.app)}</td><td class="num">${i.tokens}</td><td class="num">${i.activos}</td><td>${esc(i.desde)}</td></tr>`).join('')}
 </table>
+${deploymentSection()}
 ${(conn?.competingTooling || []).length ? `<div class="note"><b>Systems already covering adjacent ground.</b> Worth mapping before any new scope so nothing is duplicated. An active token tells us a connection exists, not how heavily it is used.
 <ul>${conn.competingTooling.map(c => `<li><b>${esc(c.app)}</b> (${esc(c.competing.area)}, since ${esc(c.desde)}) — ${esc(c.competing.impacto)}</li>`).join('')}</ul></div>` : ''}
 

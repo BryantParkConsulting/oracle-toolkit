@@ -1,20 +1,20 @@
-# Getting started — de cero a un entregable
+# Getting started — from zero to a deliverable
 
-Guía para alguien que acaba de clonar el repo y nunca corrió esto. No asume contexto previo.
+For someone who just cloned the repo and has never run this. Assumes no prior context.
 
-Hay **dos rutas independientes**. Podés correr una, la otra, o las dos:
+There are **two independent routes**. Run either, or both:
 
-| ruta | qué necesitás pedirle al cliente | qué produce |
+| route | what to ask the client for | what it produces |
 | --- | --- | --- |
-| **A. NSPB / Planning** | un LCM export (un zip) | KB del entorno, current state, optimization review |
-| **B. NetSuite ERP** | un token de integración | inventario de módulos, mapa de conectores, ABR con recomendaciones |
+| **A. NSPB / Planning** | an LCM export (a zip) | environment KB, current state, optimization review |
+| **B. NetSuite ERP** | an integration token | module inventory, connector map, ABR with recommendations |
 
 ---
 
-## 0. Requisitos
+## 0. Requirements
 
 ```bash
-node --version    # 20 o superior
+node --version    # 20 or newer
 ```
 
 ```bash
@@ -25,125 +25,124 @@ npm install
 node scripts/check-all.js
 ```
 
-Para generar PDFs hace falta además **Chrome o Edge**, y para la ruta A una **API key de
-Gemini** (el parser la usa para resumir reglas y forms).
+PDF generation also needs **Chrome or Edge**. Route A needs a **Gemini API key** — the parser
+uses it to summarize rules and forms.
 
 ---
 
-# Ruta A — NSPB / Planning
+# Route A — NSPB / Planning
 
-## A1. Conseguir el LCM export
+## A1. Getting the LCM export
 
-Es lo único que necesitás, y **lo saca el cliente en dos minutos** desde su entorno de
-Planning. Pedíselo así:
+It's the only thing you need, and **the client can pull it in two minutes**. Ask for it like
+this:
 
-> En NSPB, entrá a **Application → Migration → Snapshot**. Vas a ver un snapshot llamado
-> `Artifact Snapshot` con la fecha del último backup nocturno. Tocá el ícono de descarga y
-> mandanos el `.zip`.
+> In NSPB, go to **Application → Migration → Snapshot**. You'll see a snapshot called
+> `Artifact Snapshot` dated from last night's backup. Click the download icon and send us
+> the `.zip`.
 
-No hace falta que corra nada ni que nos den acceso: el snapshot ya existe, se genera solo
-todas las noches.
+They don't have to run anything and we don't need access — the snapshot already exists,
+generated automatically every night.
 
-**Qué contiene:** la definición completa de la aplicación — dimensiones, forms, business
-rules, variables de sustitución, dashboards, reportes financieros, configuración de FDMEE y
-la navegación. **No contiene datos**, solo metadata. Eso hace que sea fácil de conseguir:
-no hay información financiera adentro.
+**What's in it:** the complete application definition — dimensions, forms, business rules,
+substitution variables, dashboards, financial reports, FDMEE configuration and navigation.
+**No data, only metadata.** That's what makes it easy to obtain: there's no financial
+information inside.
 
-> Si el cliente pregunta por qué no alcanza con una captura de pantalla: el snapshot es lo que
-> permite analizar el entorno completo de forma consistente y reproducible, en lugar de
-> revisar pantalla por pantalla.
+> If the client asks why a screenshot won't do: the snapshot is what lets us analyze the whole
+> environment consistently and reproducibly, instead of reviewing it screen by screen.
 
-## A2. Descomprimirlo y parsear
+## A2. Unzip and parse
 
-Descomprimí el zip en `lcm-export/` (o donde quieras y pasá `LCM_ROOT`).
-
-```bash
-CLIENT=<cliente> GEMINI_API_KEY=<tu-key> node packages/lcm/parse-lcm.js
-```
-
-Genera `clients/<cliente>/tenant-kb.json`: forms, rules, variables, dimensiones, dashboards,
-FRs, FDMEE y navegación, con un resumen generado por IA para cada objeto.
-
-## A3. Los informes
+Unzip into `lcm-export/` (or anywhere, passing `LCM_ROOT`).
 
 ```bash
-CLIENT=<cliente> node packages/analysis/architecture-report.js
+CLIENT=<client> GEMINI_API_KEY=<your-key> node packages/lcm/parse-lcm.js
 ```
 
-Para el **Optimization Review** hacen falta dos insumos más, que también los saca el cliente:
+Produces `clients/<client>/tenant-kb.json`: forms, rules, variables, dimensions, dashboards,
+FRs, FDMEE and navigation, with an AI-generated summary per object.
 
-- **Export nivel-0 de cada cubo** — Application → Overview → Actions → *Export Data*, eligiendo
-  Level 0. Es un zip por cubo.
-- **Activity Report** — Application → Jobs → *Daily Maintenance*, o desde Access Control →
-  Activity Report. Es el que dice qué se usa de verdad.
+## A3. The reports
 
 ```bash
-CLIENT=<cliente> node packages/analysis/parse-level0.js
+CLIENT=<client> node packages/analysis/architecture-report.js
+```
+
+The **Optimization Review** needs two more inputs, which the client also pulls:
+
+- **Level-0 export per cube** — Application → Overview → Actions → *Export Data*, choosing
+  Level 0. One zip per cube.
+- **Activity Report** — Application → Jobs → *Daily Maintenance*, or from Access Control →
+  Activity Report. This is what tells you what's genuinely used.
+
+```bash
+CLIENT=<client> node packages/analysis/parse-level0.js
 ```
 
 ```bash
-CLIENT=<cliente> node packages/analysis/cube-optimize.js
+CLIENT=<client> node packages/analysis/cube-optimize.js
 ```
 
-> Antes de escribir el informe, leé `docs/CUBE-OPTIMIZATION-README.md` — tiene las reglas de
-> interpretación de Essbase y el checklist de QA previo a la entrega.
+> Read `docs/CUBE-OPTIMIZATION-README.md` before writing the report — it has the Essbase
+> interpretation rules and the pre-delivery QA checklist.
 
 ---
 
-# Ruta B — NetSuite ERP
+# Route B — NetSuite ERP
 
-## B1. Conseguir el token
+## B1. Getting the token
 
-Esto **no lo podés hacer vos**: lo tiene que crear alguien con rol de Administrator en la
-cuenta del cliente. Mandale estos cuatro pasos tal cual.
+**You can't do this yourself**: it has to be created by someone with an Administrator role in
+the client's account. Send them these four steps verbatim.
 
-### Paso 1 — Habilitar las features
+### Step 1 — Enable the features
 
-**Setup → Company → Enable Features → SuiteCloud**. Tienen que estar tildadas:
+**Setup → Company → Enable Features → SuiteCloud**. These must be ticked:
 
 - `REST WEB SERVICES`
 - `TOKEN-BASED AUTHENTICATION`
 
-### Paso 2 — Crear la integración
+### Step 2 — Create the integration
 
 **Setup → Integration → Manage Integrations → New**
 
-| campo | valor |
+| field | value |
 | --- | --- |
 | Name | `BPC Discovery — read-only export` |
 | State | Enabled |
-| **Token-Based Authentication** | ✅ **tildar** |
-| TBA: issuetoken Endpoint | dejar sin tildar |
-| TBA: Authorization Flow | dejar sin tildar |
-| Todo el bloque OAuth 2.0 | dejar sin tildar |
-| User Credentials | dejar sin tildar |
+| **Token-Based Authentication** | ✅ **tick this** |
+| TBA: issuetoken Endpoint | leave unticked |
+| TBA: Authorization Flow | leave unticked |
+| The whole OAuth 2.0 block | leave unticked |
+| User Credentials | leave unticked |
 
-Al guardar, NetSuite muestra el **Consumer Key** y el **Consumer Secret**. ⚠️ **Se muestran
-una sola vez.** Si se cierra la pantalla sin copiarlos hay que resetear las credenciales.
+On save, NetSuite shows the **Consumer Key** and **Consumer Secret**. ⚠️ **They're shown only
+once.** If the screen is closed without copying them, the credentials have to be reset.
 
-### Paso 3 — Crear un rol read-only
+### Step 3 — Create a read-only role
 
-Este paso es el que más incide en el resultado. **Un rol angosto produce falsos "el cliente no
-tiene ese módulo"**, porque SuiteQL no distingue entre una feature apagada y una que el rol no
-puede ver.
+This is the step that most affects the result. **A narrow role produces false "the client
+doesn't have that module"**, because SuiteQL cannot distinguish a disabled feature from one
+the role can't see.
 
-**Setup → Users/Roles → Manage Roles → New**, nombre `BPC Discovery (Read Only)`:
+**Setup → Users/Roles → Manage Roles → New**, named `BPC Discovery (Read Only)`:
 
 - Setup → **REST Web Services** — Full
 - Setup → **Log in using Access Tokens** — Full
 - Setup → **SuiteAnalytics Workbook** — Edit
-- Todo lo demás en **View**, lo más ancho posible: Transactions, Lists, Reports, Setup
-- **Sin restricción por subsidiary, department o class**
+- Everything else at **View**, as broad as possible: Transactions, Lists, Reports, Setup
+- **No restriction by subsidiary, department or class**
 
-### Paso 4 — Emitir el token
+### Step 4 — Issue the token
 
-**Setup → Users/Roles → Access Tokens → New**: elegir la integración del paso 2, un usuario y
-el rol del paso 3. Al guardar aparecen el **Token ID** y el **Token Secret**, también una
-sola vez.
+**Setup → Users/Roles → Access Tokens → New**: pick the integration from step 2, a user, and
+the role from step 3. On save you get the **Token ID** and **Token Secret** — also shown only
+once.
 
-### Paso 5 — Guardarlos
+### Step 5 — Store them
 
-Creá un archivo `.env` en la raíz del repo (está gitignored, nunca se sube):
+Create a `.env` file at the repo root (gitignored, never pushed):
 
 ```
 NS_ACCOUNT=1234567
@@ -154,101 +153,101 @@ NS_TOKEN_SECRET=...
 GEMINI_API_KEY=...
 ```
 
-`NS_ACCOUNT` es el número que aparece en la URL de NetSuite del cliente
-(`https://1234567.app.netsuite.com`). Si es un sandbox va con sufijo: `1234567_SB1`.
+`NS_ACCOUNT` is the number in the client's NetSuite URL
+(`https://1234567.app.netsuite.com`). A sandbox carries a suffix: `1234567_SB1`.
 
-> **Pediles que los peguen ellos en el archivo.** Que no te los manden por chat, mail ni
-> Slack: quedan registrados. Y **rotá las credenciales cuando termine el assessment** — son
-> de la producción del cliente.
+> **Have them paste the values into the file themselves.** Not over chat, email or Slack —
+> those get logged. And **rotate the credentials when the assessment ends**: they belong to
+> the client's production account.
 
-Probá que funcione:
+Check it works:
 
 ```bash
 node packages/netsuite/ns-sql.js "SELECT COUNT(*) AS n FROM account"
 ```
 
-## B2. Extraer
+## B2. Extract
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/netsuite-export.js
+CLIENT=<client> node packages/netsuite/netsuite-export.js
 ```
 
-Cinco fases, unos 10-15 minutos en una cuenta grande. Todo agregado del lado del servidor:
-**nunca se descargan filas de detalle**.
+Five phases, roughly 10–15 minutes on a large account. Everything is aggregated server-side:
+**no detail rows are ever downloaded**.
 
-| fase | qué hace |
+| phase | what it does |
 | --- | --- |
-| `probe` | prueba ~95 tablas: ¿responde? ¿cuántas filas? ¿última actividad? |
-| `shape` | volumetría y breakdowns por tipo de transacción, cuenta, ítem |
-| `metadata` | diccionario de campos vía REST metadata-catalog |
-| `fields` | fill-rate por custom field — cuáles nunca se poblaron |
-| `financials` | COA, balances, P&L, estacionalidad, costos y clientes |
+| `probe` | tests ~95 tables: does it respond? how many rows? last activity? |
+| `shape` | volumetrics and breakdowns by transaction type, account, item |
+| `metadata` | field dictionary via the REST metadata-catalog |
+| `fields` | fill-rate per custom field — which ones were never populated |
+| `financials` | COA, balances, P&L, seasonality, cost detail and customers |
 
-Se puede correr una sola: `--phase=probe`.
+You can run just one: `--phase=probe`.
 
-## B3. Analizar
+## B3. Analyze
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/ns-erp-assess.js
+CLIENT=<client> node packages/netsuite/ns-erp-assess.js
 ```
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/ns-connector-map.js
+CLIENT=<client> node packages/netsuite/ns-connector-map.js
 ```
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/ns-vertical.js
+CLIENT=<client> node packages/netsuite/ns-vertical.js
 ```
 
 ```bash
-CLIENT=<cliente> node packages/netsuite/ns-financials.js
+CLIENT=<client> node packages/netsuite/ns-financials.js
 ```
 
-> **Mirá el mapa de conectores antes que nada.** Es lo que evita proponer algo que el cliente
-> ya compró: si aparece FloQast o BlackLine el caso de conciliación cambia por completo, y si
-> aparece el bundle `NSPBCS_` significa que ya tienen Planning y el trabajo es de adopción,
-> no de venta.
+> **Look at the connector map before anything else.** It's what stops you proposing something
+> the client already bought: if FloQast or BlackLine appears the reconciliation case changes
+> entirely, and if the `NSPBCS_` bundle appears they already have Planning — the work is
+> adoption, not a sale.
 
-## B4. El entregable
+## B4. The deliverable
 
-Levantá Chrome con debug abierto (los PDFs se renderizan por ahí):
+Start Chrome with the debug port open (PDFs render through it):
 
 ```bash
 chrome.exe --headless=new --remote-debugging-port=9222 --user-data-dir=%TEMP%\cdp about:blank
 ```
 
 ```bash
-CLIENT=<cliente> CLIENT_NAME=<Nombre> node packages/reports/netsuite-abr-full.js
+CLIENT=<client> CLIENT_NAME=<Name> node packages/reports/netsuite-abr-full.js
 ```
 
-Sale en `clients/<cliente>/<cliente>-netsuite-abr-full.pdf`: ABR completo con marca BPC,
-recomendaciones fundadas en la evidencia y una sección de qué no pudimos ver.
+Lands in `clients/<client>/<client>-netsuite-abr-full.pdf`: the full BPC-branded ABR, with
+evidence-backed recommendations and a section on what we couldn't see.
 
-Hay dos versiones cortas por si las necesitás sueltas: `netsuite-abr-pdf.js` (solo negocio) y
-`nspb-integration-pdf.js` (técnico, para el equipo de Planning).
+Two shorter variants exist if you need them separately: `netsuite-abr-pdf.js` (business only)
+and `nspb-integration-pdf.js` (technical, for the Planning team).
 
 ---
 
-## Antes de entregar
+## Before you deliver
 
-- [ ] Ningún módulo marcado `absent` sin evidencia — la ausencia en SuiteQL es ambigua y va
-      como `unknown`.
-- [ ] Todo lo prescriptivo redactado como sugerencia a validar, nunca como certeza.
-- [ ] El PDF **en inglés**, con números en formato `en-US`.
-- [ ] Sin lenguaje comercial interno en el documento del cliente.
-- [ ] Ventana de telemetría declarada en la portada.
-- [ ] Credenciales rotadas.
+- [ ] No module marked `absent` without evidence — an absence in SuiteQL is ambiguous and
+      goes out as `unknown`.
+- [ ] Everything prescriptive worded as a suggestion to validate, never as certainty.
+- [ ] The PDF **in English**, numbers in `en-US` format.
+- [ ] No internal commercial language in the client document.
+- [ ] Telemetry window stated on the cover.
+- [ ] Credentials rotated.
 
-## Si algo falla
+## If something fails
 
-| síntoma | causa habitual |
+| symptom | usual cause |
 | --- | --- |
-| `401` en cualquier consulta | credenciales mal copiadas, o se resetearon después de emitir el token |
-| `403` | al rol le falta `REST Web Services` o `Log in using Access Tokens` |
-| muchos módulos en `unknown` | el rol es demasiado angosto — volvé al paso 3 |
-| `CDP no responde en :9222` | falta levantar el Chrome con debug |
-| el PDF sale con secciones vacías | falta correr alguna fase; las secciones son condicionales a propósito |
+| `401` on every query | credentials mistyped, or reset after the token was issued |
+| `403` | the role is missing `REST Web Services` or `Log in using Access Tokens` |
+| many modules come back `unknown` | the role is too narrow — go back to step 3 |
+| `CDP not reachable on :9222` | Chrome isn't running with the debug port |
+| the PDF has empty sections | a phase hasn't run; sections are conditional by design |
 
-Las trampas de datos (signos del GL, campos de fórmula, tablas que existen y cuáles no) están
-en [`NETSUITE-DISCOVERY-LEARNINGS.md`](NETSUITE-DISCOVERY-LEARNINGS.md). Leelo antes de
-interpretar cualquier número.
+The data traps (GL signs, formula fields, which tables exist and which don't) are in
+[`NETSUITE-DISCOVERY-LEARNINGS.md`](NETSUITE-DISCOVERY-LEARNINGS.md). Read it before
+interpreting any number.

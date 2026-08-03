@@ -1,94 +1,91 @@
-# oracle-toolkit — orientación
+# oracle-toolkit — orientation
 
-Toolkit de BPC para entregas EPM: **Oracle NSPB / Planning** y **NetSuite ERP**, desde la
-extracción cruda hasta el PDF con marca BPC. Consolidado el 2026-07-31 desde cinco carpetas
-sueltas de `C:\apps`.
+BPC's toolkit for Oracle EPM engagements: **NSPB / Planning** and **NetSuite ERP**, from raw
+extraction to a branded PDF. Consolidated 2026-07-31 from five scattered folders.
 
-Si venís de cero, leé esto entero antes de tocar nada. Son 5 minutos y te ahorra repetir
-errores que ya cometimos.
+Read this before touching anything. Five minutes, and it saves you repeating mistakes we
+already made.
 
----
-
-
-> Si nunca corriste esto, empezá por [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md):
-> cómo pedir el LCM, cómo se crea el token de NetSuite y qué correr en qué orden.
-
-## El modelo mental
-
-Todo gira alrededor de **una carpeta por cliente** en `clients/<cliente>/`. Esa carpeta **es
-el estado**: no hay base de datos ni registro de progreso, se mira qué archivos existen.
-
-```
-clients/<cliente>/
-├── netsuite/     extracción cruda: probe, shape, fields, coa, balances, pnl…
-├── erp/          derivados: modules.json, connectors.json, vertical.json, financials.json
-├── env-docs/     documentación del entorno NSPB (formato fijo 01→04)
-├── tenant-kb.json  KB del tenant de Planning
-└── *.pdf         entregables
-```
-
-Cada script lee lo que produjo el anterior y no vuelve a consultar el sistema salvo que
-tenga que hacerlo. Podés cortar y retomar en cualquier fase.
+> New to this? Start with [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md): how to ask
+> for the LCM export, how the NetSuite token is created, and what to run in what order.
 
 ---
 
-## Las dos rutas
+## The mental model
 
-### NetSuite — arranca con un token TBA del cliente
+Everything revolves around **one folder per client** in `clients/<client>/`. That folder **is
+the state** — there's no database and no progress log, you just look at which files exist.
+
+```
+clients/<client>/
+├── netsuite/     raw extraction: probe, shape, fields, coa, balances, pnl…
+├── erp/          derived: modules.json, connectors.json, vertical.json, financials.json
+├── env-docs/     NSPB environment documentation (fixed 01→04 format)
+├── tenant-kb.json  Planning tenant KB
+└── *.pdf         deliverables
+```
+
+Each script reads what the previous one produced and doesn't re-query the system unless it
+has to. You can stop and resume at any phase.
+
+---
+
+## The two routes
+
+### NetSuite — starts with a TBA token from the client
 
 ```bash
-CLIENT=<c> node packages/netsuite/netsuite-export.js        # 5 fases
-CLIENT=<c> node packages/netsuite/ns-erp-assess.js          # → erp/modules.json (37 módulos, 5 estados)
-CLIENT=<c> node packages/netsuite/ns-connector-map.js       # → erp/CONNECTORS.md (bundles + integraciones)
-CLIENT=<c> node packages/netsuite/ns-vertical.js            # → erp/vertical.json (micro-vertical + benchmark)
-CLIENT=<c> node packages/netsuite/ns-financials.js          # → erp/FINANCIALS.md (COA + IS/BS)
-CLIENT=<c> CLIENT_NAME=<Nombre> node packages/reports/netsuite-abr-full.js   # → el entregable grande
+CLIENT=<c> node packages/netsuite/netsuite-export.js        # 5 phases
+CLIENT=<c> node packages/netsuite/ns-erp-assess.js          # → erp/modules.json (37 modules, 5 states)
+CLIENT=<c> node packages/netsuite/ns-connector-map.js       # → erp/CONNECTORS.md
+CLIENT=<c> node packages/netsuite/ns-vertical.js            # → erp/vertical.json
+CLIENT=<c> node packages/netsuite/ns-financials.js          # → erp/FINANCIALS.md
+CLIENT=<c> CLIENT_NAME=<Name> node packages/reports/netsuite-abr-full.js
 ```
 
-La fase `financials` de `netsuite-export.js` deja COA, balances, P&L, estacionalidad,
-detalle de costos y clientes. No hay pasos manuales.
+The `financials` phase leaves COA, balances, P&L, seasonality, cost detail and customers.
+No manual steps.
 
-**Corré `ns-connector-map.js` temprano.** Es lo que evita proponer algo que el cliente ya
-compró: si aparece FloQast o BlackLine el caso de conciliación cambia; si aparece el bundle
-`NSPBCS_`, Planning no es un upsell sino un problema de adopción.
+**Run `ns-connector-map.js` early.** It's what stops you proposing something the client
+already bought: if FloQast or BlackLine appears the reconciliation case changes; if the
+`NSPBCS_` bundle appears, Planning isn't an upsell but an adoption problem.
 
-### NSPB / Planning — arranca con el LCM export
+### NSPB / Planning — starts with the LCM export
 
 ```bash
-CLIENT=<c> GEMINI_API_KEY=... node packages/lcm/parse-lcm.js     # → tenant-kb.json
-CLIENT=<c> node packages/analysis/architecture-report.js         # → state-report.md
-CLIENT=<c> node packages/analysis/cube-optimize.js               # → optimization-report.md (necesita level-0 + activity report)
+CLIENT=<c> GEMINI_API_KEY=... node packages/lcm/parse-lcm.js
+CLIENT=<c> node packages/analysis/architecture-report.js
+CLIENT=<c> node packages/analysis/cube-optimize.js          # needs level-0 + activity report
 ```
 
 ---
 
-## Consultas ad-hoc
+## Ad-hoc queries
 
 ```bash
-node packages/netsuite/ns-sql.js "SELECT ..."                    # tabla en consola
-node packages/netsuite/ns-sql.js "SELECT ..." --out=archivo.json
-node packages/netsuite/ns-sql.js --probe=tabla1,tabla2           # ¿existe? ¿cuántas filas?
+node packages/netsuite/ns-sql.js "SELECT ..."
+node packages/netsuite/ns-sql.js "SELECT ..." --out=file.json
+node packages/netsuite/ns-sql.js --probe=table1,table2      # does it exist? how many rows?
 ```
 
-Es también el cliente reutilizable: `require('./ns-sql')` exporta `suiteql(sql)` con
-paginación resuelta.
+Also a reusable client: `require('./ns-sql')` exports `suiteql(sql)` with pagination handled.
 
 ---
 
-## Credenciales
+## Credentials
 
-`.env` en la raíz (gitignored):
+`.env` at the root (gitignored):
 
 ```
-NS_ACCOUNT=<id>            NS_CONSUMER_KEY=...   NS_CONSUMER_SECRET=...
-NS_TOKEN_ID=...            NS_TOKEN_SECRET=...   GEMINI_API_KEY=...
+NS_ACCOUNT=<id>   NS_CONSUMER_KEY=...   NS_CONSUMER_SECRET=...
+NS_TOKEN_ID=...   NS_TOKEN_SECRET=...   GEMINI_API_KEY=...
 ```
 
-La receta completa para que el cliente cree la integración y el token está en
-[`docs/NS-ERP-README.md`](docs/NS-ERP-README.md) §3. **El rol importa más que las
-credenciales**: uno angosto produce falsos "módulo ausente".
+Full recipe for the client to create the integration and token:
+[`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) §B1. **The role matters more than the
+credentials** — a narrow one produces false "module absent".
 
-Los PDFs se renderizan por Chrome DevTools Protocol:
+PDFs render through Chrome DevTools Protocol:
 
 ```bash
 chrome.exe --headless=new --remote-debugging-port=9222 --user-data-dir=<temp> about:blank
@@ -96,87 +93,82 @@ chrome.exe --headless=new --remote-debugging-port=9222 --user-data-dir=<temp> ab
 
 ---
 
-## Reglas que no se negocian
+## Non-negotiable rules
 
-1. **Los datos de cliente nunca salen de `clients/`**, ignorada en bloque con regla negativa
-   (`clients/**`). Son exports completos de sistemas financieros reales.
-2. **Una ausencia no es una ausencia.** SuiteQL solo expone un record type si la feature está
-   habilitada **y** el rol la ve. Se reporta `unknown`, nunca `absent`.
-3. **Todo entregable va en inglés.** Código, comentarios, commits y estos README van en
-   español. Ojo: el texto de un PDF se ensambla desde varios archivos — traducir el generador
-   no alcanza. Números en formato `en-US`.
-4. **Todo lo prescriptivo va como "suggested change"** a validar con el cliente.
-5. **Sin números inventados.** Si no se extrajo, se dice "no extraído". Nunca se estima.
-6. **Nada de lenguaje de venta interno en un documento de cliente.** "Es un rescate de algo
-   que ya pagan" o "antes de posicionar NSAR" no van.
-7. **Rotar las credenciales** al terminar el assessment.
-
----
-
-## Antes de tocar el pipeline de NetSuite
-
-Leé **[`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md)**. Tiene
-las trampas que ya nos costaron tiempo: qué tablas existen y cuáles no, `isstored='F'`, los
-`custentity_` compartidos entre entidades, los signos del GL, los schedules que proyectan
-hasta 2035, y cuatro cosas que dábamos por ciertas y eran falsas.
+1. **Client data never leaves `clients/`**, ignored wholesale by a negative rule
+   (`clients/**`). These are complete exports of real financial systems.
+2. **An absence is not an absence.** SuiteQL only exposes a record type when the feature is
+   enabled **and** the role can see it. Report `unknown`, never `absent`.
+3. **Everything in this repo is written in English** — code, comments, docs and deliverables.
+   Careful: a PDF's text is assembled from several files, so translating the generator isn't
+   enough. Numbers in `en-US` format.
+4. **Everything prescriptive is a "suggested change"** to validate with the client.
+5. **No invented numbers.** If it wasn't extracted, say "not extracted". Never estimate.
+6. **No internal commercial language in a client document.**
+7. **Rotate credentials** when the assessment ends.
 
 ---
 
-## Mapa de paquetes
+## Before touching the NetSuite pipeline
 
-| paquete | qué hace |
+Read **[`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md)**. It
+holds the traps that already cost us time: which tables exist, `isstored='F'`, `custentity_`
+fields shared across entities, GL signs, schedules projecting to 2035, and four things we
+assumed were true and weren't.
+
+**It is a living log.** Every time something new is learned about how NetSuite or NSPB
+actually behave, it goes there — that's what stops the next person rediscovering it.
+
+---
+
+## Package map
+
+| package | what it does |
 | --- | --- |
-| `netsuite/` | extracción SuiteQL, assessment de módulos, conectores, micro-vertical, COA/IS/BS |
-| `lcm/` | LCM export → tenant-kb.json, enriquecimiento, sanitización |
-| `planning/` | operaciones en vivo contra NSPB: auth, carga, validaciones |
-| `analysis/` | cube-optimize, level-0, IPM, architecture/optimization report |
-| `reports/` | md/JSON → PDF con el shell BPC (CDP `:9222`) |
-| `mcp-planning/` | el MCP de Planning (ESM) — LCM + REST desde Claude |
-| `forge/` | genera dimensiones y forms (ESM) |
-| `engagement/` | horas de engagement y reporte al cliente |
-| `recon/` | NetSuite ↔ NSPB — semilla, comparador **sin escribir** |
+| `netsuite/` | SuiteQL extraction, module assessment, connectors, vertical, COA/IS/BS |
+| `lcm/` | LCM export → tenant-kb.json, enrichment, sanitization |
+| `planning/` | live operations against NSPB: auth, load, validation |
+| `analysis/` | cube-optimize, level-0, IPM, architecture/optimization reports |
+| `reports/` | md/JSON → PDF with the BPC shell (CDP `:9222`) |
+| `mcp-planning/` | the Planning MCP server (ESM) — LCM + REST from Claude |
+| `forge/` | generates dimensions and forms (ESM) |
+| `engagement/` | engagement hours reporting |
+| `recon/` | NetSuite ↔ NSPB — seed only, **comparator not written** |
 
-**CJS y ESM conviven por paquete a propósito.** `mcp-planning` y `forge` son ESM; el resto
-CJS heredado de `tools/`. `npm run check` valida cada archivo con el parser que le toca — no
-unificar a la fuerza.
-
----
-
-## Docs
-
-| archivo | cuándo leerlo |
-| --- | --- |
-| [`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md) | ⭐ antes de tocar el pipeline de NetSuite |
-| [`docs/NS-ERP-README.md`](docs/NS-ERP-README.md) | playbook del assessment de NetSuite: qué pedir, cómo correr, QA |
-| [`docs/CUBE-OPTIMIZATION-README.md`](docs/CUBE-OPTIMIZATION-README.md) | antes de un análisis de optimización de cubo |
-| [`docs/NSPB-LCM-AND-DATA-RUNBOOK.md`](docs/NSPB-LCM-AND-DATA-RUNBOOK.md) | operaciones de datos sobre Planning |
-| [`skills/epm-assessment/SKILL.md`](skills/epm-assessment/SKILL.md) | el flujo guiado paso a paso |
-
----
-
-## Estado y pendientes
-
-- Sin remoto git: consolidación local.
-- `packages/recon/` tiene la semilla del caso Talogy pero **el comparador NetSuite ↔ NSPB no
-  está escrito**. Es el próximo bloque.
-- El benchmark por micro-vertical (`ns-benchmarks.json`) tiene 12 verticales con profundidad
-  despareja: `events-dmc` está desarrollado, otros tienen dos líneas.
-- Primer cliente corrido end-to-end: **PRA** (`clients/pra/`), agencia de eventos/DMC. No
-  tenemos su LCM de Planning, así que ese lado está sin evaluar.
-
-
----
-
-## apps/ — el producto
-
-`apps/nspb-excel-addin/` es el add-in de Excel (Office.js) + Cloudflare Worker que responde preguntas sobre Planning en lenguaje natural, mas su docs-site en Firebase y la extension de Chrome.
-
-Es producto desplegado, no toolkit: se shippea a clientes y tiene su propio ciclo de deploy.
+`apps/nspb-excel-addin/` is the shipped product: Excel add-in (Office.js) + Cloudflare
+Worker, its Firebase docs-site and the Chrome extension. Deploy:
 
 ```bash
 cd apps/nspb-excel-addin/worker && npm run deploy
 ```
 
-Su guia tecnica propia esta en `apps/nspb-excel-addin/CLAUDE-nspb-excel-addin.md`.
+**Careful:** its build embeds `clients/<name>/tenant-kb.json` resolving paths relative to
+*its own* folder, not the toolkit root.
 
-**Cuidado:** el build del worker embebe `clients/<name>/tenant-kb.json` resolviendo rutas relativas a SU carpeta, no a la raiz del toolkit. Si movés algo, verificá esa resolucion.
+**CJS and ESM coexist per package on purpose.** `mcp-planning` and `forge` are ESM, the rest
+is CJS. `npm run check` validates each file with the right parser — don't force them together.
+
+---
+
+## Docs
+
+| file | when to read it |
+| --- | --- |
+| [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) | first time — end-to-end walkthrough |
+| [`docs/NETSUITE-DISCOVERY-LEARNINGS.md`](docs/NETSUITE-DISCOVERY-LEARNINGS.md) | ⭐ before touching the NetSuite pipeline |
+| [`docs/NS-ERP-README.md`](docs/NS-ERP-README.md) | NetSuite assessment playbook and QA |
+| [`docs/CUBE-OPTIMIZATION-README.md`](docs/CUBE-OPTIMIZATION-README.md) | before a cube optimization analysis |
+| [`docs/NSPB-LCM-AND-DATA-RUNBOOK.md`](docs/NSPB-LCM-AND-DATA-RUNBOOK.md) | Planning data operations |
+| [`skills/epm-assessment/SKILL.md`](skills/epm-assessment/SKILL.md) | the guided flow |
+
+---
+
+## Status and open items
+
+- `packages/recon/` holds the Talogy seed but **the NetSuite ↔ NSPB comparator is not
+  written**. Next block.
+- The micro-vertical benchmark (`ns-benchmarks.json`) covers 12 verticals unevenly:
+  `events-dmc` is developed, others have two lines.
+- Integration **concurrency limits** are not exposed in `integrationapp` — UI or SDF only.
+- First client run end to end: **PRA** (`clients/pra/`), events/DMC agency. We don't have
+  their Planning LCM, so that side is unassessed.
