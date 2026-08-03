@@ -262,6 +262,51 @@ async function phaseMetadata() {
   return schemas;
 }
 
+// ── fase 5: financieros (lo que alimenta el ABR y el mapeo a Planning) ───────
+// Antes eran seis consultas a mano. Todas agregadas server-side: ninguna baja
+// filas de detalle. `mainline='T'` en las facturas es clave — el importe del
+// comprobante vive ahí, las demás líneas vienen en cero.
+const SINCE = "TO_DATE('2021-01-01','YYYY-MM-DD')";
+const FIN_QUERIES = [
+  ["coa", `SELECT id, acctnumber, accountsearchdisplayname AS name, accttype, parent, isinactive, issummary
+           FROM account ORDER BY acctnumber`],
+  ["balances", `SELECT tal.account AS acct, TO_CHAR(t.trandate,'YYYY') AS y, ROUND(SUM(tal.amount)) AS amt, COUNT(*) AS lines
+                FROM transactionaccountingline tal JOIN transaction t ON t.id = tal.transaction
+                WHERE tal.posting = 'T' AND t.trandate >= ${SINCE}
+                GROUP BY tal.account, TO_CHAR(t.trandate,'YYYY')`],
+  ["pnl", `SELECT TO_CHAR(t.trandate,'YYYY') AS anio, a.accttype AS tipo, ROUND(SUM(tal.amount)) AS monto
+           FROM transactionaccountingline tal JOIN transaction t ON t.id = tal.transaction JOIN account a ON a.id = tal.account
+           WHERE tal.posting = 'T' AND a.accttype IN ('Income','COGS','Expense','OthIncome','OthExpense') AND t.trandate >= ${SINCE}
+           GROUP BY TO_CHAR(t.trandate,'YYYY'), a.accttype ORDER BY 1, 2`],
+  ["seasonality", `SELECT TO_CHAR(t.trandate,'YYYY-MM') AS mes, ROUND(SUM(tal.amount)*-1) AS revenue
+                   FROM transactionaccountingline tal JOIN transaction t ON t.id = tal.transaction JOIN account a ON a.id = tal.account
+                   WHERE tal.posting = 'T' AND a.accttype = 'Income' AND t.trandate >= ${SINCE}
+                   GROUP BY TO_CHAR(t.trandate,'YYYY-MM') ORDER BY 1`],
+  ["opex-detail", `SELECT a.acctnumber AS num, a.accountsearchdisplayname AS name, a.accttype AS tipo,
+                          TO_CHAR(t.trandate,'YYYY') AS y, ROUND(SUM(tal.amount)) AS amt
+                   FROM transactionaccountingline tal JOIN transaction t ON t.id = tal.transaction JOIN account a ON a.id = tal.account
+                   WHERE tal.posting = 'T' AND a.accttype IN ('Expense','COGS','FixedAsset') AND t.trandate >= ${SINCE}
+                   GROUP BY a.acctnumber, a.accountsearchdisplayname, a.accttype, TO_CHAR(t.trandate,'YYYY') ORDER BY 5 DESC`],
+  ["top-customers", `SELECT e.altname AS cliente, ROUND(SUM(tl.netamount)) AS facturado, COUNT(*) AS facturas
+                     FROM transactionline tl JOIN transaction t ON t.id = tl.transaction JOIN entity e ON e.id = t.entity
+                     WHERE t.type = 'CustInvc' AND tl.mainline = 'T' AND t.trandate >= ${SINCE}
+                     GROUP BY e.altname ORDER BY 2 DESC`],
+];
+
+async function phaseFinancials() {
+  console.log("\n[5/5] Financieros (COA, balances, P&L, estacionalidad, costos, clientes)");
+  for (const [name, sql] of FIN_QUERIES) {
+    try {
+      const rows = await suiteql(sql, 60000);
+      write(name, rows);
+      console.log(`  ✓ ${name} (${rows.length} filas)`);
+    } catch (e) {
+      console.log(`  ✗ ${name} — ${e.message.slice(0, 80)}`);
+    }
+    await sleep(250);
+  }
+}
+
 // ── fase 4: fill-rate de custom fields (el hallazgo de optimización) ─────────
 // "Tienen N custom fields; M nunca se poblaron." Se mide contra las tablas
 // SuiteQL grandes, en lotes de COUNT() por campo.
@@ -355,6 +400,7 @@ async function phaseFields(metadata) {
   if (PHASE === "all" || PHASE === "shape") await phaseShape(probe || read("probe")?.modules);
   if (PHASE === "all" || PHASE === "meta") metadata = await phaseMetadata();
   if (PHASE === "all" || PHASE === "fields") await phaseFields(metadata || read("metadata")?.schemas);
+  if (PHASE === "all" || PHASE === "financials") await phaseFinancials();
 
   console.log("\nListo.");
 })().catch(e => { console.error("\nFALLÓ:", e.message); process.exit(1); });

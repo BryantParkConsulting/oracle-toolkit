@@ -9,6 +9,10 @@ errores que ya cometimos.
 
 ---
 
+
+> Si nunca corriste esto, empezá por [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md):
+> cómo pedir el LCM, cómo se crea el token de NetSuite y qué correr en qué orden.
+
 ## El modelo mental
 
 Todo gira alrededor de **una carpeta por cliente** en `clients/<cliente>/`. Esa carpeta **es

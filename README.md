@@ -6,8 +6,13 @@ Todo lo necesario para una entrega EPM en un solo lugar: **NSPB / Oracle Plannin
 Antes vivía repartido en `oracle-epm-mcp`, `epm-planning-forge`, `engagement-report-kit`,
 `bpc-claude-plugins` y `nspb-migrate-fresh/tools`. Consolidado el 2026-07-31.
 
-> **Si venís de cero, leé [`CLAUDE.md`](CLAUDE.md) primero** — el modelo mental, las reglas
-> que no se negocian y los pendientes.
+> ## 👉 ¿Primera vez? [**docs/GETTING-STARTED.md**](docs/GETTING-STARTED.md)
+>
+> Instructivo completo de cero a entregable: **cómo pedirle el LCM al cliente**, **cómo se
+> crea el token de NetSuite paso a paso**, qué correr y en qué orden, el checklist previo a
+> entregar y qué hacer cuando algo falla. No asume contexto previo.
+>
+> Para entender el diseño y las reglas internas: [`CLAUDE.md`](CLAUDE.md).
 
 ---
 

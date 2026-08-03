@@ -13,6 +13,9 @@ lo que salió, y recién ahí pedí lo siguiente.
 
 ---
 
+> El instructivo completo para el usuario (cómo pedir el LCM, cómo crear el token) está en
+> `docs/GETTING-STARTED.md` — mandalo si te preguntan por los prerrequisitos.
+
 ## Paso 0 — ¿de qué lado estamos?
 
 Preguntá una sola cosa: **¿NSPB, NetSuite, o los dos?**
