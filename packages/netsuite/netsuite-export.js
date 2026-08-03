@@ -205,6 +205,15 @@ const BREAKDOWNS = [
   ["scripts_by_type", `SELECT scripttype, COUNT(*) AS n FROM script GROUP BY scripttype ORDER BY 2 DESC`],
   ["revenue_by_year", `SELECT TO_CHAR(trandate,'YYYY') AS anio, COUNT(*) AS n FROM revenuearrangement GROUP BY TO_CHAR(trandate,'YYYY') ORDER BY 1`],
   ["custom_record_usage", `SELECT c.name, c.scriptid, c.isinactive FROM customrecordtype c ORDER BY c.name`],
+  // Carga real del SuiteCloud Processor: un deployment en NOTSCHEDULED existe pero
+  // nunca corre. Separar lo desplegado de lo que efectivamente se ejecuta.
+  ["deployments_by_type", `SELECT s.scripttype, sd.status, COUNT(*) AS n
+                           FROM scriptdeployment sd JOIN script s ON s.id = sd.script
+                           GROUP BY s.scripttype, sd.status ORDER BY 3 DESC`],
+  ["workflows", `SELECT id, name, scriptid, isinactive FROM workflow ORDER BY name`],
+  // `integrationapp` es lo unico que lista las integraciones registradas — incluidas
+  // las que no usan TBA y por lo tanto no aparecen en oauthtoken.
+  ["integration_apps", `SELECT id, name, state, createddate FROM integrationapp ORDER BY createddate`],
   ["login_activity", `SELECT TO_CHAR(date,'YYYY-MM') AS mes, COUNT(*) AS n, COUNT(DISTINCT emailaddress) AS usuarios
                       FROM loginaudit GROUP BY TO_CHAR(date,'YYYY-MM') ORDER BY 1`],
 ];

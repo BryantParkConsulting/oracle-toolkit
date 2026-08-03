@@ -128,6 +128,53 @@ tipos de transacción, custom records propios y nombres de cuentas.
 
 ---
 
+## 4b. Carga del SuiteCloud Processor e integraciones registradas
+
+Añadido 2026-08-03, a pedido de Devon Aubert (SuiteApps, bundles, workflows, script
+deployments, SuiteCloud Processor, concurrencia, APM).
+
+### Un deployment desplegado no es un deployment que corre
+`scriptdeployment` cruzado con `script` separa lo instalado de lo que efectivamente se
+ejecuta, y la diferencia suele ser enorme. En la cuenta analizada, de 1.430 deployments:
+
+| scripttype | status | n |
+| --- | --- | ---: |
+| SCHEDULED | **NOTSCHEDULED** | 365 |
+| SCRIPTLET | RELEASED | 361 |
+| MAPREDUCE | **NOTSCHEDULED** | 286 |
+| USEREVENT | RELEASED | 189 |
+| SCHEDULED | SCHEDULED | 25 |
+| MAPREDUCE | SCHEDULED | 8 |
+
+**651 deployments existen y nunca corren.** Solo 33 scripts (25 scheduled + 8 map/reduce)
+consumen realmente el SuiteCloud Processor. Es a la vez un hallazgo de deuda de
+configuración y la respuesta a "¿cuánta cola de procesamiento usan de verdad?".
+
+### `integrationapp` — el listado de integraciones registradas
+Complementa a `oauthtoken`: lista **todas** las integraciones registradas, incluidas las que
+no usan TBA y por lo tanto no aparecen en el inventario de tokens. Columnas útiles:
+`name`, `state`, `createddate`.
+
+En la cuenta analizada dio 20 contra 14 aplicaciones vistas por tokens — la diferencia son
+integraciones con credenciales de usuario o sin token emitido (`Default Web Services
+Integrations`, `Integrator.io(User Creds)`, `High Tech Connector`).
+
+⚠ El **límite de concurrencia** por integración se ve en la UI del Integration record pero
+**no está expuesto en `integrationapp`**. Para eso hace falta la pantalla o SDF.
+
+### Workflows
+`workflow` responde: `id`, `name`, `scriptid`, `isinactive`. Alcanza para inventariar y
+detectar los inactivos; la definición de estados y acciones (`workflowstate`,
+`workflowaction`) **no** está expuesta — eso sale de SDF.
+
+### APM
+El SuiteApp de Application Performance Management deja sus datos en custom records
+`customrecord_apm_*` y `customrecord_nsapm_*` (207 objetos en la cuenta analizada). Se pueden
+consultar como cualquier custom record, pero el contenido varía según la versión del bundle:
+conviene listar primero los record types y mirar qué hay antes de asumir un esquema.
+
+---
+
 ## 5. Lo que SuiteQL no puede ver
 
 Va declarado en cada entregable, no se estima:
