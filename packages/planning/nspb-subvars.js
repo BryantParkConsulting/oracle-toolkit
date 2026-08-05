@@ -50,8 +50,14 @@ const periodNum = (v) => { const m = /^TP(\d{1,2})$/.exec(clean(v)); return m ? 
 const yearNum = (v) => { const m = /^FY(\d{2,4})$/.exec(clean(v)); return m ? Number(m[1]) : null; };
 
 function lcmSnapshot() {
-  const p = path.join(ROOT, 'clients', client, 'lcm', 'tenant-kb.json');
-  if (!fs.existsSync(p)) return null;
+  // packages/lcm/parse-lcm.js is the real parser and writes here. The stripped-down one in
+  // mcp-planning writes wherever it is told and records far less — prefer the canonical file.
+  const candidates = [
+    path.join(ROOT, 'clients', client, 'tenant-kb.json'),
+    path.join(ROOT, 'clients', client, 'lcm', 'tenant-kb.json'),
+  ];
+  const p = candidates.find((f) => fs.existsSync(f));
+  if (!p) return null;
   const kb = JSON.parse(fs.readFileSync(p, 'utf8'));
   const m = new Map();
   for (const v of kb.substitutionVariables || []) m.set(v.name, clean(v.value));
