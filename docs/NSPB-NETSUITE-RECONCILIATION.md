@@ -127,3 +127,26 @@ whole detour on PRA — see `NETSUITE-DISCOVERY-LEARNINGS.md`.
 `nspb-auth-probe.js` fires six logins back to back. On a tenant with lockout that burns the
 account. Try **one** request with the plain email first; if it fails, stop and ask for a fresh
 password rather than retrying.
+
+---
+
+## 5. Audit the substitution variables before trusting anything
+
+```bash
+node packages/planning/nspb-subvars.js <client> [--csv subvars.csv]
+```
+
+Reads them **live**, diffs against the LCM snapshot, and flags:
+
+- **Reporting POV behind the close.** `&RptYr` / `&RptMth` falling behind produces no error —
+  the form or report simply opens on an old period and the number reads as current. PRA was
+  closed at **FY26 / TP7** with every `&Rpt*` variable still on **FY24 / TP11**.
+- **Unmapped template slots** set to `"No Account"` / `"No Entity"`. PRA has 14
+  (`Inventory`, `TotalFixedAssets`, `AccDepreciation`, `TotHealth`, `TotTax`, …). Rules
+  referencing them are silent no-ops — and most are balance-sheet, so a BS build hits them
+  immediately.
+- **Drift since the LCM export**, so a stale snapshot is never mistaken for current state.
+
+Useful account shortcuts read straight off the variables: `TotalSales` → `Income`,
+`TotalCOGS` → `P_50000`, `TotalExpenses` → `Expense`, `RetainedEarnings` → `32000`.
+Those are the roll-up member names the statement tools need.

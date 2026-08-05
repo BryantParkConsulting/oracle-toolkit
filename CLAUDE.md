@@ -134,7 +134,7 @@ actually behave, it goes there — that's what stops the next person rediscoveri
 | `mcp-netsuite/` | the NetSuite MCP server — SuiteQL from Claude, read-only |
 | `forge/` | generates dimensions and forms (ESM) |
 | `engagement/` | engagement hours reporting |
-| `recon/` | NetSuite ↔ NSPB — seed only, **comparator not written** |
+| `recon/` | NetSuite ↔ NSPB reconciliation — `recon-income-statement.js`, proven at 0.00 on PRA FY26 |
 
 `apps/nspb-excel-addin/` is the shipped product: Excel add-in (Office.js) + Cloudflare
 Worker, its Firebase docs-site and the Chrome extension. Deploy:
@@ -148,6 +148,60 @@ cd apps/nspb-excel-addin/worker && npm run deploy
 
 **CJS and ESM coexist per package on purpose.** `mcp-planning` and `forge` are ESM, the rest
 is CJS. `npm run check` validates each file with the right parser — don't force them together.
+
+---
+
+## Working against a LIVE Excel the user has open
+
+Not a file hand-off. The user keeps a workbook open, we write straight into it and they watch
+it land. This is the demo, and it is also how the day-to-day work actually goes.
+
+```bash
+node packages/planning/nspb-is-to-csv.js  <client> --year FY26 --through TP7 --out is.csv
+node packages/planning/nspb-subvars.js    <client> --csv subvars.csv
+```
+```powershell
+powershell -File packages/planning/write-to-open-excel.ps1 `
+  -Csv is.csv -Workbook "pra demo" -Sheet "Income Statement" -Clear `
+  -Title "PRA Events, Inc. - Income Statement FY26"
+```
+
+`write-to-open-excel.ps1` attaches to the **running** Excel through COM, creates the tab if it
+is missing, reuses it if not, and **never saves** — the user decides. One tab lands in ~1.5s,
+almost all of which is the NSPB round trip, not Excel.
+
+**Never ask the user to export a file by hand.** If a connection fails that is our problem to
+fix, not a manual task to hand them. Reading their spreadsheet, adapting it to an NSPB import,
+and writing results back are all things we do directly.
+
+Rules that keep it fast and non-broken — every one of these cost real time to find:
+
+- Write the whole block as **ONE 2-D array assignment**. One COM call per cell is a separate
+  cross-process round trip each; a 12x9 table becomes 108 of them and visibly crawls.
+- Suspend `ScreenUpdating` and set calculation to manual for the duration of the write.
+- `$grid[$r + 1, $c]` — PowerShell binds the **comma before the `+`**, evaluating `$r + (1, $c)`.
+  It throws *"[System.Object[]] does not contain a method named op_Addition"*. Write
+  `$grid[($r + 1), $c]`.
+- Address ranges as **strings** (`"A3:I13"`). `Range($cell1, $cell2)` is ambiguous through the
+  PowerShell COM binder and throws *"Unable to cast object of type 'System.Double' to type
+  'System.String'"*.
+- `[char] + [string]` has no `op_Addition`; cast the char to `[string]` first.
+
+---
+
+## Substitution variables are an audit, not a listing
+
+`node packages/planning/nspb-subvars.js <client>` reads them live, diffs against the LCM
+snapshot, and flags three things. It is worth running on every tenant before trusting a report:
+
+1. **The reporting POV drifting behind the close.** Nothing errors when `&RptYr` / `&RptMth`
+   fall behind — the report just renders an old period and a stale number reads as current.
+   PRA was closed at **FY26/TP7** while every `&Rpt*` variable still pointed at **FY24/TP11**.
+   Two years, silent.
+2. **Unmapped template slots** (`"No Account"`, `"No Entity"`). PRA has 14. Any rule referencing
+   them is a silent no-op — and they are mostly balance-sheet and benefits, so a BS build will
+   walk straight into them.
+3. **Drift since the LCM export**, so a stale snapshot never gets trusted as current.
 
 ---
 
