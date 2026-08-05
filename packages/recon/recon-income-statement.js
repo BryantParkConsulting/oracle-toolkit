@@ -47,7 +47,32 @@ const flag = (name, dflt) => {
 const YEAR = flag('year', 'FY26');
 const THROUGH = flag('through', 'TP12');
 const SCENARIO = flag('scenario', 'Actual');
-const OUT = flag('out', path.join(ROOT, 'clients', client, `recon-income-statement-${YEAR}.csv`));
+// The statement is chosen by two things that must agree: which Planning hierarchy to walk,
+// and which NetSuite account types to pull. Mismatch them and one side silently holds accounts
+// the other never sees.
+const STATEMENT = flag('statement', 'income');
+const PRESET = {
+  income: { root: 'Net Income',
+            types: "'Income','COGS','Expense','OthIncome','OthExpense'",
+            // A P&L account's period value is that period's activity.
+            balance: false,
+            pov: ['TD', 'TC', 'TL', 'TR', 'TI'] },
+  balance: { root: 'Balance Sheet',
+             types: "'Bank','AcctRec','OthCurrAsset','FixedAsset','AcctPay','CredCard'," +
+                    "'OthCurrLiab','LongTermLiab','Equity','DeferExpense','DeferRevenue'," +
+                    "'OthAsset','UnbilledRec'",
+             // A balance-sheet account is a running balance: the period value is every posting
+             // from the beginning of time through that period, not the month's movement.
+             balance: true,
+             // NOT the TD/TC/TL tops the P&L uses. The balance sheet is written at the "No X"
+             // intersections — asking at the aggregated tops returns empty cells and no error,
+             // which reads as "Planning has no balance sheet" when it has one. Confirmed
+             // against the tenant's own "Balance Sheet Report" form POV.
+             pov: ['No Department', 'No Class', 'No Location', 'No Relationship', 'No Item'] },
+};
+const CFG = PRESET[STATEMENT] || die(`--statement must be one of: ${Object.keys(PRESET).join(', ')}`);
+const ROOT_MEMBER = flag('root', CFG.root);
+const OUT = flag('out', path.join(ROOT, 'clients', client, `recon-${STATEMENT}-${YEAR}.csv`));
 const nPeriods = Number(String(THROUGH).replace(/\D/g, '')) || 12;
 const PERIODS = Array.from({ length: nPeriods }, (_, i) => 'TP' + (i + 1));
 
@@ -139,7 +164,7 @@ async function planningSlice(accounts) {
           dimensions: ['Scenario', 'Years', 'Version', 'Currency', 'Subsidiary',
             'Department', 'Class', 'Location', 'Relationship', 'Item', 'Tracker'],
           members: [[SCENARIO], [YEAR], ['Base'], ['USD'], ['TS'],
-            ['TD'], ['TC'], ['TL'], ['TR'], ['TI'], ['Amount']],
+            ...CFG.pov.map((m) => [m]), ['Amount']],
         },
         columns: [{ dimensions: ['Period'], members: [PERIODS] }],
         rows: [{ dimensions: ['Account'], members: [batch] }],
@@ -174,9 +199,12 @@ function netsuite() {
       JOIN account a ON a.id = tal.account
      WHERE tal.posting = 'T'
        AND ap.isquarter = 'F' AND ap.isyear = 'F'
-       AND ap.startdate >= TO_DATE('${Number(YEAR.replace(/\D/g, '')) + 2000}-01-01','YYYY-MM-DD')
-       AND ap.startdate <  TO_DATE('${Number(YEAR.replace(/\D/g, '')) + 2001}-01-01','YYYY-MM-DD')
-       AND a.accttype IN ('Income','COGS','Expense','OthIncome','OthExpense')
+       ${CFG.balance
+         ? // a balance is inception-to-date, so there is no lower bound — only a ceiling
+           `AND ap.startdate < TO_DATE('${Number(YEAR.replace(/\D/g, '')) + 2001}-01-01','YYYY-MM-DD')`
+         : `AND ap.startdate >= TO_DATE('${Number(YEAR.replace(/\D/g, '')) + 2000}-01-01','YYYY-MM-DD')
+       AND ap.startdate <  TO_DATE('${Number(YEAR.replace(/\D/g, '')) + 2001}-01-01','YYYY-MM-DD')`}
+       AND a.accttype IN (${CFG.types})
      GROUP BY a.acctnumber, a.accttype, ap.periodname, ap.startdate
      ORDER BY ap.startdate, a.acctnumber`;
   const raw = execFileSync(process.execPath,
@@ -194,26 +222,48 @@ function netsuite() {
     return new Date(y, m - 1, d).getTime();
   };
   const order = [...new Set(rows.map((r) => r.SD || r.sd))].sort((a, b) => toTime(a) - toTime(b));
-  const idx = new Map(order.map((d, i) => [d, i]));      // start date -> TP index
-  const out = new Map();
+  const idx = new Map(order.map((d, i) => [d, i]));      // start date -> column index
+  const nAll = order.length;
+
+  // Bucket every posting into its own period first. For a balance sheet that is every period
+  // since inception, so the target year is the tail of the series, not the whole of it.
+  const wide = new Map();
   const types = new Map();
   for (const r of rows) {
     const acct = String(r.ACCT ?? r.acct ?? '').trim();
+    if (!acct) continue;
     types.set(acct, String(r.ATYPE ?? r.atype ?? ''));
     const i = idx.get(r.SD ?? r.sd);
-    if (!acct || i == null || i >= nPeriods) continue;
-    if (!out.has(acct)) out.set(acct, new Array(nPeriods).fill(0));
-    out.get(acct)[i] += Number(r.AMT ?? r.amt ?? 0);
+    if (i == null) continue;
+    if (!wide.has(acct)) wide.set(acct, new Array(nAll).fill(0));
+    wide.get(acct)[i] += Number(r.AMT ?? r.amt ?? 0);
   }
-  return { byAccount: out, types, periodNames: order.slice(0, nPeriods) };
+
+  // The target year's periods are the first nPeriods that fall INSIDE that calendar year.
+  // Taking the last nPeriods of the series looks right for a P&L (the query is already bounded
+  // to one year) but silently returns Jun-Dec for a balance sheet, whose query runs from
+  // inception to the year end.
+  const calYear = Number(YEAR.replace(/\D/g, '')) + 2000;
+  let first = order.findIndex((d) => new Date(toTime(d)).getFullYear() === calYear);
+  if (first < 0) first = Math.max(0, nAll - nPeriods);
+  const out = new Map();
+  for (const [acct, series] of wide) {
+    if (CFG.balance) {
+      // running total: a balance at period N is every posting up to and including N
+      let run = 0;
+      for (let i = 0; i < nAll; i++) { run += series[i]; series[i] = run; }
+    }
+    out.set(acct, series.slice(first, first + nPeriods));
+  }
+  return { byAccount: out, types, periodNames: order.slice(first, first + nPeriods) };
 }
 
 // ---------------------------------------------------------------- main
 (async () => {
   const tree = loadAccounts();
-  const accounts = leavesUnder(tree, 'Net Income');
-  if (!accounts.length) die('no numeric leaf accounts under "Net Income" in the LCM hierarchy');
-  console.log(`${accounts.length} P&L leaf accounts under Net Income`);
+  const accounts = leavesUnder(tree, ROOT_MEMBER);
+  if (!accounts.length) die(`no numeric leaf accounts under "${ROOT_MEMBER}" in the LCM hierarchy`);
+  console.log(`${accounts.length} leaf accounts under ${ROOT_MEMBER} (${STATEMENT} statement)`);
 
   const [pln, ns] = [await planningSlice(accounts), netsuite()];
 
@@ -227,7 +277,10 @@ function netsuite() {
     // a credit (negative) while Planning stores it the way the statement reads (positive).
     // So the flip applies to income accounts ONLY. Flipping everything, or flipping nothing,
     // both produce a break on every row — which is exactly how this was found.
-    const isIncome = /^(Income|OthIncome)$/i.test(ns.types.get(acct) || '');
+    // Credit-natured accounts arrive negative from the GL and positive in Planning: revenue on
+    // the P&L, liabilities and equity on the balance sheet. Debit-natured ones share the sign.
+    const t = ns.types.get(acct) || '';
+    const isIncome = /^(Income|OthIncome|AcctPay|CredCard|OthCurrLiab|LongTermLiab|Equity|DeferRevenue)$/i.test(t);
     const raw = ns.byAccount.get(acct) || new Array(nPeriods).fill(0);
     const n = isIncome ? raw.map((v) => -v) : raw;
     for (let i = 0; i < nPeriods; i++) {
