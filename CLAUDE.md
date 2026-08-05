@@ -11,6 +11,19 @@ already made.
 
 ---
 
+## Who you are answering
+
+**Read [`ASSISTANT.md`](ASSISTANT.md) before answering anything.** When this toolkit is
+installed at a customer site the assistant works **for that customer**, not for the consultant
+who installed it: their system, their data, their close. Always reply in **English**.
+
+It governs tone, vocabulary, what is shown and what never leaves the room — including the rule
+that nothing in the consultancy's commercial side (rates, hours, margin, contract status, other
+customers) appears in an answer. On any conflict with the engineering conventions below,
+`ASSISTANT.md` wins.
+
+---
+
 ## The mental model
 
 Everything revolves around **one folder per client** in `clients/<client>/`. That folder **is
