@@ -114,6 +114,83 @@ Against a live environment: *What is the FY26 budget for account 5000? · List t
 
 ---
 
+### Writing into a spreadsheet the user already has open
+
+No add-in, no export, no file hand-off: attach to the **running** Excel instance through COM,
+create or reuse a tab, and write the data in while the user watches. Windows only, and Excel
+must already be open (verified against Excel 16.0).
+
+```powershell
+# 1. pull what you want as a CSV
+node packages/planning/nspb-is-to-csv.js pra --year FY26 --through TP7 --out is.csv
+node packages/planning/nspb-subvars.js   pra --csv subvars.csv
+
+# 2. drop it into the open workbook, one tab per statement
+powershell -File packages/planning/write-to-open-excel.ps1 `
+  -Csv is.csv -Workbook "pra demo" -Sheet "Income Statement" -Clear `
+  -Title "PRA Events, Inc. - Income Statement FY26" `
+  -Subtitle "Actual - USD - consolidated (TS)"
+```
+
+| flag | meaning |
+| --- | --- |
+| `-Workbook` | substring match against the open workbooks — `"pra demo"` finds `pra demo.xlsx` |
+| `-Sheet` | tab name; created at the end of the book if it does not exist, reused if it does |
+| `-Clear` | wipe the tab before writing (omit to overlay) |
+| `-Anchor` | top-left cell, default `A1` |
+| `-Title` / `-Subtitle` | merged heading rows above the table |
+| `-BoldLines` | comma-separated row labels to emphasise; pass `""` for none |
+
+It **never saves.** The workbook is left dirty on purpose so the user decides whether to keep
+the result. A tab lands in about 1.5 seconds, nearly all of which is the source round trip
+rather than Excel.
+
+Reading goes the same way round: a client sends a workbook, we read it directly and turn it
+into an NSPB dimension import. Nothing in this flow asks the user to export anything by hand.
+
+**If you extend this script, keep these four things.** Each one was a real bug with a
+misleading error message:
+
+- Write the block as **one 2-D array assignment**. A separate COM call per cell is a
+  cross-process round trip each — a 12x9 table becomes 108 of them and visibly crawls.
+- Suspend `ScreenUpdating` and set calculation to manual for the duration of the write.
+- `$grid[$r + 1, $c]` binds the **comma before the `+`**, so PowerShell evaluates
+  `$r + (1, $c)` and throws *"[System.Object[]] does not contain a method named op_Addition"*.
+  Write `$grid[($r + 1), $c]`.
+- Address ranges as **strings** (`"A3:I13"`). `Range($cell1, $cell2)` is ambiguous through the
+  PowerShell COM binder and throws *"Unable to cast object of type 'System.Double' to type
+  'System.String'"*. Related: `[char] + [string]` has no `op_Addition` — cast to `[string]`.
+
+Full workflow, including the NetSuite reconciliation it feeds:
+[`docs/NSPB-NETSUITE-RECONCILIATION.md`](docs/NSPB-NETSUITE-RECONCILIATION.md).
+
+### Reconciling NetSuite against NSPB
+
+```bash
+node packages/recon/recon-income-statement.js pra --year FY26 --through TP7
+```
+
+Compares a Planning income statement to the NetSuite general ledger account by account and
+period by period, writes `clients/<client>/recon-income-statement-<year>.csv`, and prints the
+totals, the break count and the worst offenders. Proven at **0.00 difference** across 198 leaf
+accounts and 825 account/period combinations.
+
+Three conventions decide whether the output is real, and each produced plausible-but-wrong
+numbers first: the sign flips on **income accounts only**, SuiteQL returns period start dates
+as `M/D/YYYY` **strings** that must not be sorted as text, and `Sales Rep` / `Item SubType` are
+**attribute** dimensions that must stay out of the export POV.
+
+### Auditing substitution variables
+
+```bash
+node packages/planning/nspb-subvars.js pra
+```
+
+Reads them live, diffs against the LCM snapshot, and flags the reporting POV drifting behind
+the close, template slots left on `"No Account"`, and drift since the export. Worth running on
+any tenant before trusting a report — a stale `&RptYr` renders without error and an old number
+reads as current.
+
 ### Installing the NSPB AI Assistant in Excel
 
 Windows users can install the included Office add-in without running a local Node server:
