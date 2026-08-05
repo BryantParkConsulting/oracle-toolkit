@@ -150,3 +150,40 @@ Reads them **live**, diffs against the LCM snapshot, and flags:
 Useful account shortcuts read straight off the variables: `TotalSales` → `Income`,
 `TotalCOGS` → `P_50000`, `TotalExpenses` → `Expense`, `RetainedEarnings` → `32000`.
 Those are the roll-up member names the statement tools need.
+
+---
+
+## 6. Break a statement line down by any dimension
+
+```bash
+node packages/planning/nspb-breakdown.js <client> --by Department --account Expense \
+     --year FY26 --through TP7 --tracker Load --out opex-by-dept.csv
+```
+
+Row members default to the children of the dimension top, resolved to their aliases from the
+parsed LCM. Members with no activity are dropped and counted.
+
+**The tracker and the intersections are per-statement, not per-tenant.** On the same PRA
+application:
+
+| Statement | Tracker | Department / Class / Location |
+| --- | --- | --- |
+| Income statement | `Amount` | `TD` / `TC` / `TL` |
+| OpEx forms | `Load` | `TD` / `TC` / `TL` |
+| Balance sheet | `Amount` | `No Department` / `No Class` / `No Location` |
+
+Ask at the wrong one and Planning answers **200 with empty cells** — no error — which reads as
+"there is no data" when there is plenty. Do not guess: the tenant's own form records it, in
+`clients/<client>/tenant-kb.json` under `forms[].columnDims` / `columnMembers` / `povDims`.
+
+**A short total is a finding, not a bug.** PRA FY26 through TP7:
+
+| Cut | YTD | Against the statement |
+| --- | --- | --- |
+| Expense by Account | 46,942,628 | ties to Total Operating Expenses |
+| Expense by Department | 25,999,622 | **20,943,006 short** — 45% of spend carries no department |
+| Income by Class | 138,230,825 | ties to Revenue; only 1 of 7 classes is used |
+
+Eleven of nineteen departments and six of seven classes hold nothing at all. Any by-department
+or by-class analysis the customer opens is showing roughly half the picture, and nothing in the
+application says so.
