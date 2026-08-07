@@ -1,5 +1,6 @@
 node_modules/
 dist/
+.codex-tmp/
 .env
 .env.*
 *.env

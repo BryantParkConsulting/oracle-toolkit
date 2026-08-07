@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "description": "Toolkit BPC para entregas EPM: NSPB/Planning + NetSuite ERP — extracción, análisis, reconciliación y generación de entregables.",
+  "bin": {
+    "oracle-toolkit": "./packages/cli/oracle-toolkit.js"
+  },
   "workspaces": ["packages/*"],
   "scripts": {
-    "check": "node scripts/check-all.js"
+    "check": "node scripts/check-all.js && node packages/cli/oracle-toolkit.js --self-test",
+    "netsuite": "node packages/cli/oracle-toolkit.js netsuite"
   }
 }

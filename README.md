@@ -27,6 +27,18 @@ cd oracle-toolkit && npm install
 node scripts/check-all.js
 ```
 
+Install the unified command locally (optional, but recommended):
+
+```bash
+npm link
+oracle-toolkit
+```
+
+The command starts by showing the available workflows and asking what you want to do. On
+Windows PowerShell, use `npm.cmd link` and `oracle-toolkit.cmd` if the execution policy blocks
+the generated `.ps1` shims. Without a global link, use `npm.cmd run netsuite -- <arguments>`
+from the repository root.
+
 Requires Node 20+. PDF generation additionally needs Chrome or Edge; the NSPB route needs a
 Gemini API key.
 
@@ -54,6 +66,24 @@ To make the skill available in every project, not just this one:
 ```bash
 cp -r skills/epm-assessment ~/.claude/skills/
 ```
+
+### NetSuite CLI
+
+The CLI is a read-only front door for the existing NetSuite tools. It reads the five TBA
+values from the process environment or the repository's gitignored `.env`; it never prints them.
+
+```bash
+oracle-toolkit netsuite doctor
+oracle-toolkit netsuite connect test
+oracle-toolkit netsuite query "SELECT id, fullname FROM account" --json
+oracle-toolkit netsuite probe account,subsidiary,department
+oracle-toolkit netsuite export snapshot --client acme --phase probe
+oracle-toolkit netsuite export erp --client acme
+```
+
+`query` accepts one `SELECT` or `WITH` statement. Exports remain under `clients/<client>/`,
+which is ignored by Git because it can contain customer financial data. The legacy
+`node packages/netsuite/...` commands remain supported.
 
 ### Querying NetSuite live from Claude
 
