@@ -9,6 +9,8 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "check": "node scripts/check-all.js && node packages/cli/oracle-toolkit.js --self-test",
+    "test": "node --test packages/netsuite/test/*.test.js packages/mcp-planning/test/*.test.js",
+    "test:netsuite": "node --test packages/netsuite/test/*.test.js",
     "netsuite": "node packages/cli/oracle-toolkit.js netsuite"
   }
 }

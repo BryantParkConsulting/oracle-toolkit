@@ -48,6 +48,8 @@ Usage:
   oracle-toolkit netsuite probe account,subsidiary,department
   oracle-toolkit netsuite export snapshot --client CLIENT [--phase PHASE]
   oracle-toolkit netsuite export erp --client CLIENT
+  oracle-toolkit netsuite sync planning --client CLIENT [--scope affected|period|range|all]
+  oracle-toolkit netsuite sync status --client CLIENT [--json]
 
 Snapshot phases: all, probe, shape, meta, fields, financials
 
@@ -152,6 +154,21 @@ async function main(args = process.argv.slice(2)) {
       return run('netsuite-export.js', [`--phase=${phase}`], { CLIENT: client });
     }
     if (kind === 'erp') return run('ns-erp-extract.js', [client], { CLIENT: client });
+  }
+  if (command === 'sync') {
+    const kind = args.shift();
+    const client = option(args, '--client');
+    if (!client || !/^[a-zA-Z0-9_-]+$/.test(client)) throw new Error('Provide --client with letters, numbers, hyphens or underscores.');
+    if (kind === 'planning') {
+      const childArgs = [`--client=${client}`];
+      for (const name of ['--scope', '--period', '--from', '--to', '--lookback', '--config', '--cap', '--tolerance']) {
+        const value = option(args, name);
+        if (value !== undefined) childArgs.push(`${name}=${value}`);
+      }
+      return run('ns-planning-sync.js', childArgs, { CLIENT: client });
+    }
+    if (kind === 'status') return run('ns-planning-status.js', [`--client=${client}`, ...(args.includes('--json') ? ['--json'] : [])]);
+    throw new Error('Unknown sync command. Use `planning` or `status`.');
   }
   throw new Error('Unknown command. Use `oracle-toolkit netsuite --help`.');
 }

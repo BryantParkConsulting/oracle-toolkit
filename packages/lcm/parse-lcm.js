@@ -652,6 +652,7 @@ function parseDimensionCsv(filePath, dimName) {
   const iParent  = findCol('Parent');
   const iAlias   = findCol('Alias: Default');
   const iStorage = findCol('Data Storage', 'DataStorage');
+  const iAggregation = findCol('Aggregation (Plan)', 'Aggregation');
   const iFormula = findCol('Formula');
   const iUda     = findCol('UDA');
   const iDesc    = findCol('Description');
@@ -725,6 +726,7 @@ function parseDimensionCsv(filePath, dimName) {
     if (iUda     !== -1 && (cols[iUda]     || '').trim()) member.uda     = cols[iUda].trim();
     if (iDesc    !== -1 && (cols[iDesc]    || '').trim()) member.description = cols[iDesc].trim();
     if (iStorage !== -1 && (cols[iStorage] || '').trim()) member.storage = cols[iStorage].trim();
+    if (iAggregation !== -1 && (cols[iAggregation] || '').trim()) member.aggregation = cols[iAggregation].trim();
 
     members.push(member);
   }
@@ -1337,7 +1339,7 @@ async function main() {
   const financialReports = parseFinancialReports();
 
   // 7c. IPM / AI Insights footprint (Auto Predict batches) — pure-LCM
-  const { detectIPM } = require('./detect-ipm');
+  const { detectIPM } = require('../analysis/detect-ipm');
   const ipm = detectIPM(LCM_ROOT);
 
   // 8. Enrich forms with their owning module (from nav flows)

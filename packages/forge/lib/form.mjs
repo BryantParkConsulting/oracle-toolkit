@@ -5,7 +5,7 @@
 // aliases. Use `memberCatalog` validation to catch that class of mistake before
 // uploading a package.
 
-const xmlEscape = (value) =>
+export const xmlEscape = (value) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -46,7 +46,9 @@ function normalizeSelector(selector) {
   return selector;
 }
 
-function selectorXml(rawSelector) {
+// Also used by cell-security.mjs — Planning writes the same
+// <function>/<member> shape inside a cell-level security member selection.
+export function selectorXml(rawSelector) {
   const selector = normalizeSelector(rawSelector);
   if (!selector.member) throw new Error("each selector needs `member`");
   const memberAttrs = attributes({

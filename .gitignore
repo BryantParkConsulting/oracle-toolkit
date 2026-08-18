@@ -10,3 +10,10 @@ dist/
 # financieros de clientes reales: no van a ningún remoto, ni siquiera privado.
 clients/**
 !clients/.gitkeep
+
+# The rule above contains a slash, so git anchors it to the repo root and a nested
+# clients/ directory walks straight past it. packages/engagement/clients/convex held a
+# real engagement report - hours per renewal, invoice INV20958 and its amounts - and was
+# one `git add -A` away from a company-wide org. Rule 1 says client data never leaves
+# clients/; this is what actually enforces it at any depth.
+**/clients/**
