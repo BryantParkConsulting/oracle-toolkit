@@ -350,3 +350,107 @@ node tools/epm-run.js symetri runrule "AggAll" --yes         # recompute the Cla
 ```
 
 Expected on the pilot: `Undefined_Class` unchanged, `CLASS_6` blank, `TC` down to 97,129.20.
+
+---
+
+## 8. Building forms and rules by hand — what fails silently
+
+Found on Quik's Farm (`nspb-quikfarmltd`, ca-toronto-1) while building the DemandSync
+demand-planning track. Every one of these cost real time because none of them announce
+themselves: the import succeeds, or the error names the wrong thing.
+
+### Downloads do not land where you are standing
+
+`epmautomate downloadfile` writes into **its own** working directory —
+`C:\ProgramData\Oracle\EPM Automate` on a default Windows install — not the shell's cwd.
+It prints `downloadfile completed successfully` and you find nothing. Two snapshot pulls
+were written off as "the download is broken" before anyone looked in the spool directory.
+
+`epm-run.js download <file> [destDir]` now moves the file out of the spool for you, and
+`exportsnapshot` takes an optional destination too. Override the spool with
+`EPM_DOWNLOAD_DIR` if an install puts it elsewhere.
+
+### Never diff two data exports without checking they came from the same job
+
+An Export Data job's scope lives in its `/EDD` parameter, invisible in the output and in
+the file name. On this pod:
+
+| job | scope |
+|---|---|
+| `Export-Job1-JG` | `Forecast` + `Base` only |
+| `Export_Demand_Data` | `Forecast, Actual, Base, Working` — the full slice |
+| `ExportActuals` | `Actual` + `Base`, fixed year list |
+
+Comparing an `Export_Demand_Data` baseline against an `Export-Job1-JG` result showed
+285,615 cells dropping to 1,791 and reads exactly like a catastrophic cube wipe. Nothing
+had been lost — the second export simply never covered `Working` or `Actual`. Before
+treating any before/after diff as evidence, confirm both files name the same job and
+sanity-check the Version/Scenario members present in each.
+
+Read a job's real scope from
+`HP-NetSuite/resource/Global Artifacts/Jobs/Export Data/<name>.xml` inside a snapshot.
+
+### A form must place each of the 13 dimensions exactly once
+
+Two distinct failures, same root cause, when cloning a shipped form's XML:
+
+- **A dimension left on two axes empties the form.** Moving `Department` into the rows
+  without removing it from `<pov>` leaves it in both; the POV wins, the rows resolve to
+  `No Department` where no data lives, and every row suppresses away. The form opens
+  clean and shows nothing.
+- **A member placed under the wrong dimension fails the import with a misleading
+  message.** A rename chain using `str.replace(..., 1)` swapped `Account` and `Item`, so
+  the accounts ended up on the Item dimension. The import said
+  `The member Effective Lift Days does not exist for the specified cube or you do not
+  have access to it` — the member exists and is valid for the cube; Planning was looking
+  for it in `Item`.
+
+Assert on the generated XML before packaging: 13 dimensions, no name appearing on more
+than one axis, and the members you expect on the axis you expect. Build each axis from a
+template rather than patching a clone with ordered replaces.
+
+### LCM import is not deploy, for Calculation Manager rules
+
+A rule imported via LCM lands in Calculation Manager but is **not runnable** until someone
+deploys it in the UI. `runbusinessrule` returns
+`EPMAT-1:A job with specified name and type was not found`, which reads like a typo in the
+rule name. There is no API for the deploy step; plan for a human in the loop.
+
+### Re-uploading a snapshot zip under a name already on the pod
+
+`EPMAT-1:File already exists or upload is in progress`. There is no delete in the wrapper —
+copy the zip to a fresh file name and import that. Iterating on one artifact means a new
+name each round.
+
+### Custom Menus are the "Actions" menu
+
+The artifact type is **Custom Menus**, not "Action Menus". A form references one from
+inside `<displayOptions>`:
+
+```xml
+<contextMenu><menu>Substitution Actions</menu></contextMenu>
+```
+
+In the menu item, `ruleType` is `graphical` for a single Calculation Manager rule and
+`sequence` for a ruleset — check which one you are pointing at
+(`Cube/Plan/Calculation Manager Rules/` vs `Global Artifacts/Calculation Manager Rulesets/`)
+rather than copying whichever example is nearest. `hidePrompt=Yes` launches without asking.
+
+Attaching a heavy Groovy rule to run on save hangs the form on every keystroke-sized edit;
+the Actions menu is the right home for anything that fans out over a dimension.
+
+### Aggregation `~` means a parent shows blank, not zero
+
+`Early Demand Quantity` and `Late Demand Quantity` are `~` on purpose, so a form read at a
+parent Item or Customer shows them empty while `Baseline` and `Net Demand` (`+`) show
+totals. That is not a broken form. Reports built on `~` accounts have to be read at
+level 0 — say so in the form description, or the first person to open it files a bug.
+
+### Rows rendering "merged in pairs" is the browser, not the form
+
+Chased twice, wrongly, through `suppressMissing` on the `<rows>` tag. Planning normalises
+that attribute on import — every form in the pod carries `<rows height="22" >` regardless
+of what the imported XML said. The paired look comes from display scaling: rows are
+defined at `height="22"` px, and at 125%/150% Windows scaling or a fractional browser zoom
+the rounding alternates between 27 and 28 px so borders group in twos. Shipped forms show
+it too. `Ctrl+0` before opening a bug.

@@ -9,3 +9,6 @@ dist/
 # financieros de clientes reales: no van a ningún remoto, ni siquiera privado.
 clients/**
 !clients/.gitkeep
+
+# EPM Automate drops its per-command logs in the cwd
+*_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9]_*.log
