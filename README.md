@@ -16,7 +16,7 @@ Point it at an NSPB LCM export and it tells you how their Planning environment i
 ## Install
 
 ```bash
-git clone https://github.com/brunohernangallo/oracle-toolkit.git
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
 ```
 
 ```bash
