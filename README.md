@@ -13,6 +13,30 @@ Point it at an NSPB LCM export and it tells you how their Planning environment i
 
 ---
 
+## What it produces
+
+Four real engagements, anonymized — every figure is measured, only the names changed.
+Full PDFs and how to regenerate them: [`examples/`](examples/).
+
+| | | | |
+| :---: | :---: | :---: | :---: |
+| [<img src="examples/thumbs/acme-netsuite-abr-full.png" width="185">](examples/acme-netsuite-abr-full.pdf) | [<img src="examples/thumbs/acme-nspb-current-state.png" width="185">](examples/acme-nspb-current-state.pdf) | [<img src="examples/thumbs/acme-nspb-cube-optimization.png" width="185">](examples/acme-nspb-cube-optimization.pdf) | [<img src="examples/thumbs/acme-ipm-predictive-insights.png" width="185">](examples/acme-ipm-predictive-insights.pdf) |
+| **NetSuite ABR**<br><sub>account analysis + recommendations</sub> | **NSPB Current State**<br><sub>what is built vs actually used</sub> | **Cube Optimization**<br><sub>performance and stored blocks</sub> | **IPM**<br><sub>what is worth forecasting</sub> |
+
+## What it can answer
+
+| question | what runs |
+| --- | --- |
+| Which NetSuite modules do they actually use? | `ns-erp-assess.js` — 37 modules across 5 states, from row counts and field population |
+| What have they already bought? | `ns-connector-map.js` — bundles, integrations and script prefixes. Run it early: it stops you proposing what they own |
+| What does the business look like? | `ns-financials.js` — COA, P&L, balance sheet, seasonality, customer concentration |
+| Is the Planning cube healthy? | `cube-optimize.js` — real block counts from a level-0 export, distribution, deletion plan |
+| What is built in Planning, and used? | `parse-lcm.js` → `architecture-report.js` — forms, rules, dimensions, against the Activity Report |
+| Does Planning tie out to NetSuite? | `recon-income-statement.js` — income statement and balance sheet, account by account and period by period. On `agent/document-connection-and-install` until that branch merges |
+| Is any of it worth forecasting? | `detect-ipm.js` — which accounts carry enough history and signal |
+
+---
+
 ## Install
 
 ```bash
@@ -134,7 +158,7 @@ oracle-toolkit/
 │   ├── mcp-netsuite/   MCP server for NetSuite over SuiteQL
 │   ├── forge/          generates dimensions and forms (ESM)
 │   ├── engagement/     engagement hours reporting
-│   └── recon/          NetSuite ↔ NSPB (seed; comparator not written yet)
+│   └── recon/          NetSuite ↔ NSPB income statement and balance sheet
 ├── apps/nspb-excel-addin/   the Excel add-in + Cloudflare Worker product
 ├── skills/             the guided assessment skill
 ├── docs/               playbooks and the field-learnings log

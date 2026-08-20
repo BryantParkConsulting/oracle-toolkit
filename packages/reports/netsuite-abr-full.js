@@ -567,7 +567,7 @@ ${REC.skip.length ? `<div class="note"><b>What we are deliberately not proposing
 </ul>
 ${B?.suiteSuccessEdition ? `<p class="small"><b>Industry reference.</b> ${esc(B.suiteSuccessEdition)} Benchmark context draws on public sources (Oracle's module catalog and published SuiteSuccess material), not a proprietary base of comparable accounts — it is meant to frame the discussion rather than settle it.</p>` : ''}
 
-`, COVER.css({ NAVY, GOLD }));
+`, COVER.css({ NAVY, GOLD, marginV: '14mm', marginH: '13mm' }));
 
 const htmlFile = path.join(DIR, `${CLIENT}-netsuite-abr-full.html`);
 const pdfFile = path.join(DIR, `${CLIENT}-netsuite-abr-full.pdf`);
@@ -595,7 +595,15 @@ function wsCall(wsUrl, fn) {
       await s2('Page.enable');
       await s2('Page.navigate', { url: 'file:///' + htmlFile.replace(/\\/g, '/') });
       for (let k = 0; k < 40; k++) { await new Promise(r => setTimeout(r, 200)); if (evs.some(e => e.method === 'Page.loadEventFired')) break; }
-      await new Promise(r => setTimeout(r, 500));
+      // load fires before a large embedded PNG has finished decoding — printing then
+      // bakes a half-decoded cover photo into the PDF. Wait for decode to actually settle.
+      await s2('Runtime.enable');
+      await s2('Runtime.evaluate', {
+        awaitPromise: true,
+        expression: `Promise.all(Array.from(document.images).map(i =>
+          i.complete ? i.decode().catch(() => {}) : new Promise(r => { i.onload = i.onerror = r; })
+        )).then(() => new Promise(r => requestAnimationFrame(() => setTimeout(r, 400))))`,
+      });
       const { data } = await s2('Page.printToPDF', { printBackground: true, preferCSSPageSize: true });
       fs.writeFileSync(pdfFile, Buffer.from(data, 'base64'));
     });
