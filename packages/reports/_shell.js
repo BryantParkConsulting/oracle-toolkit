@@ -119,8 +119,10 @@ function cover({ name, sub, meta, footer }) {
 </div>`;
 }
 
-const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>${esc(title)}</title><style>${CSS}</style></head><body>${body}</body></html>`;
+// `extraCss` lets a generator append rules the shell does not carry — the photographic
+// cover, for one — without either copying the whole stylesheet or growing this one.
+const page = (title, body, extraCss = '') => `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>${esc(title)}</title><style>${CSS}${extraCss}</style></head><body>${body}</body></html>`;
 
 // ── render por CDP ───────────────────────────────────────────────────────────
 const httpJson = async p => (await fetch(`http://127.0.0.1:${PORT}${p}`)).json();
