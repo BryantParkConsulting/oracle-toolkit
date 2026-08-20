@@ -110,3 +110,91 @@ without asking.
 
 Prefer the Actions menu over run-on-save for anything that fans out over a dimension: a heavy
 rule attached to save makes the form unusable.
+
+## Hierarchy selections use `<function>`, not a function name
+
+A row of `CBL_Expense` shows that one member and nothing else — the total, with no way to
+see what is in it. To show the tree, wrap the base member in a `<function>` element:
+
+```xml
+<dimension name="Account" displayAlias="true" expand="true" >
+  <function include="true" name="Children" offset="0" >
+    <member name="CBL_Expense" selectionType="Auto" />
+  </function>
+</dimension>
+```
+
+`include="true"` is the `I-` variant (keeps the base member itself); `name` is `Children`
+or `Descendants`. Writing `<member name="IChildren(CBL_Expense)" .../>` instead looks
+plausible and fails the **entire snapshot import**:
+
+```
+The member IChildren(CBL_Income) does not exist for the specified cube
+```
+
+One bad form takes the whole snapshot with it, so validate before uploading.
+
+## A new form needs an entry in `info/listing.xml`
+
+Same trap as jobs. The form XML alone is silently ignored: the snapshot imports clean, the
+navigation flow activates, the card appears — and the tab behind it points at a form that
+was never created. Nothing errors anywhere.
+
+Symptom: a card exists in the flow but its form does not open. Cross-check the two before
+publishing:
+
+```
+ls "…/Data Forms/<dir>/"                                  # on disk
+grep -o 'name="[^"]*"[^>]*type="Data Form"' listing.xml    # declared
+```
+
+Generate the entries by walking the forms directory rather than adding them by hand.
+
+## What each form is *for* decides its POV
+
+Worth settling before designing the grid, because it fixes the POV:
+
+- **Top-down entry** — the planner types a total and a rule spreads it. Department is
+  pinned to the top member; the split is the allocation's job, not the planner's.
+- **Detail entry** — same scope, opened to the account level.
+- **Review** — read-only, and this is where a per-department breakdown belongs. Put it on
+  the allocation card, next to the rule that produced the split.
+
+Giving an entry form a department breakdown invites the planner to type where the rule is
+about to overwrite them.
+
+Layout that reads well for all three: prior-year Actual and current-year Budget as
+read-only reference columns on the left, the editable months in the middle, the year total
+on the right.
+
+## Anything the planner picks should be a user variable, not a POV member
+
+A dimension sitting visible in the POV with a fixed member *looks* selectable and is the
+wrong thing. The pattern the pod itself uses:
+
+1. Define the user variable once (`Configuration/User Variables.xml`) with the member range
+   it may take — a NetSuite pod ships `Department` = `IDescendants(TD)`, plus `Class`,
+   `Currency`, `Subsidiary`, `Customer Category`, `Variance Scenario`.
+2. In the form, put the dimension in the POV **hidden**, with the variable as its member:
+
+```xml
+<dimension name="Department" displayAlias="false" hide="true" displayName="true" >
+  <member name="&amp;Department" selectionType="Auto" />
+</dimension>
+```
+
+3. Declare it on the `<pov>` element:
+
+```xml
+<pov enableDynamicUVs="true" dynamicUVs="Department" >
+```
+
+`dynamicUVs` takes a comma-separated list (`"Customer Category,Class"`). In the UI this is
+*Other Options → Dynamic User Variables*.
+
+The selector then sits above the grid and, unlike a POV member, **persists per user** across
+forms and sessions — the planner picks their department once.
+
+Keep a dimension in **rows** instead when it is the axis the form is *about*: an allocation
+review compares cost centres side by side, so Department belongs in rows there, not behind
+a selector.

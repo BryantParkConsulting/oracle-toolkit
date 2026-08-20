@@ -81,3 +81,21 @@ for f in ("Import.xml", os.path.join("info", "sourceInfo.xml")):
 
 Then write the outer `Import.xml` with a `parentPath` that agrees with where the artifact
 actually is, and zip the whole tree.
+
+## An export can come back short, and still say it succeeded
+
+`exportsnapshot` on the same snapshot name, twice in a row, minutes apart, returned 1,306 and
+then 1,967 entries out of the same unchanged application. The short one was missing an entire
+application folder — every form, rule and ruleset under it — with no error anywhere.
+
+It also comes back **stale**: an export taken immediately after an import can return the
+pre-import state at full entry count, so the artifact is present but still carries its old
+content. Both failure modes look exactly like "my import silently did nothing", which is a real
+and common LCM failure — so you will go debug the wrong thing.
+
+Before acting on either, export a second time. A missing artifact is not evidence it was deleted,
+and unchanged content is not evidence the import no-opped, until a fresh export agrees. Treat a
+drop in total entries as a failed export rather than as a finding.
+
+This is the same discipline as never diffing two data exports from different jobs: establish that
+the two sides are comparable before you read anything into the difference.

@@ -1,6 +1,6 @@
 ---
 name: oracle-epm-planning
-description: Hard-won mechanics for Oracle EPM Cloud / NetSuite Planning & Budgeting (NSPB, EPBCS, PBCS) implementation work — loading data and metadata without destroying members, building Export Data and Import Metadata jobs, hand-building LCM snapshots that import only what changed, authoring Groovy and calc-script business rules, and building data forms. Use this whenever the work touches an EPM Planning pod: epmautomate, Calculation Manager, business rules, LCM migration snapshots, OutlineLoad, dimension or member maintenance, data forms, POV or intersection problems, substitution and user variables, or a form/rule that "runs successfully" but produces nothing. Also use it when diagnosing why a Planning import reported success but changed nothing, why a form is empty, or why a rule that validates returns no data — these failures are silent by default and this skill exists because of them.
+description: Hard-won mechanics for Oracle EPM Cloud / NetSuite Planning & Budgeting (NSPB, EPBCS, PBCS) implementation work — loading data and metadata without destroying members, building Export Data and Import Metadata jobs, hand-building LCM snapshots that import only what changed, authoring Groovy and calc-script business rules, building data forms, and building navigation flows. Use this whenever the work touches an EPM Planning pod: epmautomate, Calculation Manager, business rules, LCM migration snapshots, OutlineLoad, dimension or member maintenance, data forms, navigation flows, POV or intersection problems, substitution and user variables, or a form/rule that "runs successfully" but produces nothing. Also use it when diagnosing why a Planning import reported success but changed nothing, why a form is empty, or why a rule that validates returns no data — these failures are silent by default and this skill exists because of them.
 ---
 
 # Oracle EPM Planning — field mechanics
@@ -61,6 +61,7 @@ Read the file that matches what you are doing. Each is short and self-contained.
 | Hand-building an LCM snapshot to import one artifact | `references/lcm-snapshots.md` |
 | Writing or patching a business rule, Groovy or calc script | `references/rules.md` |
 | Building or fixing a data form | `references/forms.md` |
+| Building or importing a navigation flow | `references/navigation-flows.md` |
 
 ## epmautomate, in practice
 
@@ -70,14 +71,21 @@ Read the file that matches what you are doing. Each is short and self-contained.
 - **Re-uploading a file whose name is already on the pod fails** with
   `EPMAT-1:File already exists or upload is in progress`. There is no delete in most wrappers;
   copy the zip to a fresh name. When iterating on one artifact, that means a new name each round.
-- **LCM import is not deploy.** A business rule imported via LCM lands in Calculation Manager
-  but is not runnable until a person deploys it in the UI. `runbusinessrule` returns
-  `A job with specified name and type was not found`, which reads like a typo in the rule name.
-  There is no API for the deploy step — plan for a human in the loop, and batch rule changes so
-  they only have to do it once.
+- **LCM import *is* deploy — if you ship the Planning-side artifact.** A rule lives as two
+  artifacts, and `HP-<App>/resource/Cube/<Cube>/Calculation Manager Rules/<Rule>.xml` is the one
+  Planning executes; import it and the rule is callable straight away, with nobody in Calculation
+  Manager. Ship only the `CALC-Calculation Manager/...` copy and the rule imports undeployed, and
+  `runbusinessrule` returns `A job with specified name and type was not found`, which reads like a
+  typo in the rule name. The `<deployobjects>` block is *not* what deploys — see
+  `references/rules.md` for the two-probe test that settles it.
 - **Refresh:** `refreshcube` standalone often succeeds where the refresh embedded in an import
   job fails. If a job reports `One or more child jobs have failed` but the metadata looks
   applied, run a standalone refresh and re-verify before assuming damage.
+- **The access log tells you what any UI action really calls.** `downloadfile
+  "apr/<date>/access_log.zip"` gives a CSV with Date, Time, URI, Status, User and — the useful
+  part — **Screen / Action / Object** columns. It is the fastest way to find the endpoint behind
+  a button, and it doubles as a timeline for reconstructing what a previous session did to the
+  pod. `listfiles` shows which activity reports exist.
 
 ## When you are asked to change a shipped/starter application
 

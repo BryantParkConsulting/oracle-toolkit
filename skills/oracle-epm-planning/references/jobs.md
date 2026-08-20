@@ -88,3 +88,101 @@ Global Artifacts/Jobs/Import Data/<name>.xml     → importFileName
 ```
 
 A job called something reassuring can still be scoped to a slice, or to every dimension at once.
+
+## Import Data jobs — the working recipe
+
+This one cost the better part of a day. Copy the job definition and the file layout
+below and it loads first try.
+
+### The job
+
+```json
+{"importFileName":"test.csv","location":3,
+ "logFileName":"<user>_OLULog.txt","exceptionFileName":"<user>_OLUException.txt",
+ "locationDetails":"","errorFile":"Loading_Test_Data_err.zip","customMissingValue":"",
+ "jobPropMap":{
+   "/A":"NetSuite", "/I":"test.csv", "/DL":"comma", "/DF":"MM-DD-YYYY", "/LR":"true",
+   "/-IMD":"",                          <- APAGA Include Metadata
+   "/SDM":"<autodetect>",               <- deduce la dimension de carga del header
+   "/C2A":"(<ignoreUndefined>,@Plan*)",
+   "/-UCH":""}}
+```
+
+**`/-IMD` is the switch you are looking for.** A leading `-` on an OLU switch *disables*
+that feature, so `/-IMD` = "no Include MetaData". Without it the job's Include Metadata
+box comes up ticked and the file is read as a metadata load. Do **not** reach for `/D`
+or `/TR` to fix that — both tick the box themselves:
+
+- `/D` names a load dimension → metadata mode. Symptom:
+  `Unrecognized column header value(s) were specified for the "Account" dimension: "TP1", …`
+- `/TR` → ticks the box for any value, `"true"` and `""` alike.
+- Neither, and without `/-IMD`/`/SDM` →
+  `A load dimension name (/D option) must be specified if an input file (/I option) is specified.`
+  That message reads like a demand for `/D`. It is not. Add `/SDM":"<autodetect>"`.
+
+`/CU` is **not a valid switch** — `Invalid switch / Unrecognized switch: /CU:Plan`. The cube
+is named by a column in the file, never by the job.
+
+### `location: 3` is the repository ROOT, not `inbox/`
+
+`epmautomate uploadFile <file>` with no second argument puts the file where the job looks.
+Upload it to `inbox` and the job answers `File test.csv does not exist.`
+
+The other values are all dead ends: `4` means a browser-side local upload, so the file
+never exists server-side (`x.csv (No such file or directory)`) no matter where you put it;
+`2` and `5` are rejected with `The parameter locationDetails is invalid`.
+
+### The file layout
+
+```
+Account,BegBalance,TP1,…,TP12,AdjPct,AdjUnit,Point-of-View,Data Load Cube Name
+DRV_OpexGrowth,0.04,#missing,…,#missing,#missing,#missing,"FY26,Forecast,TopLevelDrivers,BSD,TS,TD,No Class,No Location,No Relationship,No Item,Load",Plan
+```
+
+- Column 1 is the **load dimension** (Account), one member per row.
+- Then **every driver member of Period**, including `AdjPct` and `AdjUnit`. Dropping the two
+  Adj columns because they look like export-only noise breaks the header before the cube is
+  resolved, and you get the badly-worded
+  `Unable to set temporary driver members, cannot find cube with name ""`.
+- Cells with no value are **`#missing`**, never blank.
+- `Point-of-View` holds every remaining dimension as one quoted, comma-separated list.
+- `Data Load Cube Name` is the last column, and it is the only place the cube is named.
+
+To get this header for an app you do not know, run an **Export Data** job over the target
+intersection and read the header row it emits — it is exactly the import header, and it
+works even when the slice is empty.
+
+### The diagnostic trap that hides all of the above
+
+The job reads a fixed filename from the repository root. A stale file of that name sits
+there from an earlier attempt, so **the error stays identical no matter how you fix the
+CSV** — you end up "fixing" a file the job never reads. Delete both copies before every
+attempt:
+
+```
+epmautomate deleteFile test.csv
+epmautomate deleteFile inbox/test.csv
+epmautomate uploadFile <local>	est.csv     # no destination = root
+epmautomate importData Loading_Test_Data
+```
+
+Success looks like `importData completed successfully` / `Outline load finished successfully.`
+Anything else: set `errorFile` in the job, `downloadFile` it, and read the CSV inside — the
+console `EPMAT-1:` line is far vaguer than the real message.
+
+### Verify by reading back, not by trusting the log
+
+Point an Export Data job at the same intersection the form uses and confirm the values are
+there. That closes the loop; a clean import log alone does not prove the data landed where
+the form reads.
+
+### Keep the artifact path and the listing entry in sync
+
+Typed subfolders (`Jobs/Import Data/`, `Jobs/Export Data/`, …) work, but `info/listing.xml`
+must give the job's real folder in `path`/`pathAlias`. A mismatch — or an entry left behind
+after you delete a job XML — fails the whole snapshot import with
+`The import file (…/X.xml) was not found for artifact`. Regenerate job entries by walking
+the `Jobs/` tree rather than hand-editing.
+
+**LCM never deletes.** Dropping a job from the snapshot leaves it live in the pod with its
+old parameters. Removing it is a UI action.

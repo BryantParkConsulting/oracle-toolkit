@@ -75,3 +75,70 @@ leaf members as **shared** rows under the new groups:
 
 A sanity check worth running: the alternate top's total should equal the primary parent's total,
 and the grand total above them both should be unchanged.
+
+## Never ship an `Operation` column you did not intend
+
+A dimension CSV exported from a pod ends with an `Operation` column. Values there are
+executed on import — `delete` removes the member, and with it every child and all its data.
+An additive load simply omits the column (or leaves every cell blank), which is a merge.
+
+So when you build a load file by editing an export, check that column before you upload:
+
+```
+head -1 dim.csv | grep -i operation      # is it even there?
+grep -ci delete dim.csv                  # must be 0
+```
+
+The risk is highest exactly when you are being careful — round-tripping a real export to
+change one property is what puts a live `Operation` column in your file.
+
+## `Data Type` controls how the number reads on the form
+
+A rate loaded as `0.05` shows as `0.05` unless the member says otherwise. Set
+`Data Type = percentage` on the account and the same stored value renders as a percentage.
+Do not "fix" it by loading `5` instead — every formula referencing the member would then be
+off by 100×.
+
+Apply it per member, not per branch: in a drivers hierarchy the growth rates are
+percentages while a ratio like profit-per-employee-dollar is not.
+
+## `Account Type` and `Time Balance` decide whether the totals are right
+
+Members created without these two land on the default `revenue` / `flow`, and nothing
+complains — the numbers are simply wrong in a way that only shows up on a report:
+
+- `flow` on a balance-sheet account makes YearTotal the **sum of twelve months** instead of
+  the closing balance, so assets come out roughly 12× too big.
+- `revenue` on an expense inverts variance analysis.
+
+Set them per family: expense → `expense`/`flow`/`expense`; revenue → `revenue`/`flow`/
+`non-expense`; asset → `asset`/`balance`; liability → `liability`/`balance`; equity →
+`equity`/`balance`.
+
+Check the whole subtree, not the members you just added — GL accounts arriving from an ERP
+mapping are exactly where the default hides.
+
+## Contra-accounts need `Aggregation = -`
+
+A provisions rubro sitting under assets with the default `+` **adds** the provision to the
+asset it is meant to reduce. Gross loans 41.5M plus a 7.0M provision reads as 48.5M when
+net loans are 34.5M. Give the contra rubro `-` and keep the lines inside it summing
+normally — it is the rubro as a whole that subtracts.
+
+Netting the provision into the gross line instead would hide the split the credit committee
+needs to see, so keep both and let the aggregation operator do the work.
+
+## Where the input goes decides the storage
+
+`dynamic calc` parents roll up on retrieve and cannot be written to; `store` parents can be
+written to (under a `target` version) but do not roll up. So the storage follows the flow:
+
+```
+GL account   store          <- the ERP loads here
+line item    dynamic calc   <- aggregates its GLs by itself
+rubro        store          <- the planner's top-down input lands here
+CBL_ total   dynamic calc   <- read-only total
+```
+
+Making everything `store` — the easy default — means nothing aggregates and every rollup
+has to be loaded by hand or rebuilt by an AGG. That is a scaffold, not a design.

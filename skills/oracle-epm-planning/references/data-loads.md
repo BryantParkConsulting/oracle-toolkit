@@ -64,3 +64,98 @@ a supply line twenty times the demand it serves is noticed immediately.
 Use a fixed random seed so the data is reproducible across rebuilds, and be careful that the
 figure you calibrate against is the same one the form will display: summing an export without
 filtering can double-count across revisions or customers and inflate everything.
+
+## `downloadFile` writes to `C:\ProgramData\Oracle\EPM Automate\`
+
+Not the current directory, and not anywhere `cd` can influence — the command reports
+`downloadFile completed successfully` and the file is simply somewhere else. Every
+downloaded artifact and every per-command `.log` lands in that one directory.
+
+This matters because the real error detail for a failed job lives in the job's
+`errorFile`, and the loop is: set `errorFile` in the job definition → run the job →
+`downloadFile <errorFile>` → unzip from `C:\ProgramData\Oracle\EPM Automate\`. The CSV
+inside carries the actual message, which is usually far more specific than the
+`EPMAT-1:` line printed on the console.
+
+## Parent members cannot receive data
+
+Obvious for sparse dimensions, easy to forget for the dense ones. `YearTotal` is a
+**dynamic** parent of `Period` — a load targeting it fails regardless of density or
+version type. Target level-0 periods (`TP1`…`TP12`).
+
+The related trap is on the write side: writing to a parent needs a version whose
+**Version Type is `target`**, and the member must not be dynamic. In a SuiteSuccess
+app `TopLevelDrivers` is the existing target version; `Base` is `bottom up` and will
+refuse the write with no useful message.
+
+## Load level 0, and know whether the parents will show anything
+
+Check `Data Storage (Plan)` on the parents before deciding where to load:
+
+- **dynamic calc** parents roll up on retrieve. Load level 0 and the totals appear.
+- **store** parents do not. Level-0 data alone leaves every rollup — and therefore every
+  summary form — blank until an aggregation rule runs for that POV.
+
+In a SuiteSuccess NetSuite app the financial hierarchy is `store` all the way down
+(`CBL_Expense` → 66 `FLI_` line items → 221 `GL_` accounts), so a level-0 load shows
+nothing on a P&L form until an AGG runs.
+
+Two consequences worth planning around:
+
+- `ILvl0Descendants(<parent>)` in an export returns the **GL** accounts, not the line items.
+  Exporting that to check a load you made against the `FLI_` level comes back looking empty
+  and sends you hunting for a problem that is not there. Use `IDescendants(...)` to see the
+  parents too.
+- Writing directly to a parent is possible — but only under a version whose **Version Type
+  is `target`**. Under a `bottom up` version the cell simply refuses input, with no useful
+  message.
+
+For a demo that has to look right before the aggregation rules are deployed, load level 0
+*and* the computed rollups in the same file, and reconcile them in the generator so the
+numbers tie. Say so in the file's header comment: it is scaffolding, and the AGG replaces it.
+
+## `#missing` does not clear a smart-list cell
+
+Writing `#missing` into an enumeration (smart list) account through an Import Data job is
+accepted — `importdata completed successfully`, no exception file — and **the old value stays**.
+The next rule that reads the account still sees the value you thought you erased.
+
+The symptom is confusing because it looks like the *rule* is wrong: you clear a flag, re-run the
+calc, and the flag's effect is still there.
+
+To clear one, load the entry that means "nothing", by **id or label**:
+
+```
+Forecast Line Status,...,1,...,"<pov>",Plan     # 1 = the neutral entry
+```
+
+Design the list so a neutral entry exists. Giving the smart list a **Missing Label** makes empty
+cells render as that word, so a stored neutral entry and a truly empty cell look identical on the
+form — which is what you want, since only one of them is reachable by a data load.
+
+Corollary when reading back: an export shows the *label*, not the id, so the check is
+`== "Removed"`, not `== 4`.
+
+## Export Data returns the stored ancestor for a dynamic-calc POV member
+
+Putting a `dynamic calc` member in the `/EDD` POV does not give you its calculated rollup —
+it comes back with the value of its nearest stored ancestor. Both `Total Cost Center` and
+`CBL_Branches` returned exactly the `TD` figure, before and after a change to a leaf below
+them, which reads as "the rollup is broken" when the cube is fine.
+
+So do not verify an aggregation this way. Read the level-0 members (one POV member per
+export) and sum them yourself, or check the rollup in a form. The `/EDD` POV takes exactly
+one member per dimension and rejects functions there — `ILvl0Descendants(...)` in the POV
+is an error, not a fan-out.
+
+Account behaves differently and does aggregate in the export: `CBL_Expense` came back as the
+correct sum of its rubros. The limitation shows up on the sparse dimension in the POV.
+
+## Load into the version the form actually reads
+
+An easy hour to lose: loading a top-down total into `Base` while every form points at the
+`target` version. The load succeeds, the export confirms the number is in the cube, and the
+form still shows blank cells — because it is reading a different version.
+
+Check the form's POV first, then load there. In a top-down flow the whole chain — planner
+input, the allocation's output, and the override — belongs in the same target version.

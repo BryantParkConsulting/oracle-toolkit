@@ -12,3 +12,6 @@ clients/**
 
 # EPM Automate drops its per-command logs in the cwd
 *_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9]_*.log
+
+# Snapshots the rule deployer builds — they carry client rule scripts
+DEPLOY_[0-9]*.zip
