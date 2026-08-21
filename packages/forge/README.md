@@ -19,7 +19,7 @@ explicit operations.
 > `C:\Program Files\Oracle\EPM Automate`; override with `EPM_AUTOMATE`).
 
 This is the **builder** counterpart to
-[`epm-planning-mcp`](https://github.com/BryantParkConsulting/oracle-toolkit):
+[`packages/mcp-planning`](../mcp-planning):
 
 | | epm-planning-mcp | **epm-planning-forge** |
 | --- | --- | --- |
@@ -42,7 +42,7 @@ Then, one time:
 1. **Install EPM Automate** from your pod's Downloads page if you want automated
    metadata upload/import.
 2. **Reuse your pod profile.** If you already set up
-   [`epm-planning-mcp`](https://github.com/BryantParkConsulting/oracle-toolkit), the forge
+   [`packages/mcp-planning`](../mcp-planning), the forge
    reads the same `~/.epm/clients.json` + `.epw` — nothing else to do. If not, run that
    project's `npm run setup` once to create it.
 3. **Create an Import Metadata job** in the pod (Application → Overview → Jobs), mapped to
