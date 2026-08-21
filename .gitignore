@@ -17,3 +17,9 @@ clients/**
 # one `git add -A` away from a company-wide org. Rule 1 says client data never leaves
 # clients/; this is what actually enforces it at any depth.
 **/clients/**
+
+# Generated deliverables. Everything the toolkit produces lands here: demo runs,
+# decks, extracted dimensions. output/presentations/ already held a PPTX named for a
+# real client, untracked and unignored - the same hole the rule above closes, reached
+# by a different path. Nothing in output/ is source, so none of it is tracked.
+output/
