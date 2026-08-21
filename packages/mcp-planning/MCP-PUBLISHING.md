@@ -10,8 +10,8 @@ conversation.
 
 ### Repository state
 
-- Repository: <https://github.com/brunohernangallo/epm-planning-mcp>
-- Local checkout: `C:\apps\oracle-epm-mcp`
+- Repository: <https://github.com/BryantParkConsulting/oracle-toolkit>
+- Local checkout: `C:\apps\oracle-toolkit`
 - Default branch: `main`
 - Documentation baseline before this handoff:
   `c59ccaa Translate Claude and ChatGPT guides to English (#2)`
@@ -83,7 +83,7 @@ and publish the completed change through a pull request.
 
 ### GitHub
 
-- Public repository: <https://github.com/brunohernangallo/epm-planning-mcp>
+- Public repository: <https://github.com/BryantParkConsulting/oracle-toolkit>
 - Default branch: `main`
 - Current version: `0.1.0`
 - License: MIT
@@ -118,8 +118,8 @@ A technical user can clone the repository, install its dependencies, and point
 Codex, Claude Code, or another local MCP client to `src/index.js`:
 
 ```powershell
-git clone https://github.com/brunohernangallo/epm-planning-mcp.git
-cd oracle-epm-mcp
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
+cd oracle-toolkit
 npm.cmd install
 npm.cmd run check
 npm.cmd test
@@ -128,7 +128,7 @@ npm.cmd test
 The MCP client must run:
 
 ```text
-node C:/apps/oracle-epm-mcp/src/index.js
+node C:/apps/oracle-toolkit/packages/mcp-planning/src/index.js
 ```
 
 A GitHub URL alone is not enough. The user must clone and install the project,

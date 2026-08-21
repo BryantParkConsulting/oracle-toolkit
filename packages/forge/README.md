@@ -19,7 +19,7 @@ explicit operations.
 > `C:\Program Files\Oracle\EPM Automate`; override with `EPM_AUTOMATE`).
 
 This is the **builder** counterpart to
-[`epm-planning-mcp`](https://github.com/brunohernangallo/epm-planning-mcp):
+[`packages/mcp-planning`](../mcp-planning):
 
 | | epm-planning-mcp | **epm-planning-forge** |
 | --- | --- | --- |
@@ -32,8 +32,8 @@ This is the **builder** counterpart to
 ## Install
 
 ```bash
-git clone https://github.com/brunohernangallo/epm-planning-forge.git
-cd epm-planning-forge
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
+cd oracle-toolkit/packages/forge
 npm install
 ```
 
@@ -42,7 +42,7 @@ Then, one time:
 1. **Install EPM Automate** from your pod's Downloads page if you want automated
    metadata upload/import.
 2. **Reuse your pod profile.** If you already set up
-   [`epm-planning-mcp`](https://github.com/brunohernangallo/epm-planning-mcp), the forge
+   [`packages/mcp-planning`](../mcp-planning), the forge
    reads the same `~/.epm/clients.json` + `.epw` — nothing else to do. If not, run that
    project's `npm run setup` once to create it.
 3. **Create an Import Metadata job** in the pod (Application → Overview → Jobs), mapped to
@@ -113,6 +113,36 @@ is `No Department`.
 The package shape has been verified with a successful Planning Migration import.
 Always use the `ExportedVersion` from a recent snapshot of the target pod to avoid a
 version-compatibility warning.
+
+### Cell-level security — LCM generator
+
+Restrict one cube to the people who own it, without touching the rest of the
+application:
+
+```bash
+node bin/make-security.mjs examples/cell-security.example.json \
+  --out security-lcm.zip \
+  --carry-over "<snapshot>/HP-<App>/resource/Security/Cell-Level Security Definitions"
+```
+
+`--carry-over` ships the rules already live in the target app, verbatim, next to the
+new ones — Oracle does not document whether this import merges or replaces, and
+carrying them makes the question moot. The manifests name only
+`/Security/Cell-Level Security Definitions`, so an import can never disturb
+`/Security/Access Permissions`.
+
+Three things about Planning security worth knowing before generating anything:
+
+- **Cell-level security only denies.** There is no "grant to X" — you deny a group
+  that X is not in. Deny always wins, so never assign a rule to the role groups
+  (`Power User`, `User`, `Viewer`): the person you meant to protect holds one too.
+- **Member ("account") permissions are not cube-aware**, and do nothing until
+  *Apply Security* is enabled for the dimension — which puts every member of that
+  dimension under permissions that usually do not exist yet. To restrict a single
+  cube, this is the tool.
+- **A Service Administrator is exempt** from both. Restricting an administrator
+  means moving them off that role in Access Control. Group membership lives there
+  too and never travels in the package.
 
 ### Calc rules — templated, generator planned
 
