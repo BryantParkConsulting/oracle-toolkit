@@ -84,6 +84,31 @@ function loadClient(name) {
 // (CVE-2024-27980), so it goes through cmd.exe with everything quoted.
 const q = a => (/[\s&|<>^"]/.test(String(a)) ? `"${String(a).replace(/"/g, '""')}"` : String(a));
 
+// epmautomate writes downloads into ITS OWN working directory, not the shell's, so
+// "downloadfile completed successfully" leaves nothing where you are standing. On a
+// default Windows install that is C:\ProgramData\Oracle\EPM Automate. This pulls the
+// file out of there and puts it where the caller asked, which is what everyone expects
+// downloadfile to have done in the first place.
+const SPOOL = process.env.EPM_DOWNLOAD_DIR || 'C:\\ProgramData\\Oracle\\EPM Automate';
+
+function fetchFile(remoteName, destDir) {
+  console.log(epm(['downloadfile', remoteName]));
+  const base = path.basename(remoteName);
+  const landed = path.join(SPOOL, base);
+  if (!fs.existsSync(landed)) {
+    die(`epmautomate reported success but ${landed} is not there.\n` +
+        `If this install spools somewhere else, set EPM_DOWNLOAD_DIR.`);
+  }
+  const dest = path.resolve(destDir || process.cwd(), base);
+  if (path.resolve(landed) !== dest) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(landed, dest);
+    fs.unlinkSync(landed);
+  }
+  console.log(`  -> ${dest}`);
+  return dest;
+}
+
 function epm(args, { quiet = false } = {}) {
   if (!quiet) console.log('  > epmautomate ' + args.map(q).join(' '));
   // cmd /c strips the outer quotes when the line starts with one, so the whole
@@ -166,7 +191,12 @@ changes the client's environment (needs --yes)
       }
       case 'exportdata':   console.log(epm(['exportdata', ...args])); break;
       case 'listfiles':    console.log(epm(['listfiles'])); break;
-      case 'download':     console.log(epm(['downloadfile', ...args])); break;
+      case 'download': {
+        const [file, destDir] = args;
+        if (!file) die('download <fileOnPod> [destDir]');
+        fetchFile(file, destDir);
+        break;
+      }
       case 'listsnapshots':
         // Snapshot definitions live in the pod and come out in the file listing.
         // NOTE: Oracle's nightly "Artifact Snapshot" DOES include Essbase data.
@@ -180,12 +210,11 @@ changes the client's environment (needs --yes)
         );
         break;
       case 'exportsnapshot': {
-        const [snapshot] = args;
-        if (!snapshot) die('exportsnapshot "<snapshot name>"   (list them with: listsnapshots)');
+        const [snapshot, destDir] = args;
+        if (!snapshot) die('exportsnapshot "<snapshot name>" [destDir]   (list them with: listsnapshots)');
         console.log(epm(['exportsnapshot', snapshot]));
-        console.log(epm(['downloadfile', `${snapshot}.zip`]));
+        fetchFile(`${snapshot}.zip`, destDir);
         console.log(
-          `  downloaded ${snapshot}.zip\n` +
           `  now: unzip it, then  LCM_ROOT=<dir> CLIENT=${client} node tools/parse-lcm.js`
         );
         break;
