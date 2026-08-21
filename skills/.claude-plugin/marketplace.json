@@ -7,7 +7,12 @@
     {
       "name": "bpc-netsuite",
       "source": "./plugins/bpc-netsuite",
-      "description": "View BPC data in NetSuite from Claude — customers, jobs/SOWs, engagement hours, time logs, saved searches, and ad-hoc SuiteQL. Read-only."
+      "description": "View BPC data in NetSuite from Claude \u2014 customers, jobs/SOWs, engagement hours, time logs, saved searches, and ad-hoc SuiteQL. Read-only."
+    },
+    {
+      "name": "bpc-epm-planning",
+      "source": "./plugins/bpc-epm-planning",
+      "description": "Oracle EPM Planning field mechanics \u2014 loads, jobs, LCM snapshots, rules, forms, and deploying a rule without the UI. No credentials, no client data."
     }
   ]
 }
