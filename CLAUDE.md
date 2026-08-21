@@ -6,6 +6,21 @@ extraction to a branded PDF. Consolidated 2026-07-31 from five scattered folders
 Read this before touching anything. Five minutes, and it saves you repeating mistakes we
 already made.
 
+## Start every new request by choosing the scope
+
+Do not assume that a new user wants a complete assessment. Before running an extraction or
+creating client files, briefly present the available paths and ask what they want to do:
+
+1. complete assessment (NetSuite, NSPB/Planning, or both);
+2. focused discovery of one area, module, object, or financial question;
+3. ad-hoc read-only query;
+4. extraction or reusable snapshot;
+5. NetSuite to NSPB reconciliation;
+6. environment documentation or another specific deliverable.
+
+Ask only one concise scoping question. Once the user selects a path, request the minimum input
+needed for that path. A focused discovery must not silently expand into a full assessment.
+
 > New to this? Start with [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md): how to ask
 > for the LCM export, how the NetSuite token is created, and what to run in what order.
 

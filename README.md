@@ -13,10 +13,34 @@ Point it at an NSPB LCM export and it tells you how their Planning environment i
 
 ---
 
+## What it produces
+
+Four real engagements, anonymized — every figure is measured, only the names changed.
+Full PDFs and how to regenerate them: [`examples/`](examples/).
+
+| | | | |
+| :---: | :---: | :---: | :---: |
+| [<img src="examples/thumbs/acme-netsuite-abr-full.png" width="185">](examples/acme-netsuite-abr-full.pdf) | [<img src="examples/thumbs/acme-nspb-current-state.png" width="185">](examples/acme-nspb-current-state.pdf) | [<img src="examples/thumbs/acme-nspb-cube-optimization.png" width="185">](examples/acme-nspb-cube-optimization.pdf) | [<img src="examples/thumbs/acme-ipm-predictive-insights.png" width="185">](examples/acme-ipm-predictive-insights.pdf) |
+| **NetSuite ABR**<br><sub>account analysis + recommendations</sub> | **NSPB Current State**<br><sub>what is built vs actually used</sub> | **Cube Optimization**<br><sub>performance and stored blocks</sub> | **IPM**<br><sub>what is worth forecasting</sub> |
+
+## What it can answer
+
+| question | what runs |
+| --- | --- |
+| Which NetSuite modules do they actually use? | `ns-erp-assess.js` — 37 modules across 5 states, from row counts and field population |
+| What have they already bought? | `ns-connector-map.js` — bundles, integrations and script prefixes. Run it early: it stops you proposing what they own |
+| What does the business look like? | `ns-financials.js` — COA, P&L, balance sheet, seasonality, customer concentration |
+| Is the Planning cube healthy? | `cube-optimize.js` — real block counts from a level-0 export, distribution, deletion plan |
+| What is built in Planning, and used? | `parse-lcm.js` → `architecture-report.js` — forms, rules, dimensions, against the Activity Report |
+| Does Planning tie out to NetSuite? | `recon-income-statement.js` — income statement and balance sheet, account by account and period by period. On `agent/document-connection-and-install` until that branch merges |
+| Is any of it worth forecasting? | `detect-ipm.js` — which accounts carry enough history and signal |
+
+---
+
 ## Install
 
 ```bash
-git clone https://github.com/brunohernangallo/oracle-toolkit.git
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
 ```
 
 ```bash
@@ -26,6 +50,18 @@ cd oracle-toolkit && npm install
 ```bash
 node scripts/check-all.js
 ```
+
+Install the unified command locally (optional, but recommended):
+
+```bash
+npm link
+oracle-toolkit
+```
+
+The command starts by showing the available workflows and asking what you want to do. On
+Windows PowerShell, use `npm.cmd link` and `oracle-toolkit.cmd` if the execution policy blocks
+the generated `.ps1` shims. Without a global link, use `npm.cmd run netsuite -- <arguments>`
+from the repository root.
 
 Requires Node 20+. PDF generation additionally needs Chrome or Edge; the NSPB route needs a
 Gemini API key.
@@ -54,6 +90,24 @@ To make the skill available in every project, not just this one:
 ```bash
 cp -r skills/epm-assessment ~/.claude/skills/
 ```
+
+### NetSuite CLI
+
+The CLI is a read-only front door for the existing NetSuite tools. It reads the five TBA
+values from the process environment or the repository's gitignored `.env`; it never prints them.
+
+```bash
+oracle-toolkit netsuite doctor
+oracle-toolkit netsuite connect test
+oracle-toolkit netsuite query "SELECT id, fullname FROM account" --json
+oracle-toolkit netsuite probe account,subsidiary,department
+oracle-toolkit netsuite export snapshot --client acme --phase probe
+oracle-toolkit netsuite export erp --client acme
+```
+
+`query` accepts one `SELECT` or `WITH` statement. Exports remain under `clients/<client>/`,
+which is ignored by Git because it can contain customer financial data. The legacy
+`node packages/netsuite/...` commands remain supported.
 
 ### Querying NetSuite live from Claude
 
@@ -104,7 +158,7 @@ oracle-toolkit/
 │   ├── mcp-netsuite/   MCP server for NetSuite over SuiteQL
 │   ├── forge/          generates dimensions and forms (ESM)
 │   ├── engagement/     engagement hours reporting
-│   └── recon/          NetSuite ↔ NSPB (seed; comparator not written yet)
+│   └── recon/          NetSuite ↔ NSPB income statement and balance sheet
 ├── apps/nspb-excel-addin/   the Excel add-in + Cloudflare Worker product
 ├── skills/             the guided assessment skill
 ├── docs/               playbooks and the field-learnings log

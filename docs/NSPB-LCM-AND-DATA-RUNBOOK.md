@@ -132,6 +132,39 @@ Import.xml  Export.xml  size.txt                     (root)
 - A form's internal `dir="…"` attribute can override the manifest path (it may land in the source
   folder, e.g. under the SC team's forms). Cosmetic; rename the form clearly (`Wedbush - …`).
 
+### Security (`/Security`) — cell-level rules and access permissions
+Generator: `node packages/forge/bin/make-security.mjs <spec.json> --carry-over <pod .../Cell-Level
+Security Definitions>`. Paths and `type=` values, verified against Symetri's export:
+```
+resource/Security/Access Permissions/Users.xml           type="Access"
+resource/Security/Access Permissions/Groups/<group>.xml  type="Access"
+resource/Security/Cell-Level Security Definitions/<rule>.xml
+                                                         type="Cell-Level Security Definitions"
+```
+plus a `<folder … type="Folder">` entry in `listing.xml` for `/Security` and for each subfolder.
+Point `Import.xml` at `parentPath="/Security/Cell-Level Security Definitions"` and the package
+cannot touch Access Permissions.
+
+- **Ship the existing rules alongside the new ones**, verbatim from the pod's own export. Oracle
+  does not document whether this import merges or replaces the rule set — carrying them makes the
+  question moot, same reasoning as the full-file dimension load above. That is what `--carry-over` does.
+- **`Access Permissions/*.xml` are OBJECT ACLs only** — `SL_FORM`, `SL_FORMFOLDER`, `SL_CALCFOLDER`,
+  `SL_TASKLIST`, `SL_REPORT`. Symetri has **zero** dimension-member ACLs, and `Power User.xml` /
+  `Symetri Subsidiary.xml` are empty `<acls/>`. Member security is off in practice.
+- **Member ("account") security is not cube-aware.** A permission on an account applies wherever
+  that account is valid, and it does nothing until *Apply Security* is on for the dimension — at
+  which point every member of it falls under ACLs that usually do not exist. To restrict ONE cube,
+  use cell-level security (`<planTypes validForAll="false"><planType>Workforc</planType>`).
+- **Cell-level security only denies** (`Deny Read` / `Deny Write`), never grants. "Only X may see it"
+  = deny a group that X is not in. Deny wins over everything, so never assign it to the role groups
+  (`Power User`, `User`, `Viewer`) — X holds one of those too.
+- **A Service Administrator is exempt**, from cell-level AND member security. Restricting an admin
+  means taking the role away, in Access Control. Group membership is in Access Control too — it never
+  travels in the snapshot.
+- To *remove* an existing ACL rather than add one, LCM cannot help (it merges): use the
+  **Import Security** CSV job — `Object Name,Name,Parent,Is User,Object Type,Access Type,Access Mode,Remove`
+  via `epmautomate importAppSecurity`, which supports `NONE` and `Remove=Y`.
+
 ## 3. Loading a snapshot (the exact epmautomate dance)
 ```
 epmautomate login <user> <.epw> <url>

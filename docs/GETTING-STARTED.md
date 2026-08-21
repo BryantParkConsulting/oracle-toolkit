@@ -163,13 +163,18 @@ GEMINI_API_KEY=...
 Check it works:
 
 ```bash
-node packages/netsuite/ns-sql.js "SELECT COUNT(*) AS n FROM account"
+npm link
+oracle-toolkit netsuite doctor
+oracle-toolkit netsuite connect test
 ```
+
+If PowerShell blocks `.ps1` shims, run `npm.cmd link` and invoke `oracle-toolkit.cmd`. You can
+also skip the global link and use `npm.cmd run netsuite -- connect test` from the repository root.
 
 ## B2. Extract
 
 ```bash
-CLIENT=<client> node packages/netsuite/netsuite-export.js
+oracle-toolkit netsuite export snapshot --client <client>
 ```
 
 Five phases, roughly 10–15 minutes on a large account. Everything is aggregated server-side:

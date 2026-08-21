@@ -19,6 +19,11 @@
  */
 const fs = require('fs');
 const path = require('path');
+// The BPC shell: cover, brand tokens and the shared component CSS. Every deliverable
+// renders through it so they read as one family rather than fifteen separate documents.
+const S = require('./_shell');
+// The photographic cover the NSPB deliverables use. Shared so every report opens the same way.
+const COVER = require('./_cover');
 
 const PORT = process.env.CDP_PORT || 9222;
 const CLIENT = process.env.CLIENT || 'pra';
@@ -37,6 +42,12 @@ const season = rd('netsuite/seasonality.json') || [];
 const customers = (rd('netsuite/top-customers.json') || []).filter(c => Number(c.facturado) > 0);
 const opexDetail = rd('netsuite/opex-detail.json') || [];
 const shape = rd('netsuite/shape.json') || {};
+
+// Demo mode: DEMO_NAME aliases the legal entities and the billed third parties, so a real
+// engagement can be shown as a sample without naming anyone. Null on a normal client run.
+const ANON = require('./anonymize-ns')(CLIENT);
+const anonSub = (s) => (ANON ? ANON.subsidiary(s) : s);
+const anonCust = (s) => (ANON ? ANON.customer(s) : s);
 
 const NAVY = '#1F3C51', SAGE = '#619C8A', GOLD = '#F2CC5F', ORANGE = '#EC8842', DANGER = '#C9512E';
 const SC = { active: SAGE, partial: GOLD, dormant: ORANGE, absent: '#9aa3ab', unknown: '#c3cad1' };
@@ -229,7 +240,9 @@ function dimensionTable() {
     : p >= 30 ? '⚠ Partial — not safe for reporting at this level'
     : '⚠ Effectively untagged';
   const cell = p => p === null ? '—' : `${p.toFixed(0)}%`;
-  const names = (k, key = 'name') => (shape[k] || []).map(r => esc(String(r[key] || ''))).filter(Boolean);
+  const names = (k, key = 'name') => (shape[k] || [])
+    .map(r => esc(k === 'subsidiaries' ? anonSub(String(r[key] || '')) : String(r[key] || '')))
+    .filter(Boolean);
 
   const rows = [
     ['Entity', 'Subsidiary', n('subsidiary'), pct('subsidiary')],
@@ -412,57 +425,21 @@ const TRACKS = [
 function trackOf(t) { return (TRACKS.find(k => k.match(t)) || TRACKS[TRACKS.length - 1]).id; }
 const grouped = TRACKS.map(k => ({ ...k, items: REC.list.filter(r => trackOf(r.t) === k.id) })).filter(k => k.items.length);
 
-const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<style>
-@page { size:A4; margin:14mm 13mm; }
-*{box-sizing:border-box}
-body{font-family:Sarabun,"Segoe UI",system-ui,sans-serif;color:#333;font-size:9.5pt;line-height:1.5;margin:0}
-h1,h2,h3{color:${NAVY};margin:0 0 6px}
-h2{font-size:14pt;border-bottom:2px solid ${SAGE};padding-bottom:4px;margin-top:20px}
-h3{font-size:10.5pt;margin-top:13px}
-.page-break{page-break-before:always}
-.cover{height:262mm;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(150deg,${NAVY} 0%,#16303f 100%);color:#fff;margin:-14mm -13mm;padding:22mm 18mm}
-.cover h1{color:#fff;font-size:30pt;line-height:1.12;margin:0 0 10px}
-.cover .sub{color:${GOLD};font-size:13pt;font-weight:600}
-.badge{display:inline-block;background:${SAGE};color:#fff;font-size:8.4pt;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.06em}
-.logo{height:33px;filter:brightness(0) invert(1)}
-table{width:100%;border-collapse:collapse;font-size:8.7pt;margin:8px 0}
-th{background:${NAVY};color:#fff;text-align:left;padding:5px 7px;font-weight:600}
-td{padding:4px 7px;border-bottom:1px solid #eceff1;vertical-align:top}
-tr:nth-child(even) td{background:#fafbfc}
-.num{text-align:right;font-variant-numeric:tabular-nums}
-.pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:7.6pt;color:#fff;font-weight:600}
-.kpi{display:flex;gap:8px;margin:10px 0}
-.kpi div{flex:1;background:#f6f8f9;border-left:3px solid ${SAGE};padding:8px 10px}
-.kpi .v{font-size:15pt;font-weight:700;color:${NAVY};line-height:1.1}
-.kpi .l{font-size:7.5pt;color:#6b7280}
-.note{background:#f4f7f6;border-left:3px solid ${SAGE};padding:8px 11px;margin:7px 0;font-size:8.7pt}
-.flag{background:#fdf3ee;border-left:3px solid ${ORANGE};padding:8px 11px;margin:7px 0;font-size:8.9pt}
-.rec{border:1px solid #e3e8ea;border-radius:4px;padding:11px 13px;margin:11px 0;page-break-inside:avoid}
-.rec h3{margin:0 0 6px;font-size:11pt}
-.rec .lbl{font-size:7.6pt;font-weight:700;letter-spacing:.05em;color:${SAGE};text-transform:uppercase;margin-top:7px}
-.rec p{margin:2px 0 0}
-.small{font-size:7.9pt;color:#6b7280}
-ul{margin:5px 0 5px 16px;padding:0} li{margin:3px 0}
-code{background:#f1f3f4;padding:1px 3px;border-radius:2px;font-size:8.1pt}
-</style></head><body>
-
-<div class="cover">
-  <div>${b64('bpc-logo.b64') ? `<img class="logo" src="data:image/png;base64,${b64('bpc-logo.b64')}">` : '<div style="font-size:15pt;font-weight:700">BPC</div>'}</div>
-  <div>
-    <div class="badge">PREPARED BY BPC</div>
-    <h1 style="margin-top:16px">${esc(NAME)}</h1>
-    <div class="sub">NetSuite Account Analysis</div>
-    <div style="margin-top:20px;font-size:10pt;opacity:.85;max-width:122mm">
-      ${V ? esc(V.name) : ''} · account <b>${esc(probe.account)}</b><br>
-      ${fmt(n('transaction'))} transactions · ${fmt(n('transactionline'))} lines · ${fmt(n('account'))} accounts · ${fmt(customers.length)} billed customers
-    </div>
-  </div>
-  <div style="font-size:8.3pt;opacity:.7">
-    Generated ${new Date().toISOString().slice(0, 10)} from the live account over SuiteQL / REST.<br>
-    Every figure is measured, none estimated. Recommendations are suggestions to validate together.
-  </div>
-</div>
+const html = S.page(`${NAME} — NetSuite Account Analysis`, `
+${COVER.render({
+  title: 'NetSuite<br/>Account Analysis',
+  eyebrow: COVER.eyebrow(),
+  sub: `${NAME}${V ? ` · ${esc(V.name)}` : ''} · account <b>${esc(probe.account)}</b> — what is configured, what is ` +
+       `actually used, and what it implies for planning. Read out of the system over SuiteQL.`,
+  // The four figures that size the account. All measured, none estimated.
+  stats: [
+    [fmt(n('transaction')), 'transactions on record'],
+    [fmt(n('account')), 'GL accounts'],
+    [fmt(customers.length), 'billed customers'],
+    [`${mods.stateCounts.active} of ${mods.modules.length}`, 'modules actually in use'],
+  ],
+  footRight: 'NetSuite ERP',
+})}
 
 <div class="page-break"></div>
 <h2>1. Executive summary</h2>
@@ -504,7 +481,7 @@ ${s12.length >= 12 ? `<h3>Seasonality</h3>${seasonChart()}
 
 ${customers.length > 10 ? `<h3>Customer concentration</h3>
 <table><tr><th>#</th><th>Customer</th><th class="num">Billed</th><th class="num">Cumulative</th></tr>
-${customers.slice(0, 10).map((c, i) => `<tr><td>${i + 1}</td><td>${esc(String(c.cliente).split(' - ')[0].slice(0, 44))}</td><td class="num">${money(c.facturado)}</td><td class="num">${cum(i + 1).toFixed(1)}%</td></tr>`).join('')}
+${customers.slice(0, 10).map((c, i) => `<tr><td>${i + 1}</td><td>${esc(anonCust(String(c.cliente)).split(' - ')[0].slice(0, 44))}</td><td class="num">${money(c.facturado)}</td><td class="num">${cum(i + 1).toFixed(1)}%</td></tr>`).join('')}
 </table>
 <p class="small">${fmt(customers.length)} billed customers. Top 10 = <b>${cum(10).toFixed(1)}%</b>, top 25 = <b>${cum(25).toFixed(1)}%</b>.</p>` : ''}
 
@@ -590,11 +567,14 @@ ${REC.skip.length ? `<div class="note"><b>What we are deliberately not proposing
 </ul>
 ${B?.suiteSuccessEdition ? `<p class="small"><b>Industry reference.</b> ${esc(B.suiteSuccessEdition)} Benchmark context draws on public sources (Oracle's module catalog and published SuiteSuccess material), not a proprietary base of comparable accounts — it is meant to frame the discussion rather than settle it.</p>` : ''}
 
-</body></html>`;
+`, COVER.css({ NAVY, GOLD, marginV: '14mm', marginH: '13mm' }));
 
 const htmlFile = path.join(DIR, `${CLIENT}-netsuite-abr-full.html`);
 const pdfFile = path.join(DIR, `${CLIENT}-netsuite-abr-full.pdf`);
-fs.writeFileSync(htmlFile, html);
+// Final safety net for demo mode: the client name also shows up inside third-party data we
+// do not model field by field — installed bundle names, integration titles. Scrub the
+// assembled document once, after every section has rendered.
+fs.writeFileSync(htmlFile, ANON ? ANON.scrub(html) : html);
 
 const httpJson = async p => (await fetch(`http://127.0.0.1:${PORT}${p}`)).json();
 function wsCall(wsUrl, fn) {
@@ -615,7 +595,15 @@ function wsCall(wsUrl, fn) {
       await s2('Page.enable');
       await s2('Page.navigate', { url: 'file:///' + htmlFile.replace(/\\/g, '/') });
       for (let k = 0; k < 40; k++) { await new Promise(r => setTimeout(r, 200)); if (evs.some(e => e.method === 'Page.loadEventFired')) break; }
-      await new Promise(r => setTimeout(r, 500));
+      // load fires before a large embedded PNG has finished decoding — printing then
+      // bakes a half-decoded cover photo into the PDF. Wait for decode to actually settle.
+      await s2('Runtime.enable');
+      await s2('Runtime.evaluate', {
+        awaitPromise: true,
+        expression: `Promise.all(Array.from(document.images).map(i =>
+          i.complete ? i.decode().catch(() => {}) : new Promise(r => { i.onload = i.onerror = r; })
+        )).then(() => new Promise(r => requestAnimationFrame(() => setTimeout(r, 400))))`,
+      });
       const { data } = await s2('Page.printToPDF', { printBackground: true, preferCSSPageSize: true });
       fs.writeFileSync(pdfFile, Buffer.from(data, 'base64'));
     });

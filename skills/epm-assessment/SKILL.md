@@ -16,9 +16,15 @@ lo que salió, y recién ahí pedí lo siguiente.
 > El instructivo completo para el usuario (cómo pedir el LCM, cómo crear el token) está en
 > `docs/GETTING-STARTED.md` — mandalo si te preguntan por los prerrequisitos.
 
-## Paso 0 — ¿de qué lado estamos?
+## Paso 0 — primero confirmar el alcance
 
-Preguntá una sola cosa: **¿NSPB, NetSuite, o los dos?**
+No asumas que el usuario quiere un assessment completo. Mostrale brevemente que podés hacer:
+assessment completo; discovery puntual; consulta read-only; extracción/snapshot;
+reconciliación NetSuite↔NSPB; o documentación. Preguntá una sola cosa:
+**¿qué querés hacer?**
+
+Si elige assessment, recién entonces preguntá: **¿NSPB, NetSuite, o los dos?** Si elige
+discovery puntual, pedí el área o pregunta exacta y no expandas el alcance.
 
 | respuesta | ruta |
 | --- | --- |

@@ -1,0 +1,28 @@
+{
+  "application": "SampleApp",
+  "exportedVersion": "26.07.00",
+  "exportedBy": "consultant@example.com",
+  "idmDomain": "sample-domain",
+  "serviceInstance": "sample-instance",
+  "rules": [
+    {
+      "name": "Workforce - Restrict to WF Owners",
+      "description": "Workforce data is readable and writable only by the Workforce owners. Everyone in the restricted group sees #noaccess in this cube.",
+      "position": "2.0",
+      "anchorDimension": "Account",
+      "cubes": ["Workforc"],
+      "subRules": [
+        {
+          "restriction": "Deny Read",
+          "members": [{ "function": "Descendants", "member": "Account" }, "Account"],
+          "groups": ["WF Data Restricted"]
+        },
+        {
+          "restriction": "Deny Write",
+          "members": [{ "function": "Descendants", "member": "Account" }, "Account"],
+          "groups": ["WF Data Restricted"]
+        }
+      ]
+    }
+  ]
+}
