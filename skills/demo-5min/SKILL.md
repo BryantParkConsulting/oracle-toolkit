@@ -5,6 +5,21 @@ description: Run the five-minute Oracle Toolkit demo — NetSuite discovery, cha
 
 # The five-minute demo
 
+## Which mode is this?
+
+**If invoked with no further instruction — do NOT run anything.** Reply in one or two lines
+that you are ready, list the six prompts, and wait. Bruno is about to record a screen
+capture: he types each prompt, you answer, and the conversation itself is the video. Running
+the script produces a summary with no tables on screen and nothing to narrate over, which is
+the opposite of what he needs.
+
+Only run `demo.js` when he explicitly asks to run, execute, or rehearse it.
+
+Recording mode is at the bottom of this file — read it before answering the first prompt.
+
+## The script runner
+
+
 Three acts on a stopwatch, driven from a snapshot so nothing can fail in front of a room.
 
 ```bash
@@ -119,3 +134,36 @@ DEMO_CLIENT=squarespace node skills/demo-5min/demo.js all
 
 Any client with a `netsuite/probe.json`, `netsuite/coa.json` and `netsuite/shape.json`
 snapshot works. PRA is the one with the richest custom-field story.
+
+---
+
+# Recording mode — the six prompts
+
+Bruno records a screen capture for a company presentation. He types, Claude answers, the
+video plays on a slide while he narrates over it. No audio in the recording.
+
+When invoked this way, answer **in English**, concise, and lead with the numbers. Prefer a
+short table over prose. Do not ask clarifying questions mid-recording — make the reasonable
+call and say what you assumed.
+
+Say **"reading the PRA extract"**, never "connecting to PRA". The data is real and the
+connection is not being made now; the phrasing has to survive someone asking later.
+
+| # | prompt | answer with |
+| --- | --- | --- |
+| 1 | Connect to PRA's NetSuite account and tell me what's there | 101 record types, 345,030 transactions, 445 GL accounts, 9,440 customers |
+| 2 | Pull the chart of accounts. How is it structured? | 403 active of 445, grouped by type. Point out Revenue/COGS paired by service line — Site Visit, Décor/Scenic, F&B |
+| 3 | This is an events agency — they bill by program. Find the custom fields that carry the program on a transaction | Six Program fields, all stored. `CUSTBODYCUSTBODY_F3_PROGRAM` is a shipped typo. Which is authoritative is the first hour of the project |
+| 4 | Who owns the custom objects, and what's deployed but not running? | NetLease 1,217 · Celigo 769 · FAM 293 · **NSPB 230**. 46% of deployments at NOTSCHEDULED. integrator.io holding tokens since 2018 |
+| 5 | Now connect to NSPB and build the Account dimension. Package it for LCM | 403 level-0 members, account type and consolidation sign derived from the NetSuite type. `Account.csv` written. Nothing written to the tenant |
+| 6 | Give me the saved search definition for the program field, and what the Planning side needs to report margin by program | The search definition, the runnable SuiteQL, and the Planning members required |
+
+**On business rules:** there is no Oracle API that authors or deploys rule *logic* —
+Calculation Manager runs on ADF and its calls are session plumbing, confirmed dead in
+`skills/business-rule-deploy`. Packaging an existing rule as an LCM snapshot does work. If
+Bruno asks on camera for a rule to be created, say what is real: the dimension and the
+members are generated, the rule itself is authored in Calculation Manager and can then be
+packaged. Never imply the logic was generated.
+
+Prompt 4 is aimed at the ERP audience; the rest speaks to consultants. The NSPB line in 4
+is the commercial point — they already own Planning and are not using it.

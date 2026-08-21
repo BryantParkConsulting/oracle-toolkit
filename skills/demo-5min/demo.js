@@ -21,7 +21,18 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.join(__dirname, '..', '..');
+// The skill is also installed under ~/.claude/skills/, where __dirname no longer sits
+// inside the repo. TOOLKIT_ROOT overrides; otherwise walk up looking for clients/.
+const findRoot = () => {
+  if (process.env.TOOLKIT_ROOT) return process.env.TOOLKIT_ROOT;
+  let d = __dirname;
+  for (let i = 0; i < 5; i++) {
+    if (fs.existsSync(path.join(d, 'clients')) && fs.existsSync(path.join(d, 'packages'))) return d;
+    d = path.join(d, '..');
+  }
+  return 'C:/apps/oracle-toolkit';
+};
+const ROOT = findRoot();
 const CLIENT = process.env.DEMO_CLIENT || 'pra';
 const DIR = path.join(ROOT, 'clients', CLIENT);
 const OUT = path.join(ROOT, 'output', 'demo');
