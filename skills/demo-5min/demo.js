@@ -122,11 +122,11 @@ async function act1() {
   const cf = shape.custom_fields || [];
   await step('Scanning custom field definitions', 1400, `${fmt(cf.length)} defined`);
 
-  // The requirement is pricing on a transaction, so only CUSTCOL (line) and CUSTBODY
-  // (header) fields can carry it — a CUSTRECORD lives on a custom record and never
-  // appears on a sales line. Filtering by name alone returns leasing and fixed-asset
-  // fields that read plausibly and are useless here.
-  const want = /pric|rate|margin|markup|discount|unit|sell|qty|quantit/i;
+  // This is an events agency: the unit of business is the program, not the GL account.
+  // Only CUSTCOL (line) and CUSTBODY (header) fields can carry it — a CUSTRECORD lives on
+  // a custom record and never appears on a transaction, so matching on name alone returns
+  // leasing and fixed-asset fields that read plausibly and are useless here.
+  const want = /program|event|margin|markup|budget/i;
   const hits = cf.filter((f) => /^(CUSTCOL|CUSTBODY)/i.test(f.scriptid || '') && want.test(f.name || ''));
   await step('Matching against the reporting requirement', 800, `${hits.length} on transactions`);
 
@@ -141,12 +141,86 @@ async function act1() {
   const stored = hits.filter((f) => f.isstored === 'T');
   say(`  ${C.dim}Only the stored ones can be queried — an unstored field is computed at`);
   say(`  render time and comes back empty over SuiteQL. That leaves ${stored.length}.${C.off}`);
+  say('');
+  // Three separate Program fields is not tidy data — it is implementation archaeology,
+  // and it only shows up when you read the metadata rather than the UI.
+  const prog = hits.filter((f) => /program/i.test(f.name || ''));
+  if (prog.length > 1) {
+    say(`  ${C.gold}${prog.length} different Program fields${C.off} — successive implementations, each`);
+    say(`  ${C.dim}leaving its own. One of them is scripted CUSTBODYCUSTBODY_, which is a typo`);
+    say(`  that shipped. Deciding which one is authoritative is the first hour of work.${C.off}`);
+  }
 
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, 'coa.json'), JSON.stringify(coa, null, 2));
   fs.writeFileSync(path.join(OUT, 'custom-fields.json'), JSON.stringify(hits, null, 2));
   say('');
   say(`  ${C.sage}→${C.off} output/demo/coa.json · output/demo/custom-fields.json`);
+}
+
+// ──────────────────────────────────────────── act 1.5: the technical footprint
+/**
+ * For the ERP side of the room. The business half of the demo says what the numbers mean;
+ * this says what the account is made of — who owns which objects, what is deployed and
+ * dead, and which integrations still hold live tokens. All of it is read from metadata
+ * that nobody opens by hand.
+ */
+async function actTech() {
+  rule('What the account is actually made of');
+
+  const shape = rd('netsuite/shape.json') || {};
+  const conn = rd('erp/connectors.json') || {};
+  const cf = shape.custom_fields || [];
+  const prefixes = conn.prefixes || [];
+
+  await step('Attributing custom objects to their bundle', 1200, `${fmt(cf.length)} fields`);
+
+  // A prefixed object belongs to the SuiteApp that created it and gets overwritten on the
+  // next bundle update. Editing one is the classic way to lose a day's work silently.
+  const owned = prefixes.reduce((a, p) => a + Number(p.objects || 0), 0);
+  say('');
+  table(['Prefix', 'Objects', 'Owner'],
+    prefixes.slice(0, 6).map((p) => [p.prefix, fmt(p.objects),
+      (p.bundle || '—').replace(/\s*[-—]?\s*(Bundle Installation|SuiteApp Install)\s*$/i, '').trim()]),
+    [10, 9, 40]);
+  say('');
+  say(`  ${C.dim}Prefixed objects belong to their SuiteApp and are replaced on the next`);
+  say(`  bundle update. Touch one and the change disappears without a warning.${C.off}`);
+
+  rule('Deployed and dead');
+  const dep = shape.deployments_by_type || [];
+  const byStatus = {};
+  for (const d of dep) byStatus[d.status] = (byStatus[d.status] || 0) + Number(d.n || 0);
+  const totalDep = Object.values(byStatus).reduce((a, b) => a + b, 0);
+  const idle = byStatus.NOTSCHEDULED || 0;
+
+  await step('Reading script deployments', 1000, `${fmt(totalDep)} deployments`);
+  say('');
+  table(['Status', 'Deployments', 'Share'],
+    Object.entries(byStatus).sort((a, b) => b[1] - a[1])
+      .map(([s, n]) => [s, fmt(n), `${(100 * n / totalDep).toFixed(0)}%`]),
+    [16, 13, 8]);
+  say('');
+  say(`  ${C.gold}${(100 * idle / totalDep).toFixed(0)}% of deployments never run.${C.off} ` +
+      `${C.dim}Scheduled and MapReduce scripts that exist,`);
+  say(`  are deployed, and are set to NOTSCHEDULED. Either they are leftovers from`);
+  say(`  implementations that ended, or something that should be running is not.${C.off}`);
+
+  rule('Integrations holding live tokens');
+  const ints = (conn.integrations || []).filter((i) => Number(i.activos) > 0);
+  await step('Enumerating integration records', 900, `${ints.length} with active tokens`);
+  say('');
+  table(['Application', 'Active', 'Revoked', 'First seen'],
+    ints.slice(0, 6).map((i) => [i.app, i.activos, i.revocados, i.desde]),
+    [30, 8, 9, 12]);
+
+  // The NSPB bundle being present changes the commercial conversation entirely.
+  const nspb = prefixes.find((p) => p.prefix === 'nspbcs');
+  if (nspb) {
+    say('');
+    say(`  ${C.sage}The NSPB bundle is installed${C.off} — ${fmt(nspb.objects)} objects. Planning is not`);
+    say(`  ${C.dim}something to sell them. It is something they already own and are not using.${C.off}`);
+  }
 }
 
 // ────────────────────────────────────────────────────────────── act 2: NSPB
@@ -276,6 +350,8 @@ async function act3() {
     };
 
     if (which === '1' || which === 'all') await act1();
+    if (which === 'all') await pause('the technical footprint');
+    if (which === 'tech' || which === '1.5' || which === 'all') await actTech();
     if (which === 'all') await pause('Planning');
     if (which === '2' || which === 'all') await act2();
     if (which === 'all') await pause('the saved search');

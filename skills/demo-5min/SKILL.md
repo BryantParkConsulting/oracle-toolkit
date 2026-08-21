@@ -23,13 +23,17 @@ and the same commands run live against any account with a token.
 
 ## The three acts
 
-| act | what the audience sees | machine time |
+| act | what the audience sees | machine |
 | --- | --- | --- |
-| `1` | Connect, probe 101 record types, pull 445 GL accounts, find the pricing custom fields among 3,187 | ~6s |
+| `1` | Connect, probe 101 record types, pull 445 GL accounts, find the Program fields among 3,187 | ~6s |
+| `tech` | Who owns which objects, 46% of deployments dead, integrations holding live tokens | ~4s |
 | `2` | Map NetSuite account types to Planning members, generate `Account.csv`, package for LCM | ~4s |
 | `3` | The saved search definition and the equivalent SuiteQL, written to a file | ~3s |
 
-**The machine takes 13 seconds. You take five minutes.** That is the point — the toolkit is
+Act `tech` is aimed at the ERP side of the room — the rest speaks to consultants. Drop it
+if the audience is purely commercial.
+
+**The machine takes 15 seconds. You take five minutes.** That is the point — the toolkit is
 fast and the talking is the demo. So `all` stops between acts and waits for you to press
 enter, which is where you explain what just appeared. For a rehearsal that runs straight
 through:
@@ -55,30 +59,48 @@ PACE=slow node skills/demo-5min/demo.js all
 
 ## The script
 
-**Act 1 — "connect to PRA and get me what I need"**
+**Act 1 — "connect to the customer and find what I need"**
 
-> "This is a real NetSuite account. The toolkit authenticates with a token, probes what the
-> role can actually see — 101 record types here — and pulls the chart of accounts. 445
-> accounts, grouped by type."
+> "Real NetSuite account. The toolkit authenticates with a token, probes what the role can
+> actually see — 101 record types — and pulls the chart of accounts. 445 accounts."
 >
-> "Now the interesting part. The customer wants to report on a pricing field. There are
-> 3,187 custom fields defined in this account. Five of them are on transactions and match
-> the requirement — and only three are *stored*. An unstored field renders in the UI and
-> comes back empty over SuiteQL. That distinction is an afternoon of someone's life."
+> "Look at the structure: Revenue Site Visit, Cost of Sales Site Visits. Revenue
+> Décor/Scenic, Cost of sales Décor/Scenic. The chart is already built for margin by
+> service line."
+>
+> "But this is an events agency — the unit of business is the *program*. 3,187 custom
+> fields, and six of them are Program fields. Six. Successive implementations, each
+> leaving its own behind. One is scripted CUSTBODYCUSTBODY_ — a typo that shipped and
+> nobody caught. Deciding which one is authoritative is the first hour of the project,
+> and you just did it in six seconds."
+
+**Act tech — "what is this account made of"** *(for the ERP team)*
+
+> "Every custom object attributed to its bundle. NetLease owns 1,217, the Salesforce
+> connector 769. Those are not yours — touch one and the next bundle update overwrites it
+> silently."
+>
+> "46% of script deployments never run. 651 Scheduled and MapReduce deployments sitting at
+> NOTSCHEDULED. Either they are leftovers from implementations that ended, or something
+> that should be running is not. Nobody knows without asking, and now you can ask
+> precisely."
+>
+> "integrator.io has held tokens since 2018. And the NSPB bundle is installed — 230
+> objects. Planning is not something to sell them. They own it and are not using it."
 
 **Act 2 — "now build it in Planning"**
 
-> "Same chart of accounts, mapped to Planning. NetSuite account type decides the Planning
-> account type and the consolidation sign — get that wrong and the P&L never ties to the
+> "Same chart of accounts, mapped to Planning. NetSuite account type decides both the
+> Planning type and the consolidation sign — get that wrong and the P&L never ties to the
 > GL. 403 level-0 members, packaged for Lifecycle Management."
 >
 > "Nothing was written to the tenant. This is the artifact, ready to import."
 
 **Act 3 — "and how do I get that field in?"**
 
-> "Here is the saved search definition, and the SuiteQL that does the same thing. The
-> toolkit runs the second one directly — no back-and-forth with the customer to get a
-> screenshot of a search someone built by hand."
+> "The saved search definition, and the SuiteQL that does the same thing. The toolkit runs
+> the second one directly — no round trip to the customer for a screenshot of a search
+> somebody built by hand."
 
 ## Before you present
 
