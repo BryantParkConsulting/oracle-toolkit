@@ -15,3 +15,6 @@ clients/**
 
 # Snapshots the rule deployer builds — they carry client rule scripts
 DEPLOY_[0-9]*.zip
+
+# Python bytecode from the skill scripts
+__pycache__/

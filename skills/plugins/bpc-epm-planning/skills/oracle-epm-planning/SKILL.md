@@ -1,6 +1,6 @@
 ---
 name: oracle-epm-planning
-description: Hard-won mechanics for Oracle EPM Cloud / NetSuite Planning & Budgeting (NSPB, EPBCS, PBCS) implementation work — loading data and metadata without destroying members, building Export Data and Import Metadata jobs, hand-building LCM snapshots that import only what changed, authoring Groovy and calc-script business rules, building data forms, and building navigation flows. Use this whenever the work touches an EPM Planning pod: epmautomate, Calculation Manager, business rules, LCM migration snapshots, OutlineLoad, dimension or member maintenance, data forms, navigation flows, POV or intersection problems, substitution and user variables, or a form/rule that "runs successfully" but produces nothing. Also use it when diagnosing why a Planning import reported success but changed nothing, why a form is empty, or why a rule that validates returns no data — these failures are silent by default and this skill exists because of them.
+description: Hard-won mechanics for Oracle EPM Cloud / NetSuite Planning & Budgeting (NSPB, EPBCS, PBCS) implementation work — loading data and metadata without destroying members, building Export Data and Import Metadata jobs, hand-building LCM snapshots that import only what changed, authoring Groovy and calc-script business rules, building data forms, and building navigation flows. Use this whenever the work touches an EPM Planning pod: epmautomate, the EPM Cloud REST API, Calculation Manager, business rules, LCM migration snapshots, OutlineLoad, dimension or member maintenance, data forms, navigation flows, POV or intersection problems, verifying what a form actually renders, substitution and user variables, or a form/rule that "runs successfully" but produces nothing. Also use it when diagnosing why a Planning import reported success but changed nothing, why a form is empty, or why a rule that validates returns no data — these failures are silent by default and this skill exists because of them.
 ---
 
 # Oracle EPM Planning — field mechanics
@@ -49,6 +49,10 @@ After any write, read the result from the pod rather than trusting the tool's ex
 - After a rule run: compare a before and after export **from the same job** (see
   `references/jobs.md` — comparing exports from two different jobs produces a fake catastrophe).
 
+Since 26.04 the last of these no longer needs a browser: `GET .../forms/{id}/data` returns the
+**evaluated** grid — POV, rows and columns after suppression and expansion — so "the form actually
+renders right" is an assertion, not an eyeball. `references/verifying-in-the-pod.md`.
+
 ## Where the detail lives
 
 Read the file that matches what you are doing. Each is short and self-contained.
@@ -62,6 +66,8 @@ Read the file that matches what you are doing. Each is short and self-contained.
 | Writing or patching a business rule, Groovy or calc script | `references/rules.md` |
 | Building or fixing a data form | `references/forms.md` |
 | Building or importing a navigation flow | `references/navigation-flows.md` |
+| Reading a form's rendered grid; triaging an empty form or a rule that writes nothing | `references/verifying-in-the-pod.md` |
+| Calling the pod's REST API; OAuth 2 tokens; the endpoint catalog | `references/rest-api.md` |
 
 ## epmautomate, in practice
 
@@ -81,6 +87,9 @@ Read the file that matches what you are doing. Each is short and self-contained.
 - **Refresh:** `refreshcube` standalone often succeeds where the refresh embedded in an import
   job fails. If a job reports `One or more child jobs have failed` but the metadata looks
   applied, run a standalone refresh and re-verify before assuming damage.
+- **The CLI is a third of the surface.** No `epmautomate` command returns a rendered form,
+  a dimension hierarchy, a user's variable values, or the error messages of a failed child job.
+  Those are REST-only — `references/rest-api.md`.
 - **The access log tells you what any UI action really calls.** `downloadfile
   "apr/<date>/access_log.zip"` gives a CSV with Date, Time, URI, Status, User and — the useful
   part — **Screen / Action / Object** columns. It is the fastest way to find the endpoint behind
