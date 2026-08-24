@@ -18,6 +18,17 @@ import { PlanningClient } from "./planning-client.js";
 const config = loadConfig();
 const planning = new PlanningClient(config);
 
+const gridDefinitionSchema = {
+  type: "object",
+  properties: {
+    pov: { type: "object", additionalProperties: true },
+    columns: { type: "array", items: { type: "object", additionalProperties: true } },
+    rows: { type: "array", items: { type: "object", additionalProperties: true } }
+  },
+  required: ["pov", "columns", "rows"],
+  additionalProperties: true
+};
+
 const tools = [
   {
     name: "epm_kb_summary",
@@ -67,6 +78,40 @@ const tools = [
     name: "epm_list_applications",
     description: "List applications from a live Oracle EPM Cloud environment using Basic Authentication.",
     inputSchema: { type: "object", properties: {} }
+  },
+  {
+    name: "epm_get_application_summary",
+    description: "Return Oracle's AI-focused Markdown summary of a live Planning application. The response shape is release-dependent and intended for orientation, not stable automation.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        application: { type: "string" },
+        fullHierarchyThreshold: { type: "integer", minimum: 0 },
+        aliasTableName: { type: "string" },
+        dimensionsToInclude: { type: "array", items: { type: "string" } }
+      }
+    }
+  },
+  {
+    name: "epm_export_form_data",
+    description: "Read the evaluated JSON grid for a Planning form by name or ID, including its resolved POV, rows and columns after suppression and expansion.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        application: { type: "string" },
+        form: { type: "string" },
+        pageMembers: { type: "array", items: { type: "string" } },
+        displayMemberAs: {
+          type: "string",
+          enum: ["MEMBER_NAME", "MEMBER_NAME_THEN_ALIAS", "ALIAS_THEN_MEMBER_NAME"]
+        },
+        memberAliasDelimiter: { type: "string" },
+        forceStartExpanded: { type: "boolean" },
+        filterMembers: { type: "array", items: { type: "string" } },
+        fields: { type: "array", items: { type: "string" } }
+      },
+      required: ["form"]
+    }
   },
   {
     name: "epm_list_jobs",
@@ -125,6 +170,20 @@ const tools = [
     }
   },
   {
+    name: "epm_export_data_slice",
+    description: "Export an exact read-only cube region through exportdataslice. Pass Oracle's gridDefinition with POV, row and column dimension/member selections.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        application: { type: "string" },
+        cube: { type: "string" },
+        gridDefinition: gridDefinitionSchema,
+        exportPlanningData: { type: "boolean", description: "Include cell notes and supporting detail; defaults to true." }
+      },
+      required: ["cube", "gridDefinition"]
+    }
+  },
+  {
     name: "epm_load_data",
     description:
       "Write cells into a cube via importdataslice — NO predefined Import Data job needed. " +
@@ -148,11 +207,38 @@ const tools = [
             required: ["headers", "data"]
           }
         },
-        dateFormat: { type: "string", description: "YYYYMMDD or MM-DD-YYYY, matching the date values" },
+        dateFormat: {
+          type: "string",
+          enum: ["MM-DD-YYYY", "DD-MM-YYYY", "YYYY-MM-DD", "MM/DD/YYYY", "DD/MM/YYYY", "YYYY/MM/DD"],
+          description: "Must match the date values."
+        },
+        strictDateValidation: { type: "boolean" },
         aggregate: { type: "boolean" },
+        cellNotesOption: { type: "string", enum: ["Overwrite", "Append", "Skip"] },
+        customParams: {
+          type: "object",
+          additionalProperties: true,
+          description: "Oracle import controls, including rejected-cell detail or post-import rules."
+        },
         confirm: { type: "boolean" }
       },
       required: ["cube", "pov", "columns", "rows", "confirm"]
+    }
+  },
+  {
+    name: "epm_clear_data_slice",
+    description: "Clear Planning and/or Essbase data for an exact cube region. Requires Service Administrator, mutations enabled, and confirm=true.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        application: { type: "string" },
+        cube: { type: "string" },
+        gridDefinition: gridDefinitionSchema,
+        clearEssbaseData: { type: "boolean", description: "Clear numeric Essbase data; defaults to true." },
+        clearPlanningData: { type: "boolean", description: "Delete notes, attachments and supporting detail; defaults to false." },
+        confirm: { type: "boolean" }
+      },
+      required: ["cube", "gridDefinition", "confirm"]
     }
   }
 ];
@@ -193,6 +279,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return asText(getArtifact(kb, args.kind, args.name));
     }
     if (name === "epm_list_applications") return asText(await planning.listApplications());
+    if (name === "epm_get_application_summary") return asText(await planning.getApplicationSummary(args));
+    if (name === "epm_export_form_data") return asText(await planning.exportFormData(args));
     if (name === "epm_list_jobs") return asText(await planning.listJobs(args));
     if (name === "epm_list_rules") return asText(await planning.listRules(args));
     if (name === "epm_run_rule") {
@@ -208,11 +296,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
       return asText(await planning.runRule(args));
     }
-    if (name === "epm_read_cell") return asText(await planning.exportDataSlice(args));
+    if (name === "epm_read_cell") return asText(await planning.readCell(args));
+    if (name === "epm_export_data_slice") return asText(await planning.exportDataSlice(args));
     if (name === "epm_load_data") {
       if (!config.mutationsEnabled) throw new Error("Mutating tools are disabled. Set ORACLE_EPM_ENABLE_MUTATIONS=true.");
       if (args.confirm !== true) throw new Error("Explicit confirm=true is required.");
       return asText(await planning.importDataSlice(args));
+    }
+    if (name === "epm_clear_data_slice") {
+      if (!config.mutationsEnabled) throw new Error("Mutating tools are disabled. Set ORACLE_EPM_ENABLE_MUTATIONS=true.");
+      if (args.confirm !== true) throw new Error("Explicit confirm=true is required.");
+      return asText(await planning.clearDataSlice(args));
     }
     throw new Error(`Unknown tool: ${name}`);
   } catch (error) {

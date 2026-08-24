@@ -86,7 +86,13 @@ claude mcp add epm-planning -- node /absolute/path/to/oracle-toolkit/packages/mc
 
 From an LCM snapshot, no credentials needed: *What dimensions does this application have? · Which business rules exist in the Plan cube? · Explain what rule CF_CashRollForward does.*
 
-Against a live environment: *What is the FY26 budget for account 5000? · List the jobs that ran today.*
+Against a live environment: *Show me the evaluated grid for the Revenue Input form · Export
+the exact Forecast slice for Jan–Mar · Summarize the application's dimensions · What is the
+FY26 budget for account 5000? · List the jobs that ran today.*
+
+Live writes remain disabled by default. Importing or clearing a data slice requires
+`ORACLE_EPM_ENABLE_MUTATIONS=true` and an explicit `confirm=true`; clearing additionally
+requires an Oracle Service Administrator role.
 
 ---
 
