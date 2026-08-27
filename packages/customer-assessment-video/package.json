@@ -1,0 +1,43 @@
+{
+  "name": "bpc-customer-assessment-video",
+  "version": "1.0.0",
+  "description": "Reusable BPC NetSuite and NSPB customer assessment explainer",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/captions": "4.0.518",
+    "@remotion/cli": "4.0.518",
+    "@remotion/install-whisper-cpp": "4.0.518",
+    "@remotion/media": "4.0.518",
+    "@remotion/rough-notation": "4.0.518",
+    "@remotion/tailwind-v4": "4.0.518",
+    "@remotion/transitions": "4.0.518",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.518",
+    "tailwindcss": "4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.518",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "verify:assets": "node scripts/verify-assets.mjs",
+    "doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File ./video-toolkit.ps1 doctor",
+    "render:data-guide": "node scripts/verify-assets.mjs data-guide && remotion render src/index.ts BPC-Client-Data-Preparation-Guide render/BPC-Client-Data-Preparation-Guide.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:overview": "node scripts/verify-assets.mjs overview && remotion render src/index.ts BPC-Customer-Assessment-Overview render/BPC-Customer-Assessment-Overview.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render": "npm run render:data-guide && npm run render:overview"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

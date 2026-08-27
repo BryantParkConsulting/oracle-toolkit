@@ -1,0 +1,5 @@
+interface:
+  display_name: "BPC Customer Video"
+  short_description: "Create secure BPC assessment videos"
+  brand_color: "#173448"
+  default_prompt: "Use $bpc-customer-video to create a secure BPC customer-assessment video from the approved client evidence."
