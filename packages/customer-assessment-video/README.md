@@ -25,7 +25,20 @@ step; the overview remains focused on service value and reusable sales content.
   avatar. A later Trupper pass may add music or restrained motion without
   changing the technical timing or privacy covers.
 
-## Local setup
+## Install on a BPC Windows notebook
+
+The employee needs Git and one PowerShell line. The command clones or updates
+the official BPC repository under `%LOCALAPPDATA%\BPC`, installs the complete
+video stack, validates Remotion, and installs the Codex skill:
+
+```powershell
+$d=Join-Path $env:LOCALAPPDATA 'BPC\oracle-toolkit'; if(Test-Path (Join-Path $d '.git')){git -C $d pull --ff-only}else{git clone https://github.com/BryantParkConsulting/oracle-toolkit.git $d}; if($LASTEXITCODE){exit $LASTEXITCODE}; powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $d 'scripts\install-bpc-video-toolkit.ps1')
+```
+
+See [EMPLOYEE-RUNBOOK.md](EMPLOYEE-RUNBOOK.md) for the client workflow,
+diagnostics, update procedure, and security boundary.
+
+## Manual local setup
 
 ```powershell
 npm install --workspaces=false
@@ -33,6 +46,15 @@ python -m pip install -r requirements.txt
 python scripts/generate-split-voiceovers.py
 npm run verify:assets --workspaces=false
 npm run lint --workspaces=false
+```
+
+The unified local command is `video-toolkit.ps1`. Examples:
+
+```powershell
+.\video-toolkit.ps1 doctor
+.\video-toolkit.ps1 new-client -Client acme -ClientName "Acme Inc."
+.\video-toolkit.ps1 studio -Client acme
+.\video-toolkit.ps1 render -Client acme -Video all
 ```
 
 Render both compositions:

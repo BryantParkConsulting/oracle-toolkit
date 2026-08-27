@@ -6,6 +6,9 @@ render/
 analysis/
 .env
 .env.*
+.venv/
+local-clients/
+local-base-assets/
 
 # Client evidence never belongs in Git, even in a private repository.
 public/source/*

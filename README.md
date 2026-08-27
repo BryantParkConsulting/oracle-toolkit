@@ -16,7 +16,7 @@ Point it at an NSPB LCM export and it tells you how their Planning environment i
 ## Install
 
 ```bash
-git clone https://github.com/brunohernangallo/oracle-toolkit.git
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
 ```
 
 ```bash
@@ -123,6 +123,12 @@ a NetSuite + NSPB assessment explainer. Client recordings, screenshots,
 credentials, rendered videos, and generated audio are explicitly excluded from
 Git. See the package README for the local asset manifest and publishing safety
 checklist.
+
+For a BPC Windows notebook, Git is the only prerequisite. The documented
+one-line command clones or updates this repository, installs Node/Remotion,
+Python voice tooling and FFmpeg, validates the stack, and installs the
+`$bpc-customer-video` Codex skill. See
+[`packages/customer-assessment-video/EMPLOYEE-RUNBOOK.md`](packages/customer-assessment-video/EMPLOYEE-RUNBOOK.md).
 
 ---
 

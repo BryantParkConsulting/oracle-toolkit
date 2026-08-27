@@ -32,8 +32,9 @@
     "upgrade": "remotion upgrade",
     "lint": "eslint src && tsc",
     "verify:assets": "node scripts/verify-assets.mjs",
-    "render:data-guide": "remotion render src/index.ts BPC-Client-Data-Preparation-Guide render/BPC-Client-Data-Preparation-Guide.mp4 --codec=h264 --crf=18 --audio-codec=aac",
-    "render:overview": "remotion render src/index.ts BPC-Customer-Assessment-Overview render/BPC-Customer-Assessment-Overview.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "doctor": "powershell -NoProfile -ExecutionPolicy Bypass -File ./video-toolkit.ps1 doctor",
+    "render:data-guide": "node scripts/verify-assets.mjs data-guide && remotion render src/index.ts BPC-Client-Data-Preparation-Guide render/BPC-Client-Data-Preparation-Guide.mp4 --codec=h264 --crf=18 --audio-codec=aac",
+    "render:overview": "node scripts/verify-assets.mjs overview && remotion render src/index.ts BPC-Customer-Assessment-Overview render/BPC-Customer-Assessment-Overview.mp4 --codec=h264 --crf=18 --audio-codec=aac",
     "render": "npm run render:data-guide && npm run render:overview"
   },
   "sideEffects": [
