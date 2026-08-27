@@ -1,0 +1,8 @@
+{
+  "name": "bpc-epm-planning",
+  "description": "Oracle EPM Cloud Planning field mechanics for BPC: the traps that fail silently — data and metadata loads, Export/Import Data jobs, hand-built LCM snapshots, Groovy and calc rules, forms and navigation flows. Includes deploy_rule.py, which deploys a Calculation Manager rule with no UI step.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Bryant Park Consulting"
+  }
+}

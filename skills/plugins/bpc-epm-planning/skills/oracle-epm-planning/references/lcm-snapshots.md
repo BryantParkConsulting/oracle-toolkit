@@ -1,0 +1,135 @@
+# Hand-building an LCM snapshot for one artifact
+
+You rarely want to re-import a full application snapshot. Fabricating a minimal one — a single
+form, rule, job, menu or navigation flow — is fast, repeatable, and scriptable.
+
+## Structure
+
+```
+mysnapshot.zip
+├── Import.xml                       ← what to import and where from
+└── <APP>/                           ← e.g. HP-<AppName>, or CALC-Calculation Manager
+    ├── Import.xml                   ← copied verbatim from a real export
+    ├── info/
+    │   ├── listing.xml              ← ONE <resource> entry for your artifact
+    │   └── sourceInfo.xml           ← copied verbatim from a real export
+    └── resource/<path>/<Artifact>.xml
+```
+
+Build it from a real export of the same pod so `Import.xml` and `sourceInfo.xml` match the
+application exactly. Clone the `listing.xml` entry from an existing artifact **of the same
+type**, changing only `name`, `id` and `lastUpdated`.
+
+## The destination is decided by listing.xml, not by Import.xml
+
+This is the trap that produces a completely silent no-op. `Import.xml` carries a `parentPath`
+and a `pattern`:
+
+```xml
+<Artifact recursive="true" parentPath="/Cube/Plan/Data Forms/MyFolder" pattern="My Form"/>
+```
+
+If that `parentPath` does not agree with the folder implied by the cloned `listing.xml` entry,
+the pattern matches nothing. The import reports `importsnapshot completed successfully` and
+**creates nothing at all** — no error, no warning, no partial result.
+
+So: whatever folder the artifact you cloned the listing entry from lives in, put your artifact
+in that same folder, and point `parentPath` at it. If you want it somewhere else, move it in
+the UI afterwards, or clone the listing entry from an artifact that already lives there.
+
+Always verify by exporting a snapshot afterwards and confirming the file exists at the path you
+expect.
+
+## Escaping inside embedded scripts
+
+Rules carry their script inside `<script>` in the artifact XML. Escape **only `&` and `<`**.
+Leave `>` literal — Planning does not unescape `&gt;` before compiling, so an escaped `>` breaks
+`->` in Groovy closures and cross-dimensional references alike. Generics inside the XML appear
+as `Map&lt;String, Double>` — note the escaped `<` and the bare `>`.
+
+If you are patching an existing rule, operate on the raw artifact text and never round-trip it
+through an unescape/re-escape: user variables appear as `&amp;CurrentYr` and a careless round
+trip corrupts them.
+
+## Iterating
+
+Every re-import needs a **fresh zip file name** — the pod rejects a re-upload of a name it
+already holds. A simple counter or timestamp suffix is enough. When a change does not seem to
+have landed, check whether the upload silently failed for this reason before debugging the
+artifact itself.
+
+## A minimal builder
+
+```python
+shutil.rmtree(BUILD, ignore_errors=True)
+os.makedirs(os.path.join(BUILD, APP, "info"), exist_ok=True)
+os.makedirs(os.path.join(BUILD, ARTIFACT_DIR), exist_ok=True)
+io.open(os.path.join(BUILD, ARTIFACT_DIR, NAME + ".xml"), "w",
+        encoding="utf-8").write(artifact_xml)
+
+listing = io.open(os.path.join(LIVE, APP, "info", "listing.xml"), encoding="utf-8").read()
+model = re.search(r'<resource name="%s"[^>]*/>' % re.escape(TEMPLATE), listing).group(0)
+entry = model.replace('name="%s"' % TEMPLATE, 'name="%s"' % NAME) \
+             .replace('id="%s"'   % TEMPLATE, 'id="%s"'   % NAME)
+entry = re.sub(r'lastUpdated="\d+"', 'lastUpdated="%d"' % int(time.time()*1000), entry)
+io.open(os.path.join(BUILD, APP, "info", "listing.xml"), "w", encoding="utf-8").write(
+    listing[:listing.index("<resource")] + entry + "</artifactListing>")
+
+for f in ("Import.xml", os.path.join("info", "sourceInfo.xml")):
+    shutil.copy2(os.path.join(LIVE, APP, f), os.path.join(BUILD, APP, f))
+```
+
+Then write the outer `Import.xml` with a `parentPath` that agrees with where the artifact
+actually is, and zip the whole tree.
+
+## An export can come back short, and still say it succeeded
+
+`exportsnapshot` on the same snapshot name, twice in a row, minutes apart, returned 1,306 and
+then 1,967 entries out of the same unchanged application. The short one was missing an entire
+application folder — every form, rule and ruleset under it — with no error anywhere.
+
+It also comes back **stale**: an export taken immediately after an import can return the
+pre-import state at full entry count, so the artifact is present but still carries its old
+content. Both failure modes look exactly like "my import silently did nothing", which is a real
+and common LCM failure — so you will go debug the wrong thing.
+
+Before acting on either, export a second time. A missing artifact is not evidence it was deleted,
+and unchanged content is not evidence the import no-opped, until a fresh export agrees. Treat a
+drop in total entries as a failed export rather than as a finding.
+
+This is the same discipline as never diffing two data exports from different jobs: establish that
+the two sides are comparable before you read anything into the difference.
+
+## Package only what changed — a full snapshot silently reverts the client's UI edits
+
+LCM overwrites every artifact it finds in the snapshot. Rebuilding the whole application
+snapshot for a one-line form fix therefore re-imports *your* copy of every form, dimension and
+job — quietly discarding anything the client adjusted in the interface since you last exported:
+column widths, member selections, formatting. There is no warning and no diff; the change is
+simply gone the next time they open the form.
+
+Build a snapshot containing only the artifacts you actually touched. A snapshot with one form
+in it can only overwrite that one form.
+
+A minimal application snapshot still needs its full skeleton, or LCM refuses to open it:
+
+```
+<zip root>/Export.xml
+<zip root>/Import.xml
+<zip root>/size.txt
+<zip root>/HP-<app>/Import.xml
+<zip root>/HP-<app>/info/listing.xml      only the artifacts being shipped
+<zip root>/HP-<app>/info/sourceInfo.xml   copied verbatim from a full export
+<zip root>/HP-<app>/resource/...          the artifact files themselves
+```
+
+Omitting `sourceInfo.xml` or the application-level `Import.xml` gives an error that names the
+filesystem rather than the missing file:
+
+```
+21000: Invalid filesystem - /u03/lcm/<snapshot>/HP-<app> in MDF
+```
+
+The `type` in the listing has to match the artifact class — `Data Form`, `Rule`, `Job`,
+`Dimension`, `Substitution Variable`, `Menu`, `Navigation Flow`, `User Variables`,
+`User Preferences` — and the `path` must be the artifact's folder without the file name.
