@@ -291,3 +291,21 @@ read that as failure — ask which is intended to be authoritative.
 - **PII stays out.** Customers, employees and contacts never go into a KB or a deliverable —
   count and aggregate, never copy.
 - **Rotate credentials** when the assessment ends. They belong to the client's production.
+
+## A 401 from a Planning pod means bad credentials — not "Basic Auth is off" (2026-08-05)
+
+Classic PBCS pod `planning-a565453.pbcs.us2.oraclecloud.com` (PRA, app `NetSuite`, EPBCS).
+Basic Auth works fine — `GET /HyperionPlanning/rest/v3/applications` returns 200 with the
+plain email as username, exactly like the OCI pods.
+
+**What went wrong:** with a stale password every attempt returned `401` with an nginx body,
+and `epmautomate login` returned `EPMAT-9`. Both were read as "the tenant blocks Basic Auth /
+has SSO", and a whole OAuth-with-IDCS detour was proposed. All of it was wrong. The pod URL
+generation (`pbcs.us2` vs `epm.<region>.ocs`) had nothing to do with it.
+
+**Rules that follow:**
+- An nginx-style 401 does NOT prove edge blocking. Rule out the password first.
+- `nspb-auth-probe.js` fires six logins in a row. On a tenant with lockout that burns the
+  account — it locked Bruno's twice. Try ONE request with the plain email before reaching for
+  the probe, and never re-run it after a failure without a fresh password.
+- Never infer a platform-level limitation from a single failing credential.

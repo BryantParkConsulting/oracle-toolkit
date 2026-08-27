@@ -1337,7 +1337,9 @@ async function main() {
   const financialReports = parseFinancialReports();
 
   // 7c. IPM / AI Insights footprint (Auto Predict batches) — pure-LCM
-  const { detectIPM } = require('./detect-ipm');
+  // lives in packages/analysis/, not alongside this file — the './' path is a leftover from
+  // the split into packages and made parse-lcm.js unrunnable
+  const { detectIPM } = require('../analysis/detect-ipm');
   const ipm = detectIPM(LCM_ROOT);
 
   // 8. Enrich forms with their owning module (from nav flows)

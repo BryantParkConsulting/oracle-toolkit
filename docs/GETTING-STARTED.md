@@ -34,20 +34,21 @@ uses it to summarize rules and forms.
 
 ## A1. Getting the LCM export
 
-It's the only thing you need, and **the client can pull it in two minutes**. Ask for it like
-this:
+For the structural assessment, request an artifact-only export:
 
-> In NSPB, go to **Application → Migration → Snapshot**. You'll see a snapshot called
-> `Artifact Snapshot` dated from last night's backup. Click the download icon and send us
-> the `.zip`.
+> In NSPB, go to **Tools → Migration**. Create or open an export definition, select the
+> Planning artifacts needed for the assessment, and **untick Essbase Data**. Save the
+> definition, run the export, and download the resulting `.zip`.
 
-They don't have to run anything and we don't need access — the snapshot already exists,
-generated automatically every night.
+Do not assume the nightly `Artifact Snapshot` is metadata-only. Its contents depend on the
+saved snapshot definition and it may include Essbase data. If using it, inspect the selection
+first and confirm that **Essbase Data is not selected**.
 
 **What's in it:** the complete application definition — dimensions, forms, business rules,
 substitution variables, dashboards, financial reports, FDMEE configuration and navigation.
-**No data, only metadata.** That's what makes it easy to obtain: there's no financial
-information inside.
+The requested export is metadata-only: it must not include financial Essbase data. LCM metadata
+can still contain usernames, security assignments and other confidential configuration, so keep
+the ZIP and generated JSON local and outside Git.
 
 > If the client asks why a screenshot won't do: the snapshot is what lets us analyze the whole
 > environment consistently and reproducibly, instead of reviewing it screen by screen.
