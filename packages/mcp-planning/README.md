@@ -107,11 +107,15 @@ example prompts, see [`CLAUDE-QUICKSTART.md`](CLAUDE-QUICKSTART.md).
 | `epm_search_artifacts` | Search forms, rules, variables, reports and dashboards | Read-only |
 | `epm_get_artifact` | Retrieve one exact LCM artifact | Read-only |
 | `epm_list_applications` | List live Planning applications | Read-only |
+| `epm_get_application_summary` | Get Oracle's AI-oriented application summary | Read-only |
+| `epm_export_form_data` | Read a form's evaluated POV, rows and columns | Read-only |
 | `epm_list_jobs` | List recent Planning jobs | Read-only |
 | `epm_list_rules` | List Planning business rules | Read-only |
 | `epm_read_cell` | Read one cell back from a cube (`exportdataslice`) | Read-only |
+| `epm_export_data_slice` | Read an exact cube region (`exportdataslice`) | Read-only |
 | `epm_run_rule` | Run a Planning rule | Disabled |
 | `epm_load_data` | Write cells into a cube (`importdataslice`, **no Import Data job required**) | Disabled |
+| `epm_clear_data_slice` | Clear Essbase and/or Planning data for an exact region | Disabled |
 
 Snapshot restore is intentionally out of scope.
 
@@ -126,15 +130,25 @@ For terminal use without an MCP client. These read the password from a file
 | `cli/epm-load-cli.js` | Load a staging grid (`.xlsx`) into a cube over `importdataslice`. `--test` sends the first two rows first. |
 | `cli/epm-auth-probe.js` | Diagnose a `401` — tries the common OCI Basic-Auth username formats and reports which returns `200`. |
 
-The data plane (`epm_load_data` / `epm_read_cell` / `cli/epm-load-cli.js`) was
+The original data plane (`epm_load_data` / `epm_read_cell` / `cli/epm-load-cli.js`) was
 proven against a production OCI Planning pod in 2026-07: it loaded a full 464-row
 workforce roster with no predefined Import Data job.
+
+The broader form-data, generic slice, application-summary and clear-slice endpoints were
+added from Oracle's REST reference in 2026-08. Their request construction is covered by local
+tests; they still require live-pod certification before being described as production-proven.
 
 **What the toolkit now knows so you don't rediscover it:**
 
 - **`epm_load_data` uses the correct `dataGrid` wire shape** (a `slices` body returns
   HTTP 400). POV is a flat member array, Period first — see the header note in
   `src/planning-client.js`.
+- **`epm_export_form_data` returns the evaluated form grid**, including the resolved POV and
+  rows/columns after suppression and expansion. For an unfamiliar form, request
+  `fields: ["gridInfo", "pov"]` first, then retrieve rows and columns.
+- **`epm_clear_data_slice` is separately guarded** because it requires Service Administrator
+  and can delete numeric data, cell notes, attachments and supporting detail depending on its
+  flags. It needs both `ORACLE_EPM_ENABLE_MUTATIONS=true` and `confirm=true`.
 - **`epm_run_rule` warns before running a grid-bound Groovy rule** (ActiveStatus,
   Synchronize, Process-Loaded-Data…). Those need a Planning form and can't run headless;
   the guard is overridable with `acknowledgeGridRule: true`.

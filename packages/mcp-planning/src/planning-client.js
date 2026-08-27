@@ -1,5 +1,34 @@
 import { requireLiveConfig } from "./config.js";
 
+function requireGridDefinition(gridDefinition) {
+  if (!gridDefinition || typeof gridDefinition !== "object" || Array.isArray(gridDefinition)) {
+    throw new Error("gridDefinition is required");
+  }
+  if (!gridDefinition.pov || !Array.isArray(gridDefinition.columns) || !Array.isArray(gridDefinition.rows)) {
+    throw new Error("gridDefinition must include pov, columns[], and rows[]");
+  }
+}
+
+function appendQueryValue(search, key, value, { repeat = false } = {}) {
+  if (value === undefined || value === null || value === "") return;
+  if (Array.isArray(value)) {
+    if (repeat) {
+      for (const item of value) search.append(key, String(item));
+    } else if (value.length) {
+      search.set(key, value.join(","));
+    }
+    return;
+  }
+  search.set(key, String(value));
+}
+
+function withQuery(apiPath, entries) {
+  const search = new URLSearchParams();
+  for (const [key, value, options] of entries) appendQueryValue(search, key, value, options);
+  const query = search.toString();
+  return query ? `${apiPath}?${query}` : apiPath;
+}
+
 export class PlanningClient {
   constructor(config) {
     this.config = config;
@@ -40,6 +69,43 @@ export class PlanningClient {
     return this.request("/HyperionPlanning/rest/v3/applications");
   }
 
+  getApplicationSummary({
+    application = this.config.application,
+    fullHierarchyThreshold,
+    aliasTableName,
+    dimensionsToInclude
+  } = {}) {
+    if (!application) throw new Error("application is required");
+    const path = `/HyperionPlanning/rest/v3/applications/${encodeURIComponent(application)}/summary`;
+    return this.request(withQuery(path, [
+      ["fullHierarchyThreshold", fullHierarchyThreshold],
+      ["aliasTableName", aliasTableName],
+      ["dimensionsToInclude", dimensionsToInclude]
+    ]));
+  }
+
+  exportFormData({
+    application = this.config.application,
+    form,
+    pageMembers,
+    displayMemberAs,
+    memberAliasDelimiter,
+    forceStartExpanded,
+    filterMembers,
+    fields
+  } = {}) {
+    if (!application || !form) throw new Error("application and form are required");
+    const path = `/HyperionPlanning/rest/v3/applications/${encodeURIComponent(application)}/forms/${encodeURIComponent(form)}/data`;
+    return this.request(withQuery(path, [
+      ["pageMbrList", pageMembers, { repeat: true }],
+      ["displayMemberAs", displayMemberAs],
+      ["memberAliasDelimiter", memberAliasDelimiter],
+      ["forceStartExpanded", forceStartExpanded],
+      ["filterMembers", filterMembers, { repeat: true }],
+      ["fields", fields]
+    ]));
+  }
+
   listJobs({ application = this.config.application, limit = 50 } = {}) {
     if (!application) throw new Error("application is required");
     return this.request(`/HyperionPlanning/rest/v3/applications/${encodeURIComponent(application)}/jobs?limit=${limit}`);
@@ -70,18 +136,31 @@ export class PlanningClient {
   //     evaluation order (Period first). It is NOT {dimensions,members}.
   //   * `columns` is [[account,...]] and each row is {headers:[member,...], data:[value,...]}.
   //     The row headers cover the dimensions NOT in the POV (e.g. Employee), left to right.
-  //   * `dateFormat` (e.g. "YYYYMMDD" or "MM-DD-YYYY") must match how date values are encoded.
+  //   * `dateFormat` (e.g. "YYYY-MM-DD" or "MM-DD-YYYY") must match how date values are encoded.
   //
   // Write cells into a cube WITHOUT a predefined "Import Data" job.
-  importDataSlice({ application = this.config.application, cube, pov, columns, rows, dateFormat, aggregate = false }) {
+  importDataSlice({
+    application = this.config.application,
+    cube,
+    pov,
+    columns,
+    rows,
+    dateFormat,
+    strictDateValidation,
+    aggregate = false,
+    cellNotesOption = "Overwrite",
+    customParams
+  }) {
     if (!application || !cube) throw new Error("application and cube are required");
     if (!Array.isArray(pov) || !Array.isArray(columns) || !Array.isArray(rows)) {
       throw new Error("pov[], columns[][], and rows[{headers,data}] are required (flat POV; see the header note)");
     }
     const body = {
       aggregateEssbaseData: aggregate,
-      cellNotesOption: "Overwrite",
+      cellNotesOption,
       ...(dateFormat ? { dateFormat } : {}),
+      ...(strictDateValidation === undefined ? {} : { strictDateValidation }),
+      ...(customParams ? { customParams } : {}),
       dataGrid: { pov, columns, rows }
     };
     return this.request(
@@ -90,23 +169,67 @@ export class PlanningClient {
     );
   }
 
-  // Read one cell back (exportdataslice). Here the POV IS {dimensions,members} — the
-  // read and write endpoints use different POV shapes, which is easy to get wrong.
-  exportDataSlice({ application = this.config.application, cube, povDims, povMembers, rowDim, rowMember, colDim, colMember }) {
+  // Export a region. Here the POV IS {dimensions,members} — the read and write
+  // endpoints use different POV shapes, which is easy to get wrong.
+  exportDataSlice({
+    application = this.config.application,
+    cube,
+    gridDefinition,
+    exportPlanningData = true
+  }) {
     if (!application || !cube) throw new Error("application and cube are required");
+    requireGridDefinition(gridDefinition);
     const body = {
-      exportPlanningData: true,
-      gridDefinition: {
-        suppressMissingBlocks: false,
-        pov: { dimensions: povDims, members: povMembers.map((m) => [m]) },
-        columns: [{ dimensions: [colDim], members: [[colMember]] }],
-        rows: [{ dimensions: [rowDim], members: [[rowMember]] }]
-      }
+      exportPlanningData,
+      gridDefinition
     };
-    const j = this.request(
+    return this.request(
       `/HyperionPlanning/rest/v3/applications/${encodeURIComponent(application)}/plantypes/${encodeURIComponent(cube)}/exportdataslice`,
       { method: "POST", body: JSON.stringify(body) }
     );
-    return j;
+  }
+
+  readCell({
+    application = this.config.application,
+    cube,
+    povDims,
+    povMembers,
+    rowDim,
+    rowMember,
+    colDim,
+    colMember
+  }) {
+    if (!Array.isArray(povDims) || !Array.isArray(povMembers) || povDims.length !== povMembers.length) {
+      throw new Error("povDims and povMembers must be arrays of equal length");
+    }
+    return this.exportDataSlice({
+      application,
+      cube,
+      exportPlanningData: true,
+      gridDefinition: {
+        suppressMissingBlocks: false,
+        pov: { dimensions: povDims, members: povMembers.map((member) => [member]) },
+        columns: [{ dimensions: [colDim], members: [[colMember]] }],
+        rows: [{ dimensions: [rowDim], members: [[rowMember]] }]
+      }
+    });
+  }
+
+  clearDataSlice({
+    application = this.config.application,
+    cube,
+    gridDefinition,
+    clearEssbaseData = true,
+    clearPlanningData = false
+  }) {
+    if (!application || !cube) throw new Error("application and cube are required");
+    requireGridDefinition(gridDefinition);
+    return this.request(
+      `/HyperionPlanning/rest/v3/applications/${encodeURIComponent(application)}/plantypes/${encodeURIComponent(cube)}/cleardataslice`,
+      {
+        method: "POST",
+        body: JSON.stringify({ clearEssbaseData, clearPlanningData, gridDefinition })
+      }
+    );
   }
 }
