@@ -1,0 +1,17 @@
+node_modules/
+dist/
+out/
+render/
+analysis/
+.env
+.env.*
+
+# Client evidence never belongs in Git, even in a private repository.
+public/source/*
+!public/source/README.md
+public/stills-v2/*
+!public/stills-v2/README.md
+
+# Generated narration artifacts are reproducible from the checked-in script.
+public/audio/*.mp3
+public/audio/*.jsonl

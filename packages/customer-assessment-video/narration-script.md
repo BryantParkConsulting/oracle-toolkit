@@ -1,0 +1,33 @@
+# BPC Customer Assessment — English narration V2
+
+**Target duration:** approximately 2 minutes 10 seconds
+
+Bryant Park Consulting's Customer Assessment is a focused, evidence-led service for organizations using NetSuite and Oracle NetSuite Planning and Budgeting.
+
+It answers three practical questions: What do you have? What is actually being used? And what should you improve next?
+
+Once the secure, read-only access and NSPB export are received, the assessment is typically completed within one business day.
+
+To begin, we request two controlled inputs. First, NetSuite token-based access through a dedicated integration and a read-only role.
+
+The administrator enables Token-Based Authentication, saves the integration, creates the access token, and transfers the credentials through a secure channel. Token values appear only once and are never included in the assessment or this video.
+
+Second, in NSPB Migration, the administrator selects the application artifacts and exports a Migration snapshot.
+
+For deeper performance analysis, we may also request level-zero data files and the Activity Report. Routine navigation and processing are accelerated; the video pauses on the evidence that matters.
+
+BPC connects both sources into one current-state view.
+
+The NSPB assessment inventories dimensions, forms, business rules, cubes, dashboards, integrations, scheduled jobs, security, and data volume. We classify each capability as active, partially used, dormant, or no longer relevant.
+
+The NetSuite analysis evaluates enabled modules, actual transaction activity, the chart of accounts, customizations, scripts, connected applications, and readiness for Planning.
+
+Recommendations are grounded in the client's industry and operating model: what to enable, consolidate, clean up, retire, or govern differently.
+
+The performance review identifies stale scenarios, large data footprints, slow calculations, fragile rules, navigation issues, and opportunities to simplify the model.
+
+Each technical finding is translated into business impact: faster cycles, more reliable reporting, lower maintenance effort, stronger adoption, and greater planning flexibility.
+
+The final deliverables include an executive summary, evidence-backed findings, prioritized technical and functional actions, training needs, and a practical roadmap.
+
+You provide the secure exports. Within one business day, Bryant Park Consulting turns them into clarity — and a confident next step.

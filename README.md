@@ -104,6 +104,7 @@ oracle-toolkit/
 │   ├── mcp-netsuite/   MCP server for NetSuite over SuiteQL
 │   ├── forge/          generates dimensions and forms (ESM)
 │   ├── engagement/     engagement hours reporting
+│   ├── customer-assessment-video/ reusable Remotion explainer; client media stays local
 │   └── recon/          NetSuite ↔ NSPB (seed; comparator not written yet)
 ├── apps/nspb-excel-addin/   the Excel add-in + Cloudflare Worker product
 ├── skills/             the guided assessment skill
@@ -111,6 +112,17 @@ oracle-toolkit/
 ├── assets/             BPC design shell (logo, hero, base64)
 └── clients/            client data — GITIGNORED WHOLESALE, never leaves your disk
 ```
+
+---
+
+## Customer assessment explainer video
+
+`packages/customer-assessment-video/` contains the reusable BPC narrative,
+scene system, evidence-highlighting method, timing plan, and voiceover source for
+a NetSuite + NSPB assessment explainer. Client recordings, screenshots,
+credentials, rendered videos, and generated audio are explicitly excluded from
+Git. See the package README for the local asset manifest and publishing safety
+checklist.
 
 ---
 
