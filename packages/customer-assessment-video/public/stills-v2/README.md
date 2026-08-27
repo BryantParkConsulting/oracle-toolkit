@@ -6,8 +6,14 @@ Required filenames:
 
 - `token-setup.png`
 - `token-result.png`
-- `migration-export.png`
-- `data-job-complete.png`
+- `migration-categories.png`
+- `migration-name.png`
+- `migration-complete.png`
+- `migration-download.png`
+- `data-export-menu.png`
+- `data-level-zero.png`
+- `data-export-status.png`
+- `data-download.png`
 - `current-summary.png`
 - `current-usage.png`
 - `netsuite-landscape.png`

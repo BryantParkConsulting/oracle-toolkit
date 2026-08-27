@@ -6,11 +6,13 @@ Once the secure, read-only access and NSPB export are received, the assessment i
 
 To begin, we request two controlled inputs. First, NetSuite token-based access through a dedicated integration and a read-only role.
 
-The administrator enables Token-Based Authentication, saves the integration, creates the access token, and transfers the credentials through a secure channel. Token values appear only once and are never included in the assessment or this video.
+In NetSuite, open Setup, Integrations, Manage Integrations, and create a new integration. Give it a clear name, keep the state Enabled, and select Token-Based Authentication.
 
-Second, in NSPB Migration, the administrator selects the application artifacts and exports a Migration snapshot.
+Save the integration. Then create an access token using the dedicated integration, the read-only role, and the user approved for the assessment. NetSuite shows the Token ID and Token Secret only once. Copy both values and transfer them through the approved secure channel — never by email.
 
-For deeper performance analysis, we may also request level-zero data files and the Activity Report. Routine navigation and processing are accelerated; the video pauses on the evidence that matters.
+Second, in NSPB, open Migration and select the application. Choose the application artifacts required for the assessment, click Export, give the snapshot a clear name, and wait until the Migration Status Report shows that the job completed. Download the snapshot ZIP without changing its folder structure.
+
+For deeper performance analysis, open the Calculation Manager database properties, expand the Planning application, and right-click each cube. Choose Export Level Zero Data, enter a ZIP file name, and wait for the export status to complete. Then open the Inbox and Outbox Explorer and download each ZIP. Include the Activity Report as well. Together, these files show actual data volume, calculations, jobs, and user activity.
 
 BPC connects both sources into one current-state view.
 

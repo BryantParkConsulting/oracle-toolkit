@@ -18,6 +18,7 @@ export type Focus = {
   end: number;
   label: string;
   color?: string;
+  labelAlign?: "left" | "right";
 };
 
 const FocusRect: React.FC<{ focus: Focus }> = ({ focus }) => {
@@ -61,11 +62,13 @@ const FocusRect: React.FC<{ focus: Focus }> = ({ focus }) => {
       <div
         style={{
           position: "absolute",
-          left: -5,
+          left: focus.labelAlign === "right" ? undefined : -5,
+          right: focus.labelAlign === "right" ? -5 : undefined,
           top: -44,
           backgroundColor: color,
           color: color === theme.gold ? theme.navyDeep : theme.white,
-          borderRadius: "9px 9px 9px 0",
+          borderRadius:
+            focus.labelAlign === "right" ? "9px 9px 0 9px" : "9px 9px 9px 0",
           padding: "8px 13px",
           fontSize: 20,
           fontWeight: 850,

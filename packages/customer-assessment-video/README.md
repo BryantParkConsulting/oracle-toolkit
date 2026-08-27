@@ -13,15 +13,15 @@ generated audio.
 The first cut treated the screen recording as the story. V2 treats client
 evidence as supporting material inside a service narrative.
 
-| Area           | V1 problem                                         | V2 approach                                                                           |
-| -------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Opening        | Began inside product steps                         | Introduces the service, the questions it answers, and the one-business-day target     |
-| Story          | Tool walkthrough                                   | Secure inputs -> evidence analysis -> business impact -> action plan                  |
-| Pace           | Uniform compression                                | Accelerates only mechanical navigation; pauses for decisions and evidence             |
-| Highlights     | Boxes were positioned against the video canvas     | Boxes use percentages relative to the displayed evidence image                        |
-| Moving screens | Highlights drifted while pages scrolled            | The recording crossfades to an exact frozen frame before a highlight appears          |
-| Security       | Credential screens were difficult to reuse safely  | Token ID and Token Secret receive an opaque redaction before any client-facing render |
-| Delivery       | Creative layers were mixed into the technical edit | Remotion owns the factual base; Trupper can add avatar, cinematic zoom, and music     |
+| Area           | V1 problem                                         | V2 approach                                                                            |
+| -------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Opening        | Began inside product steps                         | Introduces the service, the questions it answers, and the one-business-day target      |
+| Story          | Tool walkthrough                                   | Secure inputs -> evidence analysis -> business impact -> action plan                   |
+| Pace           | Uniform compression                                | Gives client setup steps enough time to follow, then pauses for decisions and evidence |
+| Highlights     | Boxes were positioned against the video canvas     | Boxes use percentages relative to the displayed evidence image                         |
+| Moving screens | Highlights drifted while pages scrolled            | The recording crossfades to an exact frozen frame before a highlight appears           |
+| Security       | Credential screens were difficult to reuse safely  | Token ID and Token Secret receive an opaque redaction before any client-facing render  |
+| Delivery       | Creative layers were mixed into the technical edit | Remotion owns the factual base; Trupper can add avatar, cinematic zoom, and music      |
 
 ## Design rules
 
@@ -30,7 +30,7 @@ evidence as supporting material inside a service narrative.
 3. Never attach a highlight to a scrolling or scaled source. Freeze first.
 4. Express highlight geometry as percentages of the evidence image, not pixels of
    the 1920 x 1080 composition.
-5. Use acceleration only for repetitive navigation.
+5. Keep client setup instructions at a readable pace; accelerate only repetitive navigation.
 6. Redact secrets in the source asset and verify the final rendered frame.
 7. Keep avatar, music, and cinematic zoom optional so they cannot obscure
    evidence or security controls.
@@ -56,7 +56,7 @@ Render the 1920 x 1080, 30 fps composition:
 npm run render --workspaces=false
 ```
 
-The current timing is 4,262 frames, approximately 2 minutes 22 seconds. Update
+The current timing is 5,397 frames, approximately 3 minutes. Update
 scene durations in `src/v2/CompositionV2.tsx` only after the narration is final.
 
 ## Required local evidence

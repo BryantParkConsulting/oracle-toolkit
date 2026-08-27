@@ -35,19 +35,19 @@ export const AssessmentVideoV2: React.FC = () => (
       <Series.Sequence name="04 · Two controlled inputs" durationInFrames={245}>
         <InputsV2 />
       </Series.Sequence>
-      <Series.Sequence name="05 · NetSuite token setup" durationInFrames={272}>
+      <Series.Sequence name="05 · NetSuite token setup" durationInFrames={323}>
         <TokenSetupV2 />
       </Series.Sequence>
-      <Series.Sequence name="06 · Secure token handoff" durationInFrames={151}>
+      <Series.Sequence name="06 · Secure token handoff" durationInFrames={507}>
         <TokenSafeV2 />
       </Series.Sequence>
       <Series.Sequence
         name="07 · NSPB Migration snapshot"
-        durationInFrames={216}
+        durationInFrames={527}
       >
         <MigrationV2 />
       </Series.Sequence>
-      <Series.Sequence name="08 · Deeper evidence" durationInFrames={354}>
+      <Series.Sequence name="08 · Deeper evidence" durationInFrames={776}>
         <DeeperEvidenceV2 />
       </Series.Sequence>
       <Series.Sequence name="09 · Connected evidence" durationInFrames={115}>
@@ -59,7 +59,7 @@ export const AssessmentVideoV2: React.FC = () => (
       <Series.Sequence name="11 · Usage classification" durationInFrames={171}>
         <ClassificationV2 />
       </Series.Sequence>
-      <Series.Sequence name="12 · NetSuite analysis" durationInFrames={325}>
+      <Series.Sequence name="12 · NetSuite analysis" durationInFrames={326}>
         <NetSuiteAnalysisV2 />
       </Series.Sequence>
       <Series.Sequence name="13 · Recommendations" durationInFrames={258}>
@@ -74,7 +74,7 @@ export const AssessmentVideoV2: React.FC = () => (
       <Series.Sequence name="16 · Deliverables" durationInFrames={281}>
         <DeliverablesV2 />
       </Series.Sequence>
-      <Series.Sequence name="17 · Closing" durationInFrames={259}>
+      <Series.Sequence name="17 · Closing" durationInFrames={253}>
         <ClosingV2 />
       </Series.Sequence>
     </Series>
@@ -85,7 +85,7 @@ export const V2Composition = () => (
   <Composition
     id="BPC-Customer-Assessment-V2"
     component={AssessmentVideoV2}
-    durationInFrames={4262}
+    durationInFrames={5397}
     fps={30}
     width={1920}
     height={1080}
