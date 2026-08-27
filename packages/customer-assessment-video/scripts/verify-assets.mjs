@@ -2,12 +2,12 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const required = [
-  "public/audio/voiceover-v2.mp3",
-  "public/source/netsuite-token-safe.mp4",
-  "public/stills-v2/token-setup.png",
-  "public/stills-v2/token-result.png",
+  "public/audio/data-preparation-guide.mp3",
+  "public/audio/assessment-overview.mp3",
+  "public/stills-v4/ns-consumer.png",
+  "public/stills-v4/ns-token-form-43.png",
+  "public/stills-v4/ns-token-confirm.png",
   "public/stills-v2/migration-categories.png",
-  "public/stills-v2/migration-name.png",
   "public/stills-v2/migration-complete.png",
   "public/stills-v2/migration-download.png",
   "public/stills-v2/data-export-menu.png",

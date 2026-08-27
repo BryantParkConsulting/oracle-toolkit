@@ -1,13 +1,10 @@
-# Local evidence stills
+# Local assessment evidence stills
 
 Place sanitized, exact frozen frames here. This directory is ignored by Git.
 
-Required filenames:
+Required filenames for the two current compositions:
 
-- `token-setup.png`
-- `token-result.png`
 - `migration-categories.png`
-- `migration-name.png`
 - `migration-complete.png`
 - `migration-download.png`
 - `data-export-menu.png`
@@ -26,3 +23,5 @@ Required filenames:
 
 The coordinates in each scene are percentages of these exact images. Replacing
 a still with a differently cropped frame requires recalibrating its focus box.
+Remove or cover all client names, account IDs, email addresses, URLs, tokens,
+and secrets before rendering.

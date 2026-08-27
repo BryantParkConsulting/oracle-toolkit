@@ -1,5 +1,6 @@
 node_modules/
 dist/
+build/
 out/
 render/
 analysis/
@@ -11,6 +12,8 @@ public/source/*
 !public/source/README.md
 public/stills-v2/*
 !public/stills-v2/README.md
+public/stills-v4/*
+!public/stills-v4/README.md
 
 # Generated narration artifacts are reproducible from the checked-in script.
 public/audio/*.mp3

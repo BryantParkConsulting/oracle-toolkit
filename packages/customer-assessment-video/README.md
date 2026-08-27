@@ -1,85 +1,72 @@
-# BPC Customer Assessment video template
+# BPC Customer Assessment video templates
 
-Reusable Remotion project for a short Bryant Park Consulting explainer covering
-NetSuite and Oracle NSPB customer assessments.
+Reusable Remotion project for two separate Bryant Park Consulting videos:
 
-This repository contains the narrative structure, scene system, normalized
-highlight engine, timing plan, and voiceover source. It deliberately excludes
-all client recordings, report screenshots, credentials, rendered videos, and
-generated audio.
+1. **Client Data Preparation Guide** — a 3:25 operational walkthrough showing
+   how to prepare secure NetSuite and Oracle NSPB inputs.
+2. **Customer Assessment Overview** — a 2:18 commercial explanation of what
+   BPC analyzes, what the assessment produces, and when clients should use it.
 
-## What changed in V2
+The split is intentional. The client guide can be paused and followed step by
+step; the overview remains focused on service value and reusable sales content.
 
-The first cut treated the screen recording as the story. V2 treats client
-evidence as supporting material inside a service narrative.
+## Current technical decisions
 
-| Area           | V1 problem                                         | V2 approach                                                                            |
-| -------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Opening        | Began inside product steps                         | Introduces the service, the questions it answers, and the one-business-day target      |
-| Story          | Tool walkthrough                                   | Secure inputs -> evidence analysis -> business impact -> action plan                   |
-| Pace           | Uniform compression                                | Gives client setup steps enough time to follow, then pauses for decisions and evidence |
-| Highlights     | Boxes were positioned against the video canvas     | Boxes use percentages relative to the displayed evidence image                         |
-| Moving screens | Highlights drifted while pages scrolled            | The recording crossfades to an exact frozen frame before a highlight appears           |
-| Security       | Credential screens were difficult to reuse safely  | Token ID and Token Secret receive an opaque redaction before any client-facing render  |
-| Delivery       | Creative layers were mixed into the technical edit | Remotion owns the factual base; Trupper can add avatar, cinematic zoom, and music      |
-
-## Design rules
-
-1. Establish the service and client outcome before showing setup steps.
-2. Keep every factual screen readable long enough to understand why it matters.
-3. Never attach a highlight to a scrolling or scaled source. Freeze first.
-4. Express highlight geometry as percentages of the evidence image, not pixels of
-   the 1920 x 1080 composition.
-5. Keep client setup instructions at a readable pace; accelerate only repetitive navigation.
-6. Redact secrets in the source asset and verify the final rendered frame.
-7. Keep avatar, music, and cinematic zoom optional so they cannot obscure
-   evidence or security controls.
+- NetSuite uses Token-Based Authentication only. OAuth 2.0 Authorization Code
+  Grant remains unchecked.
+- The Access Token is created under Setup -> Users/Roles -> Access Tokens -> New.
+- Consumer Key, Consumer Secret, Token ID, and Token Secret are one-time values
+  and must be transferred through an approved secure channel.
+- The primary NSPB input is a complete Migration backup, not a selected-category
+  Export.
+- Level-zero data for each cube and the latest Activity Report provide deeper
+  usage and performance evidence.
+- Both videos use English narration, 1920 x 1080 output, no subtitles, and no
+  avatar. A later Trupper pass may add music or restrained motion without
+  changing the technical timing or privacy covers.
 
 ## Local setup
 
 ```powershell
 npm install --workspaces=false
-npm run verify:assets --workspaces=false
-npm run dev --workspaces=false
-```
-
-Generate the English narration after installing the small Python dependency:
-
-```powershell
 python -m pip install -r requirements.txt
-python scripts/generate-voiceover.py
+python scripts/generate-split-voiceovers.py
+npm run verify:assets --workspaces=false
+npm run lint --workspaces=false
 ```
 
-Render the 1920 x 1080, 30 fps composition:
+Render both compositions:
 
 ```powershell
 npm run render --workspaces=false
 ```
 
-The current timing is 5,397 frames, approximately 3 minutes. Update
-scene durations in `src/v2/CompositionV2.tsx` only after the narration is final.
+Or render them independently:
+
+```powershell
+npm run render:data-guide --workspaces=false
+npm run render:overview --workspaces=false
+```
+
+## Narration sources
+
+- `data-preparation-guide-script.md`
+- `assessment-overview-script.md`
+
+The corresponding plain-text files in `public/audio` are consumed by the voice
+generation script.
 
 ## Required local evidence
 
-See `public/source/README.md` and `public/stills-v2/README.md`. The verification
-script lists every missing file. These folders are ignored by Git on purpose.
+See `public/stills-v2/README.md` and `public/stills-v4/README.md`. The verification
+script lists every missing file. Client recordings, exact screenshots,
+credentials, generated audio, and rendered videos are intentionally excluded
+from Git.
 
 ## Safe publishing checklist
 
-- Run `npm run verify:assets` locally.
-- Confirm every token or secret is covered by an opaque redaction.
-- Search frames for client names, account IDs, email addresses, and URLs.
-- Do not commit `public/source`, `public/stills-v2`, `render`, or `analysis`.
-- Review `git status` and the staged diff before pushing.
+- Confirm every credential and identifying field is covered by an opaque block.
+- Inspect frames from the final MP4, not only the Remotion preview.
+- Never commit `public/source`, evidence stills, generated audio, `render`, or
+  `analysis`.
 - Rotate or revoke any credential that appeared in an original recording.
-
-## Trupper finishing pass
-
-The base edit intentionally has no subtitles. Recommended optional additions:
-
-- avatar only during the opening and closing;
-- zoom only after the evidence frame has frozen, following the existing focus;
-- instrumental music without vocals, approximately 18-24 dB below narration;
-- no changes to redaction layers or factual screen timing.
-
-The full handoff timing is documented in `timing-plan.md`.

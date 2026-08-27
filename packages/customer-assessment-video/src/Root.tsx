@@ -1,4 +1,10 @@
 import "./index.css";
-import { V2Composition } from "./v2/CompositionV2";
+import { AssessmentOverviewV4Composition } from "./v4/AssessmentOverviewV4";
+import { DataPreparationGuideComposition } from "./v4/DataPreparationGuide";
 
-export const RemotionRoot: React.FC = () => <V2Composition />;
+export const RemotionRoot: React.FC = () => (
+  <>
+    <DataPreparationGuideComposition />
+    <AssessmentOverviewV4Composition />
+  </>
+);

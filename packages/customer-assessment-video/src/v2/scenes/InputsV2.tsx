@@ -5,7 +5,7 @@ import { theme } from "../../theme";
 export const InputsV2: React.FC = () => (
   <V2Shell
     eyebrow="TWO CONTROLLED INPUTS"
-    title="Connect read-only NetSuite evidence with an NSPB export"
+    title="Connect read-only NetSuite evidence with a complete NSPB backup"
   >
     <div
       style={{
@@ -84,11 +84,11 @@ export const InputsV2: React.FC = () => (
           marginTop: 30,
         }}
       >
-        Migration snapshot
+        Full Migration backup
         <br />
         Optional level-zero data
         <br />
-        Activity Report
+        Latest Activity Report
       </div>
     </div>
     <div

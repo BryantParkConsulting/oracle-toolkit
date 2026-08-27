@@ -62,7 +62,7 @@ export const ClosingV2: React.FC = () => {
             letterSpacing: 4,
           }}
         >
-          YOU PROVIDE THE SECURE EXPORTS
+          YOU PROVIDE THE SECURE INPUTS
         </div>
         <div
           style={{
