@@ -7,8 +7,8 @@ Explore your Oracle EPM Planning environment and read/write live data — from C
 Paste this into **Claude Code** and follow the step-by-step wizard:
 
 ```bash
-git clone https://github.com/brunohernangallo/epm-planning-mcp.git
-cd epm-planning-mcp
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
+cd oracle-toolkit/packages/mcp-planning
 npm install
 npm run setup
 ```

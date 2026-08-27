@@ -43,11 +43,11 @@ In PowerShell:
 
 ```powershell
 cd C:\apps
-git clone https://github.com/brunohernangallo/epm-planning-mcp.git
-cd oracle-epm-mcp
-npm.cmd install
-npm.cmd run check
-npm.cmd test
+git clone https://github.com/BryantParkConsulting/oracle-toolkit.git
+cd oracle-toolkit
+npm install
+npm run check
+npm test
 ```
 
 ### 3. Register the MCP in Claude Code
@@ -57,7 +57,7 @@ Start in KB-only mode, without Oracle credentials:
 ```powershell
 claude mcp add --scope user oracle-epm `
   --env ORACLE_EPM_KB_PATH=C:/secure/client/tenant-kb.json `
-  -- node C:/apps/oracle-epm-mcp/src/index.js
+  -- node C:/apps/oracle-toolkit/packages/mcp-planning/src/index.js
 ```
 
 Verify the installation:
