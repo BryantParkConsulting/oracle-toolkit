@@ -1,0 +1,119 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {
+   "key": "w01_hook",
+   "lead": 1.2,
+   "tail": 0.8,
+   "captions": false,
+   "lines": [
+    "Your people are your biggest cost.",
+    "So why are they still planned in a spreadsheet?"
+   ]
+  },
+  {
+   "key": "w02_pain",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "Every hire, raise and bonus lives in a different file.",
+    "Taxes and benefits are calculated by hand.",
+    "And the totals never quite match the budget in Financials."
+   ]
+  },
+  {
+   "key": "w03_promise",
+   "lead": 0.3,
+   "tail": 1.0,
+   "captions": true,
+   "lines": [
+    "Workforce Planning puts your people inside NetSuite Planning.",
+    "Every employee, every cost and every open role, in one model, connected to your P and L."
+   ]
+  },
+  {
+   "key": "w04_value",
+   "lead": 0.3,
+   "tail": 1.0,
+   "captions": true,
+   "lines": [
+    "Salary, payroll taxes and benefits, calculated for every employee, every month.",
+    "New hires planned by department, before anyone is hired.",
+    "And compensation that lands in Financials automatically."
+   ]
+  },
+  {
+   "key": "w05_config",
+   "lead": 0.4,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Here is how it works.",
+    "You set the rules once: tax rates and caps, benefit rates, and the month raises take effect."
+   ]
+  },
+  {
+   "key": "w06_roster",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Your roster comes in from payroll or NetSuite.",
+    "Each employee has a hire date, a salary basis, a pay rate, and how their cost splits across departments."
+   ]
+  },
+  {
+   "key": "w07_newhire",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "To add a hire, open New Hires and pick an open row.",
+    "Enter the job title, the start date and the salary.",
+    "Then run Update Workforce."
+   ]
+  },
+  {
+   "key": "w08_calc",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Planning does the math, month by month, from the start date forward.",
+    "Salary, social security up to its cap, Medicare, the 401k match and bonus."
+   ]
+  },
+  {
+   "key": "w09_fin",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Run Update Financials, and every dollar flows into the P and L.",
+    "Salaries, payroll taxes and benefits, by department and by account."
+   ]
+  },
+  {
+   "key": "w10_review",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "Then review total compensation by department, this year against next.",
+    "One number for the board, and every employee behind it."
+   ]
+  },
+  {
+   "key": "w11_cta",
+   "lead": 0.4,
+   "tail": 3.0,
+   "captions": false,
+   "lines": [
+    "Write to Bryant Park Consulting to plan your workforce in NetSuite Planning.",
+    "And get the most out of your implementation."
+   ]
+  }
+ ]
+}

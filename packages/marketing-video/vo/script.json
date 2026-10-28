@@ -1,0 +1,112 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {
+   "key": "s01_hook",
+   "lead": 1.2,
+   "tail": 0.8,
+   "captions": false,
+   "lines": [
+    "You pay for NetSuite and Planning every month.",
+    "But how much of it does your team actually use?"
+   ]
+  },
+  {
+   "key": "s02_nspb",
+   "lead": 0.4,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "In one Planning application we reviewed, four people used it in six months.",
+    "Seventeen of one hundred fifty-five business rules ran.",
+    "And not one of its one hundred seventy-two forms was used to enter data."
+   ]
+  },
+  {
+   "key": "s03_ns",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "In a NetSuite account, twenty-one of thirty-seven modules were in use.",
+    "Ninety-three accounts never had a single entry."
+   ]
+  },
+  {
+   "key": "s04_promise",
+   "lead": 0.3,
+   "tail": 1.0,
+   "captions": true,
+   "lines": [
+    "Bryant Park Consulting reads your system, not opinions.",
+    "We assess NetSuite and NetSuite Planning, and show you where you stand and what to fix first."
+   ]
+  },
+  {
+   "key": "s05_how",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "For NetSuite, all we need is a read-only connection.",
+    "For Planning, an application snapshot and six months of audit history.",
+    "From that, we build a report your finance team can act on."
+   ]
+  },
+  {
+   "key": "s06_ns_doc",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "You see what the system says about your business.",
+    "Every module, with evidence: in use, partly used, or not used at all.",
+    "Budgets built outside and loaded back in.",
+    "And the systems already connected around NetSuite, so nothing new duplicates them."
+   ]
+  },
+  {
+   "key": "s07_nspb_doc",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "For Planning, you see which models are active and which have gone quiet.",
+    "Here, Workforce had been dormant for more than three months.",
+    "And every data change came through Smart View, so the forms built for budgeting were bypassed."
+   ]
+  },
+  {
+   "key": "s08_recs",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "Every recommendation is tied to a number from your own system.",
+    "Clean up unused accounts before they reach Planning.",
+    "Plan your real seasonality.",
+    "Decide what to keep, and what to retire."
+   ]
+  },
+  {
+   "key": "s09_get",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "You get a written report, a walkthrough with your team, and a prioritized list of next steps."
+   ]
+  },
+  {
+   "key": "s10_cta",
+   "lead": 0.4,
+   "tail": 3.0,
+   "captions": false,
+   "lines": [
+    "Write to Bryant Park Consulting to request your assessment.",
+    "And get the most out of your implementation."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,84 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {
+   "key": "m01_hook",
+   "lead": 1.0,
+   "tail": 0.7,
+   "captions": false,
+   "lines": [
+    "Your Planning application runs your budget.",
+    "But who runs your Planning application?"
+   ]
+  },
+  {
+   "key": "m02_pain",
+   "lead": 0.3,
+   "tail": 0.7,
+   "captions": true,
+   "lines": [
+    "The admin who built it moved on.",
+    "Close week comes, a rule fails, and the fix waits in a queue with strangers."
+   ]
+  },
+  {
+   "key": "m03_promise",
+   "lead": 0.3,
+   "tail": 0.9,
+   "captions": true,
+   "lines": [
+    "Bryant Park Consulting Managed Services is a team that already knows your build."
+   ]
+  },
+  {
+   "key": "m04_what",
+   "lead": 0.3,
+   "tail": 0.7,
+   "captions": true,
+   "lines": [
+    "Administration, monthly-close support, and enhancements.",
+    "From the consultants who implemented your environment."
+   ]
+  },
+  {
+   "key": "m05_channel",
+   "lead": 0.3,
+   "tail": 0.7,
+   "captions": true,
+   "lines": [
+    "Requests go to your own Slack channel.",
+    "A named team picks them up by severity, and your whole team sees everything."
+   ]
+  },
+  {
+   "key": "m06_hours",
+   "lead": 0.3,
+   "tail": 0.7,
+   "captions": true,
+   "lines": [
+    "You reserve a monthly block of hours.",
+    "Unused hours roll over, and your balance is posted every week, so nobody has to ask."
+   ]
+  },
+  {
+   "key": "m07_hub",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "You also get the Customer Hub: your environment documented, product guides, and an AI that answers from them."
+   ]
+  },
+  {
+   "key": "m08_cta",
+   "lead": 0.4,
+   "tail": 3.0,
+   "captions": false,
+   "lines": [
+    "Write to Bryant Park Consulting.",
+    "And keep your platform running."
+   ]
+  }
+ ]
+}
