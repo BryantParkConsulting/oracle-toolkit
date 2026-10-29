@@ -221,7 +221,7 @@ export const FormShell: React.FC<{title: string; pov: string[]; tabs: string[]; 
       <span style={{fontWeight: 500}}>NetSuite Planning and Budgeting</span>
     </div>
     <div style={{height: 84, background: '#3A6B6E', display: 'flex', alignItems: 'center', padding: '0 60px', gap: 70, color: 'rgba(255,255,255,0.85)', fontSize: 34}}>
-      {['Revenue and Gross Margin', 'Workforce', 'OpEx', 'Rules', 'Dashboards', 'Reports'].map((t) => (
+      {['Revenue and Gross Margin', 'Workforce', 'OpEx', 'Financials', 'Rules', 'Dashboards', 'Reports'].map((t) => (
         <span key={t} style={{fontWeight: t === module ? 700 : 500, color: t === module ? 'white' : undefined, borderBottom: t === module ? '5px solid white' : undefined, paddingBottom: 8}}>{t}</span>
       ))}
     </div>
