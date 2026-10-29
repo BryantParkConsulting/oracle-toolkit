@@ -36,5 +36,6 @@ if ($NsPdf -and $PbPdf) { python -X utf8 scripts\pdf-pages.py $NsPdf $PbPdf }
 $env:PYTHONIOENCODING = 'utf-8'
 python -X utf8 vo\tts.py script.json '' timing.json
 python -X utf8 vo\tts.py workforce.json wf timing-wf.json
+python -X utf8 vo\tts.py revenue.json rv timing-rv.json
 if (Test-Path vo\ms.json) { python -X utf8 vo\tts.py ms.json ms timing-ms.json; python -X utf8 vo\ms_music.py }
 Write-Host 'Ready: npm run studio  |  npx remotion render src/index.ts <Composition> out/<name>.mp4 --concurrency=2 --crf=18'

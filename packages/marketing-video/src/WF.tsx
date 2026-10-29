@@ -214,7 +214,7 @@ const S04: React.FC = () => {
 };
 
 // ======================= shared NSPB-style form chrome (rebuilt, BPC-neutral) =======================
-const FormShell: React.FC<{title: string; pov: string[]; tabs: string[]; active: number; width?: number; children: React.ReactNode}> = ({title, pov, tabs, active, width = 2600, children}) => (
+export const FormShell: React.FC<{title: string; pov: string[]; tabs: string[]; active: number; width?: number; module?: string; children: React.ReactNode}> = ({title, pov, tabs, active, width = 2600, module = 'Workforce', children}) => (
   <div style={{width, background: '#FFFFFF', borderRadius: 30, overflow: 'hidden', fontFamily: FONT, color: C.ink, boxShadow: '0 40px 100px rgba(0,0,0,0.35)'}}>
     <div style={{height: 96, background: '#2C2A28', display: 'flex', alignItems: 'center', padding: '0 46px', gap: 30, color: 'white', fontSize: 38}}>
       <div style={{width: 46, display: 'flex', flexDirection: 'column', gap: 8}}>{[0, 1, 2].map((i) => <div key={i} style={{height: 5, background: 'white', borderRadius: 3}} />)}</div>
@@ -222,7 +222,7 @@ const FormShell: React.FC<{title: string; pov: string[]; tabs: string[]; active:
     </div>
     <div style={{height: 84, background: '#3A6B6E', display: 'flex', alignItems: 'center', padding: '0 60px', gap: 70, color: 'rgba(255,255,255,0.85)', fontSize: 34}}>
       {['Revenue and Gross Margin', 'Workforce', 'OpEx', 'Rules', 'Dashboards', 'Reports'].map((t) => (
-        <span key={t} style={{fontWeight: t === 'Workforce' ? 700 : 500, color: t === 'Workforce' ? 'white' : undefined, borderBottom: t === 'Workforce' ? '5px solid white' : undefined, paddingBottom: 8}}>{t}</span>
+        <span key={t} style={{fontWeight: t === module ? 700 : 500, color: t === module ? 'white' : undefined, borderBottom: t === module ? '5px solid white' : undefined, paddingBottom: 8}}>{t}</span>
       ))}
     </div>
     <div style={{padding: '40px 60px 0'}}>
@@ -405,7 +405,7 @@ const NewHireForm: React.FC<{local: number; s: number[]; menu: number; click: nu
     </FormShell>
   );
 };
-const Cursor: React.FC<{x: number; y: number; press: number}> = ({x, y, press}) => (
+export const Cursor: React.FC<{x: number; y: number; press: number}> = ({x, y, press}) => (
   <div style={{position: 'absolute', left: x, top: y, width: 0, height: 0}}>
     {press > 0 && <div style={{position: 'absolute', left: -60 * press, top: -60 * press, width: 120 * press, height: 120 * press, borderRadius: '50%', border: `4px solid ${C.gold}`, opacity: 1 - press}} />}
     <svg width={46} height={56} viewBox="0 0 23 28" style={{position: 'absolute', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))'}}>

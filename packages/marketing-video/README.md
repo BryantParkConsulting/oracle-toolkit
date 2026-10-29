@@ -8,6 +8,7 @@ Managed Services video. One Remotion project, one motion system, one voice pipel
 |---|---|---|
 | `AssessmentsV2` | `src/V2.tsx` | NetSuite + NSPB assessments — sell first, then explain (1:51) |
 | `Workforce` | `src/WF.tsx` | Workforce Planning — why, then how: assumptions → roster → new hire → math → P&L (1:50) |
+| `Revenue` | `src/RV.tsx` | Revenue forecasting — 30 s of marketing, then how: POV → input sheet → new stream → monthly spread → units × price → by project / department / category → vs budget (2:13) |
 | `ManagedServices` | `src/MS.tsx` | Managed Services, calmer cut with a synthesized ambient bed |
 | `Assessments` | `src/Video.tsx` | v1 (camera over PDF pages) — kept as the "not WOW" reference |
 
