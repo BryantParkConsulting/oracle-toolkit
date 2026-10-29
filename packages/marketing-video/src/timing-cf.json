@@ -1,0 +1,226 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "c01_hook",
+   "duration": 6.434,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Do you know how much cash you will have in six months?",
+     "start": 1.2,
+     "end": 3.672
+    },
+    {
+     "text": "Not the profit. The cash.",
+     "start": 4.022,
+     "end": 5.635
+    }
+   ]
+  },
+  {
+   "key": "c02_pain",
+   "duration": 8.118,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Most teams forecast the P and L, and then guess the balance sheet.",
+     "start": 0.3,
+     "end": 3.946
+    },
+    {
+     "text": "Cash comes last, from a spreadsheet nobody trusts.",
+     "start": 4.296,
+     "end": 7.318
+    }
+   ]
+  },
+  {
+   "key": "c03_promise",
+   "duration": 8.924,
+   "captions": true,
+   "lines": [
+    {
+     "text": "NetSuite Planning ties the three statements together.",
+     "start": 0.3,
+     "end": 3.175
+    },
+    {
+     "text": "Every revenue and expense line becomes a cash forecast, automatically.",
+     "start": 3.525,
+     "end": 7.924
+    }
+   ]
+  },
+  {
+   "key": "c04_value",
+   "duration": 6.658,
+   "captions": true,
+   "lines": [
+    {
+     "text": "See your cash position month by month.",
+     "start": 0.3,
+     "end": 2.303
+    },
+    {
+     "text": "Spot a gap before it happens, and test what moves it.",
+     "start": 2.653,
+     "end": 5.658
+    }
+   ]
+  },
+  {
+   "key": "c05_nav",
+   "duration": 5.824,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Here is how it works.",
+     "start": 0.4,
+     "end": 1.653
+    },
+    {
+     "text": "Open Financials, and go to the balance sheet drivers.",
+     "start": 2.003,
+     "end": 5.224
+    }
+   ]
+  },
+  {
+   "key": "c06_drivers",
+   "duration": 10.585,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Set how fast customers pay you, how fast you pay suppliers, and how long inventory sits.",
+     "start": 0.3,
+     "end": 6.039
+    },
+    {
+     "text": "Days sales outstanding, days payable, and days in inventory.",
+     "start": 6.389,
+     "end": 9.985
+    }
+   ]
+  },
+  {
+   "key": "c07_calc",
+   "duration": 7.883,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Planning turns those days into receivables, payables and inventory.",
+     "start": 0.3,
+     "end": 4.416
+    },
+    {
+     "text": "Every month, straight from your revenue and costs.",
+     "start": 4.766,
+     "end": 7.283
+    }
+   ]
+  },
+  {
+   "key": "c08_accounts",
+   "duration": 7.594,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Then enter what does not come from the P and L.",
+     "start": 0.3,
+     "end": 2.814
+    },
+    {
+     "text": "Opening balances by bank account, debt, and capital spending.",
+     "start": 3.164,
+     "end": 6.994
+    }
+   ]
+  },
+  {
+   "key": "c09_cashflow",
+   "duration": 8.278,
+   "captions": true,
+   "lines": [
+    {
+     "text": "The cash flow statement builds itself: operating, investing and financing.",
+     "start": 0.3,
+     "end": 5.133
+    },
+    {
+     "text": "And ending cash lands on the balance sheet.",
+     "start": 5.483,
+     "end": 7.678
+    }
+   ]
+  },
+  {
+   "key": "c10_liquidity",
+   "duration": 8.54,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Now look at liquidity: ending cash by month, against your minimum.",
+     "start": 0.3,
+     "end": 4.275
+    },
+    {
+     "text": "If a month dips below the line, you see it now, not then.",
+     "start": 4.625,
+     "end": 7.94
+    }
+   ]
+  },
+  {
+   "key": "c11_whatif",
+   "duration": 5.359,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Change one driver: collect ten days faster.",
+     "start": 0.3,
+     "end": 3.062
+    },
+    {
+     "text": "And watch the gap close.",
+     "start": 3.412,
+     "end": 4.759
+    }
+   ]
+  },
+  {
+   "key": "c12_compare",
+   "duration": 7.812,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Then compare the forecast with the plan, or with last year, side by side.",
+     "start": 0.3,
+     "end": 4.616
+    },
+    {
+     "text": "One model, from revenue to cash.",
+     "start": 4.966,
+     "end": 7.012
+    }
+   ]
+  },
+  {
+   "key": "c13_cta",
+   "duration": 10.245,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting to forecast cash in NetSuite Planning.",
+     "start": 0.4,
+     "end": 4.693
+    },
+    {
+     "text": "And get the most out of your implementation.",
+     "start": 5.043,
+     "end": 7.245
+    }
+   ]
+  }
+ ]
+}

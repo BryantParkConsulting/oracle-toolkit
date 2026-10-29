@@ -1,0 +1,131 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "m01_hook",
+   "duration": 6.493,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Your Planning application runs your budget.",
+     "start": 1.0,
+     "end": 3.449
+    },
+    {
+     "text": "But who runs your Planning application?",
+     "start": 3.799,
+     "end": 5.793
+    }
+   ]
+  },
+  {
+   "key": "m02_pain",
+   "duration": 7.561,
+   "captions": true,
+   "lines": [
+    {
+     "text": "The admin who built it moved on.",
+     "start": 0.3,
+     "end": 2.031
+    },
+    {
+     "text": "Close week comes, a rule fails, and the fix waits in a queue with strangers.",
+     "start": 2.381,
+     "end": 6.861
+    }
+   ]
+  },
+  {
+   "key": "m03_promise",
+   "duration": 6.021,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Bryant Park Consulting Managed Services is a team that already knows your build.",
+     "start": 0.3,
+     "end": 5.121
+    }
+   ]
+  },
+  {
+   "key": "m04_what",
+   "duration": 7.728,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Administration, monthly-close support, and enhancements.",
+     "start": 0.3,
+     "end": 3.735
+    },
+    {
+     "text": "From the consultants who implemented your environment.",
+     "start": 4.085,
+     "end": 7.028
+    }
+   ]
+  },
+  {
+   "key": "m05_channel",
+   "duration": 7.587,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Requests go to your own Slack channel.",
+     "start": 0.3,
+     "end": 2.247
+    },
+    {
+     "text": "A named team picks them up by severity, and your whole team sees everything.",
+     "start": 2.597,
+     "end": 6.887
+    }
+   ]
+  },
+  {
+   "key": "m06_hours",
+   "duration": 8.852,
+   "captions": true,
+   "lines": [
+    {
+     "text": "You reserve a monthly block of hours.",
+     "start": 0.3,
+     "end": 2.404
+    },
+    {
+     "text": "Unused hours roll over, and your balance is posted every week, so nobody has to ask.",
+     "start": 2.754,
+     "end": 8.152
+    }
+   ]
+  },
+  {
+   "key": "m07_hub",
+   "duration": 7.842,
+   "captions": true,
+   "lines": [
+    {
+     "text": "You also get the Customer Hub: your environment documented, product guides, and an AI that answers from them.",
+     "start": 0.3,
+     "end": 7.042
+    }
+   ]
+  },
+  {
+   "key": "m08_cta",
+   "duration": 7.106,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting.",
+     "start": 0.4,
+     "end": 2.274
+    },
+    {
+     "text": "And keep your platform running.",
+     "start": 2.624,
+     "end": 4.106
+    }
+   ]
+  }
+ ]
+}

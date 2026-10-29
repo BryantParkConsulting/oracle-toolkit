@@ -1,0 +1,9 @@
+# Heavy or third-party assets — rebuilt by scripts/setup.ps1, never committed
+node_modules/
+out/
+models/
+.cache/
+public/audio/
+public/sfx/
+public/pages/
+public/vo/

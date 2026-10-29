@@ -1,0 +1,207 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "w01_hook",
+   "duration": 6.291,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Your people are your biggest cost.",
+     "start": 1.2,
+     "end": 2.933
+    },
+    {
+     "text": "So why are they still planned in a spreadsheet?",
+     "start": 3.283,
+     "end": 5.491
+    }
+   ]
+  },
+  {
+   "key": "w02_pain",
+   "duration": 11.177,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Every hire, raise and bonus lives in a different file.",
+     "start": 0.3,
+     "end": 3.552
+    },
+    {
+     "text": "Taxes and benefits are calculated by hand.",
+     "start": 3.902,
+     "end": 6.635
+    },
+    {
+     "text": "And the totals never quite match the budget in Financials.",
+     "start": 6.985,
+     "end": 10.377
+    }
+   ]
+  },
+  {
+   "key": "w03_promise",
+   "duration": 10.645,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Workforce Planning puts your people inside NetSuite Planning.",
+     "start": 0.3,
+     "end": 3.727
+    },
+    {
+     "text": "Every employee, every cost and every open role, in one model, connected to your P and L.",
+     "start": 4.077,
+     "end": 9.645
+    }
+   ]
+  },
+  {
+   "key": "w04_value",
+   "duration": 14.442,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Salary, payroll taxes and benefits, calculated for every employee, every month.",
+     "start": 0.3,
+     "end": 5.573
+    },
+    {
+     "text": "New hires planned by department, before anyone is hired.",
+     "start": 5.923,
+     "end": 9.468
+    },
+    {
+     "text": "And compensation that lands in Financials automatically.",
+     "start": 9.818,
+     "end": 13.442
+    }
+   ]
+  },
+  {
+   "key": "w05_config",
+   "duration": 8.171,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Here is how it works.",
+     "start": 0.4,
+     "end": 1.653
+    },
+    {
+     "text": "You set the rules once: tax rates and caps, benefit rates, and the month raises take effect.",
+     "start": 2.003,
+     "end": 7.571
+    }
+   ]
+  },
+  {
+   "key": "w06_roster",
+   "duration": 10.547,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Your roster comes in from payroll or NetSuite.",
+     "start": 0.3,
+     "end": 2.877
+    },
+    {
+     "text": "Each employee has a hire date, a salary basis, a pay rate, and how their cost splits across departments.",
+     "start": 3.227,
+     "end": 9.947
+    }
+   ]
+  },
+  {
+   "key": "w07_newhire",
+   "duration": 9.465,
+   "captions": true,
+   "lines": [
+    {
+     "text": "To add a hire, open New Hires and pick an open row.",
+     "start": 0.3,
+     "end": 3.564
+    },
+    {
+     "text": "Enter the job title, the start date and the salary.",
+     "start": 3.914,
+     "end": 6.861
+    },
+    {
+     "text": "Then run Update Workforce.",
+     "start": 7.211,
+     "end": 8.865
+    }
+   ]
+  },
+  {
+   "key": "w08_calc",
+   "duration": 10.431,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Planning does the math, month by month, from the start date forward.",
+     "start": 0.3,
+     "end": 3.87
+    },
+    {
+     "text": "Salary, social security up to its cap, Medicare, the 401k match and bonus.",
+     "start": 4.22,
+     "end": 9.831
+    }
+   ]
+  },
+  {
+   "key": "w09_fin",
+   "duration": 9.743,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Run Update Financials, and every dollar flows into the P and L.",
+     "start": 0.3,
+     "end": 4.358
+    },
+    {
+     "text": "Salaries, payroll taxes and benefits, by department and by account.",
+     "start": 4.708,
+     "end": 9.143
+    }
+   ]
+  },
+  {
+   "key": "w10_review",
+   "duration": 8.83,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Then review total compensation by department, this year against next.",
+     "start": 0.3,
+     "end": 4.566
+    },
+    {
+     "text": "One number for the board, and every employee behind it.",
+     "start": 4.916,
+     "end": 8.03
+    }
+   ]
+  },
+  {
+   "key": "w11_cta",
+   "duration": 10.318,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting to plan your workforce in NetSuite Planning.",
+     "start": 0.4,
+     "end": 4.765
+    },
+    {
+     "text": "And get the most out of your implementation.",
+     "start": 5.115,
+     "end": 7.318
+    }
+   ]
+  }
+ ]
+}

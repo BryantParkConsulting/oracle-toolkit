@@ -1,0 +1,167 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {
+   "key": "r01_hook",
+   "lead": 1.2,
+   "tail": 0.8,
+   "captions": false,
+   "lines": [
+    "A new product launches next quarter.",
+    "How long until it shows up in your forecast?"
+   ]
+  },
+  {
+   "key": "r02_pain",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "In most teams, a new revenue stream means a new tab, a new file and a week of rework.",
+    "And nobody can say how it splits by project or by department."
+   ]
+  },
+  {
+   "key": "r03_promise",
+   "lead": 0.3,
+   "tail": 1.0,
+   "captions": true,
+   "lines": [
+    "In NetSuite Planning, revenue lives in one model.",
+    "Add a stream once, and every view of your forecast picks it up."
+   ]
+  },
+  {
+   "key": "r03b_value",
+   "lead": 0.3,
+   "tail": 1.0,
+   "captions": true,
+   "lines": [
+    "Forecast by amount, or by units and price.",
+    "Compare scenarios and versions, and report on any dimension."
+   ]
+  },
+  {
+   "key": "r04a_nav",
+   "lead": 0.4,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Here is how it works.",
+    "From the home page, open Revenue and Gross Margin.",
+    "Then set your point of view: the forecast scenario, the working version and the currency."
+   ]
+  },
+  {
+   "key": "r04_input",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "The Revenue Input Sheet has rows by project, department and class, and columns by forecast year."
+   ]
+  },
+  {
+   "key": "r05_add",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "To add a new stream, pick the class for it, and the project and department it belongs to.",
+    "Enter the amounts by year, and save."
+   ]
+  },
+  {
+   "key": "r05b_spread",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Need it by month?",
+    "Enter the annual amount, and Planning spreads it across the months using your seasonality.",
+    "Or type each month directly."
+   ]
+  },
+  {
+   "key": "r05c_drivers",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "For product lines, forecast units and price instead.",
+    "Planning multiplies them, and revenue is calculated for you."
+   ]
+  },
+  {
+   "key": "r06_calc",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "On save, Planning runs the rules for you.",
+    "Currency is converted, and the stream rolls up to total revenue, in seconds."
+   ]
+  },
+  {
+   "key": "r07_project",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Now look at the same number by project.",
+    "Every project shows its share of revenue, year by year."
+   ]
+  },
+  {
+   "key": "r08_dept",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Switch the view to department.",
+    "Same total, now split by the teams that own it."
+   ]
+  },
+  {
+   "key": "r09_category",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "And by category: product, services, and the new stream you just added.",
+    "One model, three views, and they always tie out."
+   ]
+  },
+  {
+   "key": "r09b_compare",
+   "lead": 0.3,
+   "tail": 0.6,
+   "captions": true,
+   "lines": [
+    "Then compare the forecast against the budget, side by side.",
+    "You see exactly where the new stream moves the number."
+   ]
+  },
+  {
+   "key": "r10_flow",
+   "lead": 0.3,
+   "tail": 0.8,
+   "captions": true,
+   "lines": [
+    "From there, revenue flows into the P and L and the forecast reports.",
+    "No copy and paste, no second version of the truth."
+   ]
+  },
+  {
+   "key": "r11_cta",
+   "lead": 0.4,
+   "tail": 3.0,
+   "captions": false,
+   "lines": [
+    "Write to Bryant Park Consulting to forecast revenue in NetSuite Planning.",
+    "And get the most out of your implementation."
+   ]
+  }
+ ]
+}

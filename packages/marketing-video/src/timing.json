@@ -1,0 +1,205 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "s01_hook",
+   "duration": 7.38,
+   "captions": false,
+   "lines": [
+    {
+     "text": "You pay for NetSuite and Planning every month.",
+     "start": 1.2,
+     "end": 3.824
+    },
+    {
+     "text": "But how much of it does your team actually use?",
+     "start": 4.174,
+     "end": 6.58
+    }
+   ]
+  },
+  {
+   "key": "s02_nspb",
+   "duration": 13.988,
+   "captions": true,
+   "lines": [
+    {
+     "text": "In one Planning application we reviewed, four people used it in six months.",
+     "start": 0.4,
+     "end": 4.816
+    },
+    {
+     "text": "Seventeen of one hundred fifty-five business rules ran.",
+     "start": 5.166,
+     "end": 8.494
+    },
+    {
+     "text": "And not one of its one hundred seventy-two forms was used to enter data.",
+     "start": 8.844,
+     "end": 13.188
+    }
+   ]
+  },
+  {
+   "key": "s03_ns",
+   "duration": 8.204,
+   "captions": true,
+   "lines": [
+    {
+     "text": "In a NetSuite account, twenty-one of thirty-seven modules were in use.",
+     "start": 0.3,
+     "end": 4.332
+    },
+    {
+     "text": "Ninety-three accounts never had a single entry.",
+     "start": 4.682,
+     "end": 7.404
+    }
+   ]
+  },
+  {
+   "key": "s04_promise",
+   "duration": 10.155,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Bryant Park Consulting reads your system, not opinions.",
+     "start": 0.3,
+     "end": 3.712
+    },
+    {
+     "text": "We assess NetSuite and NetSuite Planning, and show you where you stand and what to fix first.",
+     "start": 4.062,
+     "end": 9.155
+    }
+   ]
+  },
+  {
+   "key": "s05_how",
+   "duration": 12.519,
+   "captions": true,
+   "lines": [
+    {
+     "text": "For NetSuite, all we need is a read-only connection.",
+     "start": 0.3,
+     "end": 3.497
+    },
+    {
+     "text": "For Planning, an application snapshot and six months of audit history.",
+     "start": 3.847,
+     "end": 8.088
+    },
+    {
+     "text": "From that, we build a report your finance team can act on.",
+     "start": 8.438,
+     "end": 11.719
+    }
+   ]
+  },
+  {
+   "key": "s06_ns_doc",
+   "duration": 15.988,
+   "captions": true,
+   "lines": [
+    {
+     "text": "You see what the system says about your business.",
+     "start": 0.3,
+     "end": 2.621
+    },
+    {
+     "text": "Every module, with evidence: in use, partly used, or not used at all.",
+     "start": 2.971,
+     "end": 7.446
+    },
+    {
+     "text": "Budgets built outside and loaded back in.",
+     "start": 7.796,
+     "end": 10.34
+    },
+    {
+     "text": "And the systems already connected around NetSuite, so nothing new duplicates them.",
+     "start": 10.69,
+     "end": 15.388
+    }
+   ]
+  },
+  {
+   "key": "s07_nspb_doc",
+   "duration": 13.991,
+   "captions": true,
+   "lines": [
+    {
+     "text": "For Planning, you see which models are active and which have gone quiet.",
+     "start": 0.3,
+     "end": 4.179
+    },
+    {
+     "text": "Here, Workforce had been dormant for more than three months.",
+     "start": 4.529,
+     "end": 7.601
+    },
+    {
+     "text": "And every data change came through Smart View, so the forms built for budgeting were bypassed.",
+     "start": 7.951,
+     "end": 13.391
+    }
+   ]
+  },
+  {
+   "key": "s08_recs",
+   "duration": 12.52,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Every recommendation is tied to a number from your own system.",
+     "start": 0.3,
+     "end": 3.844
+    },
+    {
+     "text": "Clean up unused accounts before they reach Planning.",
+     "start": 4.194,
+     "end": 7.072
+    },
+    {
+     "text": "Plan your real seasonality.",
+     "start": 7.422,
+     "end": 9.079
+    },
+    {
+     "text": "Decide what to keep, and what to retire.",
+     "start": 9.429,
+     "end": 11.72
+    }
+   ]
+  },
+  {
+   "key": "s09_get",
+   "duration": 6.238,
+   "captions": true,
+   "lines": [
+    {
+     "text": "You get a written report, a walkthrough with your team, and a prioritized list of next steps.",
+     "start": 0.3,
+     "end": 5.438
+    }
+   ]
+  },
+  {
+   "key": "s10_cta",
+   "duration": 9.387,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting to request your assessment.",
+     "start": 0.4,
+     "end": 3.835
+    },
+    {
+     "text": "And get the most out of your implementation.",
+     "start": 4.185,
+     "end": 6.387
+    }
+   ]
+  }
+ ]
+}

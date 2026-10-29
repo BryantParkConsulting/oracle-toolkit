@@ -1,0 +1,45 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {"key": "c01_hook", "lead": 1.2, "tail": 0.8, "captions": false, "lines": [
+   "Do you know how much cash you will have in six months?",
+   "Not the profit. The cash."]},
+  {"key": "c02_pain", "lead": 0.3, "tail": 0.8, "captions": true, "lines": [
+   "Most teams forecast the P and L, and then guess the balance sheet.",
+   "Cash comes last, from a spreadsheet nobody trusts."]},
+  {"key": "c03_promise", "lead": 0.3, "tail": 1.0, "captions": true, "lines": [
+   "NetSuite Planning ties the three statements together.",
+   "Every revenue and expense line becomes a cash forecast, automatically."]},
+  {"key": "c04_value", "lead": 0.3, "tail": 1.0, "captions": true, "lines": [
+   "See your cash position month by month.",
+   "Spot a gap before it happens, and test what moves it."]},
+  {"key": "c05_nav", "lead": 0.4, "tail": 0.6, "captions": true, "lines": [
+   "Here is how it works.",
+   "Open Financials, and go to the balance sheet drivers."]},
+  {"key": "c06_drivers", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Set how fast customers pay you, how fast you pay suppliers, and how long inventory sits.",
+   "Days sales outstanding, days payable, and days in inventory."]},
+  {"key": "c07_calc", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Planning turns those days into receivables, payables and inventory.",
+   "Every month, straight from your revenue and costs."]},
+  {"key": "c08_accounts", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Then enter what does not come from the P and L.",
+   "Opening balances by bank account, debt, and capital spending."]},
+  {"key": "c09_cashflow", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "The cash flow statement builds itself: operating, investing and financing.",
+   "And ending cash lands on the balance sheet."]},
+  {"key": "c10_liquidity", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Now look at liquidity: ending cash by month, against your minimum.",
+   "If a month dips below the line, you see it now, not then."]},
+  {"key": "c11_whatif", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Change one driver: collect ten days faster.",
+   "And watch the gap close."]},
+  {"key": "c12_compare", "lead": 0.3, "tail": 0.8, "captions": true, "lines": [
+   "Then compare the forecast with the plan, or with last year, side by side.",
+   "One model, from revenue to cash."]},
+  {"key": "c13_cta", "lead": 0.4, "tail": 3.0, "captions": false, "lines": [
+   "Write to Bryant Park Consulting to forecast cash in NetSuite Planning.",
+   "And get the most out of your implementation."]}
+ ]
+}

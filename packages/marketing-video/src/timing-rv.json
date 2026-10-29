@@ -1,0 +1,282 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "r01_hook",
+   "duration": 6.553,
+   "captions": false,
+   "lines": [
+    {
+     "text": "A new product launches next quarter.",
+     "start": 1.2,
+     "end": 3.139
+    },
+    {
+     "text": "How long until it shows up in your forecast?",
+     "start": 3.489,
+     "end": 5.753
+    }
+   ]
+  },
+  {
+   "key": "r02_pain",
+   "duration": 10.559,
+   "captions": true,
+   "lines": [
+    {
+     "text": "In most teams, a new revenue stream means a new tab, a new file and a week of rework.",
+     "start": 0.3,
+     "end": 5.548
+    },
+    {
+     "text": "And nobody can say how it splits by project or by department.",
+     "start": 5.898,
+     "end": 9.759
+    }
+   ]
+  },
+  {
+   "key": "r03_promise",
+   "duration": 7.851,
+   "captions": true,
+   "lines": [
+    {
+     "text": "In NetSuite Planning, revenue lives in one model.",
+     "start": 0.3,
+     "end": 3.178
+    },
+    {
+     "text": "Add a stream once, and every view of your forecast picks it up.",
+     "start": 3.528,
+     "end": 6.851
+    }
+   ]
+  },
+  {
+   "key": "r03b_value",
+   "duration": 8.044,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Forecast by amount, or by units and price.",
+     "start": 0.3,
+     "end": 2.982
+    },
+    {
+     "text": "Compare scenarios and versions, and report on any dimension.",
+     "start": 3.332,
+     "end": 7.044
+    }
+   ]
+  },
+  {
+   "key": "r04a_nav",
+   "duration": 11.221,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Here is how it works.",
+     "start": 0.4,
+     "end": 1.653
+    },
+    {
+     "text": "From the home page, open Revenue and Gross Margin.",
+     "start": 2.003,
+     "end": 5.268
+    },
+    {
+     "text": "Then set your point of view: the forecast scenario, the working version and the currency.",
+     "start": 5.618,
+     "end": 10.621
+    }
+   ]
+  },
+  {
+   "key": "r04_input",
+   "duration": 7.093,
+   "captions": true,
+   "lines": [
+    {
+     "text": "The Revenue Input Sheet has rows by project, department and class, and columns by forecast year.",
+     "start": 0.3,
+     "end": 6.493
+    }
+   ]
+  },
+  {
+   "key": "r05_add",
+   "duration": 8.328,
+   "captions": true,
+   "lines": [
+    {
+     "text": "To add a new stream, pick the class for it, and the project and department it belongs to.",
+     "start": 0.3,
+     "end": 5.333
+    },
+    {
+     "text": "Enter the amounts by year, and save.",
+     "start": 5.683,
+     "end": 7.728
+    }
+   ]
+  },
+  {
+   "key": "r05b_spread",
+   "duration": 9.342,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Need it by month?",
+     "start": 0.3,
+     "end": 1.337
+    },
+    {
+     "text": "Enter the annual amount, and Planning spreads it across the months using your seasonality.",
+     "start": 1.687,
+     "end": 6.707
+    },
+    {
+     "text": "Or type each month directly.",
+     "start": 7.057,
+     "end": 8.742
+    }
+   ]
+  },
+  {
+   "key": "r05c_drivers",
+   "duration": 8.025,
+   "captions": true,
+   "lines": [
+    {
+     "text": "For product lines, forecast units and price instead.",
+     "start": 0.3,
+     "end": 3.529
+    },
+    {
+     "text": "Planning multiplies them, and revenue is calculated for you.",
+     "start": 3.879,
+     "end": 7.425
+    }
+   ]
+  },
+  {
+   "key": "r06_calc",
+   "duration": 8.297,
+   "captions": true,
+   "lines": [
+    {
+     "text": "On save, Planning runs the rules for you.",
+     "start": 0.3,
+     "end": 2.632
+    },
+    {
+     "text": "Currency is converted, and the stream rolls up to total revenue, in seconds.",
+     "start": 2.982,
+     "end": 7.697
+    }
+   ]
+  },
+  {
+   "key": "r07_project",
+   "duration": 6.532,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Now look at the same number by project.",
+     "start": 0.3,
+     "end": 2.464
+    },
+    {
+     "text": "Every project shows its share of revenue, year by year.",
+     "start": 2.814,
+     "end": 5.932
+    }
+   ]
+  },
+  {
+   "key": "r08_dept",
+   "duration": 5.615,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Switch the view to department.",
+     "start": 0.3,
+     "end": 1.864
+    },
+    {
+     "text": "Same total, now split by the teams that own it.",
+     "start": 2.214,
+     "end": 5.015
+    }
+   ]
+  },
+  {
+   "key": "r09_category",
+   "duration": 8.351,
+   "captions": true,
+   "lines": [
+    {
+     "text": "And by category: product, services, and the new stream you just added.",
+     "start": 0.3,
+     "end": 4.441
+    },
+    {
+     "text": "One model, three views, and they always tie out.",
+     "start": 4.79,
+     "end": 7.751
+    }
+   ]
+  },
+  {
+   "key": "r09b_compare",
+   "duration": 7.465,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Then compare the forecast against the budget, side by side.",
+     "start": 0.3,
+     "end": 3.643
+    },
+    {
+     "text": "You see exactly where the new stream moves the number.",
+     "start": 3.993,
+     "end": 6.865
+    }
+   ]
+  },
+  {
+   "key": "r10_flow",
+   "duration": 8.726,
+   "captions": true,
+   "lines": [
+    {
+     "text": "From there, revenue flows into the P and L and the forecast reports.",
+     "start": 0.3,
+     "end": 4.476
+    },
+    {
+     "text": "No copy and paste, no second version of the truth.",
+     "start": 4.826,
+     "end": 7.926
+    }
+   ]
+  },
+  {
+   "key": "r11_cta",
+   "duration": 10.604,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting to forecast revenue in NetSuite Planning.",
+     "start": 0.4,
+     "end": 5.051
+    },
+    {
+     "text": "And get the most out of your implementation.",
+     "start": 5.401,
+     "end": 7.604
+    }
+   ]
+  }
+ ]
+}

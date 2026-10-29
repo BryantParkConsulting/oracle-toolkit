@@ -148,6 +148,7 @@ actually behave, it goes there — that's what stops the next person rediscoveri
 | `forge/` | generates dimensions and forms (ESM) |
 | `engagement/` | engagement hours reporting |
 | `recon/` | NetSuite ↔ NSPB reconciliation — `recon-income-statement.js`, proven at 0.00 on PRA FY26 |
+| `marketing-video/` | **marketing mode** — BPC module/service videos (Remotion + shotcraft + Kokoro). Read its README; skill `skills/marketing-video` |
 
 `apps/nspb-excel-addin/` is the shipped product: Excel add-in (Office.js) + Cloudflare
 Worker, its Firebase docs-site and the Chrome extension. Deploy:

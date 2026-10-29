@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160">
+<rect width="640" height="160" fill="#ffffff"/>
+<path d="M20 128 L72 44 L96 82 L112 60 L156 128 Z" fill="#2E6F73"/>
+<path d="M72 44 L84 64 L72 72 L62 62 Z" fill="#ffffff" opacity="0.85"/>
+<text x="176" y="94" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" letter-spacing="3" fill="#24384A">CRESTLINE</text>
+<text x="179" y="130" font-family="Arial, Helvetica, sans-serif" font-size="25" letter-spacing="6.2" fill="#2E6F73">SPECIALTY PARTNERS</text>
+</svg>
