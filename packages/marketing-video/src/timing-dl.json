@@ -1,0 +1,221 @@
+{
+ "fps": 30,
+ "scenes": [
+  {
+   "key": "d01_hook",
+   "duration": 7.496,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Your forecast is only as good as the data behind it.",
+     "start": 1.2,
+     "end": 4.311
+    },
+    {
+     "text": "And half of it lives outside NetSuite.",
+     "start": 4.661,
+     "end": 6.696
+    }
+   ]
+  },
+  {
+   "key": "d02_pain",
+   "duration": 10.129,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Pipeline in the CRM, headcount in the HR system, drivers in a spreadsheet.",
+     "start": 0.3,
+     "end": 5.565
+    },
+    {
+     "text": "Every month, someone copies and pastes it all into the plan.",
+     "start": 5.915,
+     "end": 9.329
+    }
+   ]
+  },
+  {
+   "key": "d03_promise",
+   "duration": 8.811,
+   "captions": true,
+   "lines": [
+    {
+     "text": "NetSuite Planning brings external data straight into the model.",
+     "start": 0.3,
+     "end": 3.827
+    },
+    {
+     "text": "Load a file, map it once, and let the forecast recalculate.",
+     "start": 4.177,
+     "end": 7.811
+    }
+   ]
+  },
+  {
+   "key": "d04_value",
+   "duration": 6.488,
+   "captions": true,
+   "lines": [
+    {
+     "text": "No retyping. Every load validated.",
+     "start": 0.3,
+     "end": 2.896
+    },
+    {
+     "text": "And a full trail of what came in, and when.",
+     "start": 3.246,
+     "end": 5.488
+    }
+   ]
+  },
+  {
+   "key": "d05_file",
+   "duration": 10.254,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Here is how it works.",
+     "start": 0.4,
+     "end": 1.653
+    },
+    {
+     "text": "Start with a file, for example the pipeline export from your CRM: product, region, month, amount and probability.",
+     "start": 2.003,
+     "end": 9.654
+    }
+   ]
+  },
+  {
+   "key": "d06_open",
+   "duration": 6.71,
+   "captions": true,
+   "lines": [
+    {
+     "text": "In Data Exchange, open the integration for that file.",
+     "start": 0.3,
+     "end": 3.599
+    },
+    {
+     "text": "Pick the file and the period to load.",
+     "start": 3.949,
+     "end": 6.11
+    }
+   ]
+  },
+  {
+   "key": "d07_map",
+   "duration": 9.416,
+   "captions": true,
+   "lines": [
+    {
+     "text": "The first time, map the columns to Planning: products to classes, regions to locations.",
+     "start": 0.3,
+     "end": 5.797
+    },
+    {
+     "text": "After that, the mapping is reused every month.",
+     "start": 6.147,
+     "end": 8.816
+    }
+   ]
+  },
+  {
+   "key": "d08_run",
+   "duration": 7.552,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Run the integration.",
+     "start": 0.3,
+     "end": 1.535
+    },
+    {
+     "text": "Planning imports the file, validates every row, and flags anything it cannot map.",
+     "start": 1.885,
+     "end": 6.952
+    }
+   ]
+  },
+  {
+   "key": "d09_fix",
+   "duration": 4.241,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Add the missing mapping, run it again, and the load is clean.",
+     "start": 0.3,
+     "end": 3.641
+    }
+   ]
+  },
+  {
+   "key": "d10_calc",
+   "duration": 6.874,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Then a rule turns pipeline into forecast.",
+     "start": 0.3,
+     "end": 2.81
+    },
+    {
+     "text": "Amount times probability, by product and by month.",
+     "start": 3.16,
+     "end": 6.274
+    }
+   ]
+  },
+  {
+   "key": "d11_result",
+   "duration": 7.08,
+   "captions": true,
+   "lines": [
+    {
+     "text": "The revenue forecast updates on its own.",
+     "start": 0.3,
+     "end": 2.674
+    },
+    {
+     "text": "And you can see exactly how much of it came from the pipeline.",
+     "start": 3.024,
+     "end": 6.48
+    }
+   ]
+  },
+  {
+   "key": "d12_schedule",
+   "duration": 6.993,
+   "captions": true,
+   "lines": [
+    {
+     "text": "Once it works, schedule it.",
+     "start": 0.3,
+     "end": 1.833
+    },
+    {
+     "text": "The latest data is in the plan every morning, before anyone logs in.",
+     "start": 2.183,
+     "end": 6.193
+    }
+   ]
+  },
+  {
+   "key": "d13_cta",
+   "duration": 10.336,
+   "captions": false,
+   "lines": [
+    {
+     "text": "Write to Bryant Park Consulting to connect your data to NetSuite Planning.",
+     "start": 0.4,
+     "end": 4.783
+    },
+    {
+     "text": "And get the most out of your implementation.",
+     "start": 5.133,
+     "end": 7.336
+    }
+   ]
+  }
+ ]
+}

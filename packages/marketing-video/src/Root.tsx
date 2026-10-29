@@ -5,6 +5,7 @@ import {WorkforceVideo, TOTAL_WF} from './WF';
 import {ManagedServicesVideo, TOTAL_MS} from './MS';
 import {RevenueVideo, TOTAL_RV} from './RV';
 import {CashVideo, TOTAL_CF} from './CF';
+import {DataLoadVideo, TOTAL_DL} from './DL';
 
 export const Root: React.FC = () => (
   <>
@@ -14,5 +15,6 @@ export const Root: React.FC = () => (
     <Composition id="ManagedServices" component={ManagedServicesVideo} durationInFrames={TOTAL_MS} fps={30} width={1920} height={1080} />
     <Composition id="Revenue" component={RevenueVideo} durationInFrames={TOTAL_RV} fps={30} width={1920} height={1080} />
     <Composition id="Cash" component={CashVideo} durationInFrames={TOTAL_CF} fps={30} width={1920} height={1080} />
+    <Composition id="DataUpload" component={DataLoadVideo} durationInFrames={TOTAL_DL} fps={30} width={1920} height={1080} />
   </>
 );

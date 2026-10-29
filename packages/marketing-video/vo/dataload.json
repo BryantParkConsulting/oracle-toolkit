@@ -1,0 +1,44 @@
+{
+ "voice": "af_heart",
+ "speed": 0.97,
+ "scenes": [
+  {"key": "d01_hook", "lead": 1.2, "tail": 0.8, "captions": false, "lines": [
+   "Your forecast is only as good as the data behind it.",
+   "And half of it lives outside NetSuite."]},
+  {"key": "d02_pain", "lead": 0.3, "tail": 0.8, "captions": true, "lines": [
+   "Pipeline in the CRM, headcount in the HR system, drivers in a spreadsheet.",
+   "Every month, someone copies and pastes it all into the plan."]},
+  {"key": "d03_promise", "lead": 0.3, "tail": 1.0, "captions": true, "lines": [
+   "NetSuite Planning brings external data straight into the model.",
+   "Load a file, map it once, and let the forecast recalculate."]},
+  {"key": "d04_value", "lead": 0.3, "tail": 1.0, "captions": true, "lines": [
+   "No retyping. Every load validated.",
+   "And a full trail of what came in, and when."]},
+  {"key": "d05_file", "lead": 0.4, "tail": 0.6, "captions": true, "lines": [
+   "Here is how it works.",
+   "Start with a file, for example the pipeline export from your CRM: product, region, month, amount and probability."]},
+  {"key": "d06_open", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "In Data Exchange, open the integration for that file.",
+   "Pick the file and the period to load."]},
+  {"key": "d07_map", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "The first time, map the columns to Planning: products to classes, regions to locations.",
+   "After that, the mapping is reused every month."]},
+  {"key": "d08_run", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Run the integration.",
+   "Planning imports the file, validates every row, and flags anything it cannot map."]},
+  {"key": "d09_fix", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Add the missing mapping, run it again, and the load is clean."]},
+  {"key": "d10_calc", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "Then a rule turns pipeline into forecast.",
+   "Amount times probability, by product and by month."]},
+  {"key": "d11_result", "lead": 0.3, "tail": 0.6, "captions": true, "lines": [
+   "The revenue forecast updates on its own.",
+   "And you can see exactly how much of it came from the pipeline."]},
+  {"key": "d12_schedule", "lead": 0.3, "tail": 0.8, "captions": true, "lines": [
+   "Once it works, schedule it.",
+   "The latest data is in the plan every morning, before anyone logs in."]},
+  {"key": "d13_cta", "lead": 0.4, "tail": 3.0, "captions": false, "lines": [
+   "Write to Bryant Park Consulting to connect your data to NetSuite Planning.",
+   "And get the most out of your implementation."]}
+ ]
+}
